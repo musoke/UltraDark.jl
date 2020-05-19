@@ -1,6 +1,14 @@
 using JultraDark
-using Test
+using Test, Documenter
 
-@testset "JultraDark.jl" begin
-    # Write your own tests here.
+doctest(JultraDark)
+
+@testset "grids.jl" begin
+    grids = Grids(zeros(Complex{Float64}, 16, 16, 16), 1)
+
+    @test typeof(grids) == Grids
+end
+
+@testset "full sim" begin
+    @test simulate() == nothing
 end
