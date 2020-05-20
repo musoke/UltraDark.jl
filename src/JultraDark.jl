@@ -38,14 +38,16 @@ function actual_timestep(max_timestep, time_interval)
     time_interval / ceil(time_interval / max_timestep)
 end
 
-function evolve_to!(t_start, t_end, grids, output_config)
+function evolve_to!(t_start, t_end, grids, output_config, a)
 
-    half_step = true
+    @assert t_start < t_end
 
     t = t_start
     Δt = actual_timestep(max_timestep(grids), t_end - t_start)
 
     steps = Int((t_end - t_start)/Δt)
+
+    half_step = true
 
     for step in 1:steps
         if half_step
@@ -56,10 +58,10 @@ function evolve_to!(t_start, t_end, grids, output_config)
             psi_whole_step!(Δt, grids)
             t += Δt
         end
-        a = 1  # TODO a
-        phi_whole_step!(Δt, grids, a=a)
 
-        output_summary(grids, output_config, t)
+        phi_whole_step!(Δt, grids, a=a(t))
+
+        output_summary(grids, output_config, t, a(t))
     end
 
     psi_half_step!(Δt, grids)
@@ -73,12 +75,14 @@ function simulate()
 
     grids = Grids(zeros(Complex{Float64}, resol, resol, resol), 1)
 
-    output_times = 0:10
+    a = t -> 1
 
-    t_begin = output_times[1]
+    output_times = 0:10
 
     output_config = OutputConfig("output")
     mkpath(output_config.directory)
+
+    t_begin = output_times[1]
 
     for (index, t_end) in enumerate(output_times[2:end])
         t_begin = evolve_to!(
@@ -86,6 +90,7 @@ function simulate()
             t_end,
             grids,
             output_config,
+            a,
         )
         output_grids(grids, output_config, index)
     end
