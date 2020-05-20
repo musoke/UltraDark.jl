@@ -45,6 +45,7 @@ function evolve_to!(t_start, t_end, grids, output_config)
         if half_step
             psi_half_step!(Δt, grids)
             t += Δt / 2
+            half_step = false
         else
             psi_whole_step!(Δt, grids)
             t += Δt
