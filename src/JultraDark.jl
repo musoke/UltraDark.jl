@@ -5,6 +5,7 @@ using FFTW
 
 export simulate
 export Grids
+export OutputConfig
 
 include("grids.jl")
 include("output.jl")
@@ -33,15 +34,20 @@ function max_timestep(grids)
     1e-1  # TODO
 end
 
+function actual_timestep(max_timestep, time_interval)
+    time_interval / ceil(time_interval / max_timestep)
+end
+
 function evolve_to!(t_start, t_end, grids, output_config)
 
     half_step = true
 
     t = t_start
-    Δt = max_timestep(grids)
+    Δt = actual_timestep(max_timestep(grids), t_end - t_start)
 
-    step = 0
-    while t < t_end
+    steps = Int((t_end - t_start)/Δt)
+
+    for step in 1:steps
         if half_step
             psi_half_step!(Δt, grids)
             t += Δt / 2
@@ -53,12 +59,11 @@ function evolve_to!(t_start, t_end, grids, output_config)
         a = 1  # TODO a
         phi_whole_step!(Δt, grids, a=a)
 
-        step += 1
-        
-        output_summary(grids, output_config, step)
+        output_summary(grids, output_config, t)
     end
 
     psi_half_step!(Δt, grids)
+    t += Δt / 2
 
     t
 end
