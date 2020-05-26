@@ -57,8 +57,8 @@ function output_grids(grids, output_config, step)
     end
 end
 
-function output_summary(grids, output_config, t, a)
+function output_summary(grids, output_config, t, a, Δt)
     open(joinpath(output_config.directory, "summary.csv"), "a") do file
-        write(file, "$t, $a, $(mean(grids.ρx)), \n")
+        write(file, "$t, $a, $Δt, $(mean(grids.ρx)), \n")
     end
 end

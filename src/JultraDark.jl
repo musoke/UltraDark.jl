@@ -31,8 +31,16 @@ function phi_whole_step!(Δt::Real, grids; a::Real=1.0)
     grids.Φx .= irfft(grids.Φk, size(grids.Φx, 1))
 end
 
-function max_timestep(grids)
-    1e-1  # TODO
+"""
+    max_time_step(grids, a)
+
+Calculate an upper bound on the time step
+"""
+function max_time_step(grids, a)
+    max_time_step_gravity = 2π / maximum(grids.Φx)
+    max_time_step_pressure = 2π * 2 / maximum(grids.k)^2 * a^2  # TODO: cache k_max
+
+    min(max_time_step_gravity, max_time_step_pressure)
 end
 
 """
@@ -91,11 +99,13 @@ function take_steps!(grids, t_start, Δt, n, output_config, a)
 
         phi_whole_step!(Δt, grids, a=a(t))
 
-        output_summary(grids, output_config, t, a(t))
+        output_summary(grids, output_config, t, a(t), Δt)
     end
 
     psi_half_step!(Δt, grids)
     t += Δt / 2
+
+    output_summary(grids, output_config, t, a(t), Δt)
 
     t
 end
@@ -111,7 +121,7 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
 
     while t < t_end
         Δt, n_steps = actual_time_step(
-            max_timestep(grids),
+            max_time_step(grids, config.a(t)),
             t_end - t,
             config.time_step_update_period,
         )
