@@ -12,6 +12,7 @@ end
 @testset "Evolution" begin
     include("evolution.jl")
 end
+
 @testset "full sim" begin
     @test simulate() == nothing
 end

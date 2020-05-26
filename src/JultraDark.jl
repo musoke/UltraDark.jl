@@ -34,22 +34,51 @@ function max_timestep(grids)
     1e-1  # TODO
 end
 
-function actual_timestep(max_timestep, time_interval)
-    time_interval / ceil(time_interval / max_timestep)
+"""
+    actual_time_step(max_timestep::Real, time_interval::Real, n::Integer)
+
+Actual size and number of time steps that should be taken if the maximum 
+is `max_timestep`, no more than `n` steps should be taken, and they should
+fit in `time_interval`.
+
+# Examples
+
+```jldoctest
+julia> using JultraDark: actual_time_step
+
+julia> actual_time_step(0.11, 1, 20)
+(0.1, 10)
+```
+"""
+function actual_time_step(max_timestep, time_interval, n)::Tuple{Real, Integer}
+    if max_timestep * n > time_interval
+        num_steps = ceil(time_interval / max_timestep)
+        time_interval / num_steps, num_steps
+    else
+        max_timestep, n
+    end
 end
 
-function evolve_to!(t_start, t_end, grids, output_config, a)
+"""
+Take `n` steps with time step `Δt`
 
-    @assert t_start < t_end
+# Examples
+
+```jldoctest
+julia> using JultraDark: take_steps!, Grids, OutputConfig
+
+julia> take_steps!(Grids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir()), t->1)
+5.0
+
+```
+"""
+function take_steps!(grids, t_start, Δt, n, output_config, a)
 
     t = t_start
-    Δt = actual_timestep(max_timestep(grids), t_end - t_start)
-
-    steps = Int((t_end - t_start)/Δt)
 
     half_step = true
 
-    for step in 1:steps
+    for step in 1:n
         if half_step
             psi_half_step!(Δt, grids)
             t += Δt / 2
@@ -66,6 +95,25 @@ function evolve_to!(t_start, t_end, grids, output_config, a)
 
     psi_half_step!(Δt, grids)
     t += Δt / 2
+
+    t
+end
+
+"""
+Evolve `grids` forward from `t_start` to `t_end`
+"""
+function evolve_to!(t_start, t_end, grids, output_config, a)
+
+    @assert t_start < t_end
+
+    t = t_start
+
+    max_num_steps = 10  # Steps to take before recalculating step size
+    while t < t_end
+        Δt, n_steps = actual_time_step(max_timestep(grids), t_end - t, max_num_steps)
+
+        t = take_steps!(grids, t, Δt, n_steps, output_config, a)
+    end
 
     t
 end
