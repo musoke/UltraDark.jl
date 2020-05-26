@@ -127,6 +127,7 @@ function simulate(grids::Grids, options::Config.SimulationConfig, output_config:
     mkpath(output_config.directory)
 
     t_begin = output_config.output_times[1]
+    output_grids(grids, output_config, 0)
 
     for (index, t_end) in enumerate(output_config.output_times[2:end])
         t_begin = evolve_to!(
