@@ -5,7 +5,7 @@ using FFTW
 
 export simulate
 export Grids
-export OutputConfig
+export Config, OutputConfig
 
 include("grids.jl")
 include("output.jl")
@@ -68,7 +68,7 @@ Take `n` steps with time step `Δt`
 ```jldoctest
 julia> using JultraDark: take_steps!, Grids, OutputConfig
 
-julia> take_steps!(Grids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir()), t->1)
+julia> take_steps!(Grids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir(), []), t->1)
 5.0
 
 ```
@@ -122,23 +122,13 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
     t
 end
 
-function simulate()
-    resol = 16
-
-    grids = Grids(zeros(Complex{Float64}, resol, resol, resol), 1)
-
-    a = t -> 1
-
-    output_times = 0:10
-
-    output_config = OutputConfig("output")
-    options = Config.SimulationConfig(10, t->1)
+function simulate(grids::Grids, options::Config.SimulationConfig, output_config::OutputConfig)
 
     mkpath(output_config.directory)
 
-    t_begin = output_times[1]
+    t_begin = output_config.output_times[1]
 
-    for (index, t_end) in enumerate(output_times[2:end])
+    for (index, t_end) in enumerate(output_config.output_times[2:end])
         t_begin = evolve_to!(
             t_begin,
             t_end,

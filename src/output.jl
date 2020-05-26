@@ -1,7 +1,10 @@
 import NPZ
 
 struct OutputConfig
+    "where to write output"
     directory
+    "times at which to output"
+    output_times::Array{Real}
 end
 
 function output_grids(grids, output_config, step)
