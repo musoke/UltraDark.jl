@@ -9,6 +9,7 @@ export OutputConfig
 
 include("grids.jl")
 include("output.jl")
+include("config.jl")
 
 function psi_half_step!(Δt::Real, grids)
     grids.ψx .*= exp.(- im * Δt / 2 * grids.Φx)
@@ -102,17 +103,20 @@ end
 """
 Evolve `grids` forward from `t_start` to `t_end`
 """
-function evolve_to!(t_start, t_end, grids, output_config, a)
+function evolve_to!(t_start, t_end, grids, output_config, config::Config.SimulationConfig)
 
     @assert t_start < t_end
 
     t = t_start
 
-    max_num_steps = 10  # Steps to take before recalculating step size
     while t < t_end
-        Δt, n_steps = actual_time_step(max_timestep(grids), t_end - t, max_num_steps)
+        Δt, n_steps = actual_time_step(
+            max_timestep(grids),
+            t_end - t,
+            config.time_step_update_period,
+        )
 
-        t = take_steps!(grids, t, Δt, n_steps, output_config, a)
+        t = take_steps!(grids, t, Δt, n_steps, output_config, config.a)
     end
 
     t
@@ -128,6 +132,8 @@ function simulate()
     output_times = 0:10
 
     output_config = OutputConfig("output")
+    options = Config.SimulationConfig(10, t->1)
+
     mkpath(output_config.directory)
 
     t_begin = output_times[1]
@@ -138,7 +144,7 @@ function simulate()
             t_end,
             grids,
             output_config,
-            a,
+            options,
         )
         output_grids(grids, output_config, index)
     end
