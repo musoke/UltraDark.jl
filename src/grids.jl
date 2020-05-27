@@ -34,6 +34,8 @@ struct Grids
     Φx::Array{Float64,3}
     "gravitational potential field Φ in fourier space"
     Φk::Array{Complex{Float64},3}
+    fft_plan
+    rfft_plan
 
     function Grids(dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk)
         n_dims = 3
@@ -49,8 +51,20 @@ struct Grids
         for var in [rk, ρk, Φk]
             @assert(size(var) == resol_tuple_realfft)
         end
+
+        fft_plan = plan_fft(
+            zeros(Complex{Float64}, resol_tuple),
+            flags=FFTW.MEASURE
+        )
+        inv(fft_plan)
         
-        new(dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk)
+        rfft_plan = plan_rfft(
+            zeros(Float64, resol_tuple),
+            flags=FFTW.MEASURE
+        )
+        inv(rfft_plan)
+
+        new(dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
     end
 end
 
@@ -102,7 +116,7 @@ end
 
 Constructor for `Grids`
 
-Create a grid with given ψ field, length `length` and resolution `resol` inferred
+Create a grid with given ψ field, length `length` and resolution inferred
 from `ψx`
 
 # Examples
@@ -150,7 +164,7 @@ function Grids(ψx::Array{Complex{Float64}}, length::Real)::Grids
         ρx,
         ρk,
         Φx,
-        Φk
+        Φk,
     )
 end
 

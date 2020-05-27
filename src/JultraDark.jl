@@ -22,13 +22,13 @@ end
 function phi_whole_step!(Δt::Real, grids; a::Real=1.0)
     # TODO: not all part of Φ update
 
-    grids.ψk .= fft(grids.ψx) .* exp.(-im * Δt/2 * grids.k.^2 / a^2)
-    grids.ψx .= ifft(grids.ψk)
+    grids.ψk .= (grids.fft_plan * grids.ψx) .* exp.(-im * Δt/2 * grids.k.^2 / a^2)
+    grids.ψx .= grids.fft_plan \ grids.ψk
 
     grids.ρx .= abs2.(grids.ψx)
-    grids.Φk .= -4 * π * rfft(grids.ρx) ./ (a * grids.rk.^2)
+    grids.Φk .= -4 * π * (grids.rfft_plan * grids.ρx) ./ (a * grids.rk.^2)
     grids.Φk[1, 1, 1] = 0
-    grids.Φx .= irfft(grids.Φk, size(grids.Φx, 1))
+    grids.Φx .= grids.rfft_plan \ grids.Φk
 end
 
 """
