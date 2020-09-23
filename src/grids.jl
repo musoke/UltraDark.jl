@@ -17,52 +17,42 @@ julia> Grids(len, resol);
 """
 struct Grids
     "Real space distance array"
-    dist::Array{Float64,3}
+    dist
     "Fourier space postition array"
-    k::Array{Float64,3}
+    k
     "Fourier space postition array for use with `rfft`"
-    rk::Array{Float64,3}
+    rk
     "ψ field"
-    ψx::Array{Complex{Float64},3}
+    ψx
     "ψ field in Fourier space"
-    ψk::Array{Complex{Float64},3}
+    ψk
     "density field ρ"
-    ρx::Array{Float64,3}
+    ρx
     "density field ρ in Fourier space"
-    ρk::Array{Complex{Float64},3}
+    ρk
     "gravitational potential field Φ"
-    Φx::Array{Float64,3}
+    Φx
     "gravitational potential field Φ in fourier space"
-    Φk::Array{Complex{Float64},3}
+    Φk
     fft_plan
     rfft_plan
 
-    function Grids(dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk)
+    function Grids(dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
         n_dims = 3
-        resol_tuple = size(dist)
-        resol_tuple_realfft = (size(dist, 1) ÷ 2 + 1, size(dist, 2), size(dist, 3))
+        resol_tuple = size_global(dist)
+        resol_tuple_realfft = (size_global(dist)[1] ÷ 2 + 1, size_global(dist)[2], size_global(dist)[3])
 
         for var in [dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk]
             @assert(ndims(var) == n_dims)
         end
+
         for var in [dist, k, ψx, ψk, ρx, Φx]
-            @assert(size(var) == resol_tuple)
-        end
-        for var in [rk, ρk, Φk]
-            @assert(size(var) == resol_tuple_realfft)
+            @assert(size_global(var) == resol_tuple)
         end
 
-        fft_plan = plan_fft(
-            zeros(Complex{Float64}, resol_tuple),
-            flags=FFTW.MEASURE
-        )
-        inv(fft_plan)
-        
-        rfft_plan = plan_rfft(
-            zeros(Float64, resol_tuple),
-            flags=FFTW.MEASURE
-        )
-        inv(rfft_plan)
+        for var in [rk, ρk, Φk]
+            @assert(size_global(var) == resol_tuple_realfft)
+        end
 
         new(dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
     end
@@ -73,7 +63,7 @@ end
 
 Constructor for `Grids`
 
-Create an empty grid with length `length` and resolution `resol`
+Create an empty grid with length `length` and resolution `resol`.  Uses `PencilFFTs` to create `PencilArrays`.
 
 # Examples
 
@@ -85,29 +75,59 @@ julia> Grids(1.0, 64);
 ```
 """
 function Grids(length::Real, resol::Integer)::Grids
-    
+
     resol_tuple = (resol, resol, resol)
     resol_tuple_realfft = (resol ÷ 2 + 1, resol, resol)
-    
-    ψx = zeros(Complex{Float64}, resol_tuple)
-    ψk = zeros(Complex{Float64}, resol_tuple)
 
-    ρx = zeros(Float64, resol_tuple)
-    ρk = zeros(Complex{Float64}, resol_tuple_realfft)
+    # MPI topology information
+    comm = MPI.COMM_WORLD  # we assume MPI.Comm_size(comm) == 12
+    proc_dims = (1, 1)     # 3 processes along `y`, 4 along `z`
 
-    Φx = zeros(Float64, resol_tuple)
-    Φk = zeros(Complex{Float64}, resol_tuple_realfft)
+    # Plan a 3D complex-to-complex (c2c) FFT.
+    fft_plan = PencilFFTPlan(resol_tuple, Transforms.FFT(), proc_dims, comm)
+
+    # Allocate ψx and ψk arrays
+    ψx = allocate_input(fft_plan)
+    ψk = allocate_output(fft_plan)
+
+    # Plan a 3D real-to-complex (r2c) FFT.
+    rfft_plan = PencilFFTPlan(resol_tuple, Transforms.RFFT(), proc_dims, comm)
+
+    ρx = allocate_input(rfft_plan)
+    ρk = allocate_output(rfft_plan)
+
+    Φx = allocate_input(rfft_plan)
+    Φk = allocate_output(rfft_plan)
+
+    dist = allocate_input(rfft_plan)
+    dist_glob = global_view(dist)
+    _dist = dist_array(length, resol)
+    for I in CartesianIndices(dist_glob)
+        dist_glob[I] = _dist[I]
+    end
+
+    k = similar(ψk, Float64)
+    k_glob = global_view(k)
+    _k = k_norm((length, length, length), (resol, resol, resol))
+    for I in CartesianIndices(k_glob)
+        k_glob[I] = _k[I]
+    end
+
+    rk = similar(ρk, Float64)
+    rk_glob = global_view(rk)
+    _rk = rk_norm((length, length, length), (resol, resol, resol))
+    for I in CartesianIndices(rk_glob)
+        rk_glob[I] = _rk[I]
+    end
+
 
     Grids(
-        dist_array(length, resol),
-        k_array(length, resol),
-        rk_array(length, resol),
-        ψx,
-        ψk,
-        ρx,
-        ρk,
-        Φx,
-        Φk,
+        dist,
+        k, rk,
+        ψx, ψk,
+        ρx, ρk,
+        Φx, Φk,
+        fft_plan, rfft_plan,
     )
 end
 
@@ -144,33 +164,28 @@ function Grids(ψx::Array{Complex{Float64}}, length::Real)::Grids
     )
 
     resol = size(ψx, 1)
-    resol_tuple = size(ψx)
-    resol_tuple_realfft = (resol ÷ 2 + 1, resol, resol)
-    
-    ρx = abs2.(ψx)
+    grids = Grids(length, resol)
+
+    ψx_glob = global_view(grids.ψx)
+    for I in CartesianIndices(ψx_glob)
+        ψx_glob[I] = ψx[I]
+    end
+
+    grids.ρx .= abs2.(grids.ψx)
     a_init = 1  # TODO
 
-    ρk = rfft(ρx)
-    Φk = -4 * π * ρk ./ (a_init * rk_array(length, resol).^2)
-    Φk[1, 1, 1] = 0
-    Φx = irfft(Φk, resol)
+    grids.ρk .= grids.rfft_plan * grids.ρx
+    grids.Φk .= -4 * π * grids.ρk ./ (a_init * grids.rk.^2)
+    grids.Φk[1, 1, 1] = 0
+    grids.Φx .= grids.rfft_plan \ grids.Φk
 
-    Grids(
-        dist_array(length, resol),
-        k_array(length, resol),
-        rk_array(length, resol),
-        ψx,
-        fft(ψx),
-        ρx,
-        ρk,
-        Φx,
-        Φk,
-    )
+    grids
+
 end
 
 function dist_array(length, resol::Integer)
     gridvec = range(
-        -length / 2 + length / 2resol, 
+        -length / 2 + length / 2resol,
         +length / 2 - length / 2resol,
         length=resol
     )
@@ -182,25 +197,65 @@ function dist_array(length, resol::Integer)
     (x.^2 .+ y.^2 .+ z.^2).^0.5
 end
 
-function k_array(length, resol::Integer)
-    gridvec = fftfreq(resol, length/resol)
+"""
+    k_vec(lengths, resols)
 
-    kx = reshape(gridvec, resol, 1, 1)
-    ky = reshape(gridvec, 1, resol, 1)
-    kz = reshape(gridvec, 1, 1, resol)
+Calculate the Fourier frequencies of a box with side lengths `lengths` and resolutions `resols`
+
+# Examples
+
+```jldoctest
+julia> using JultraDark: k_vec
+
+julia> kvec = k_vec((2π, 2π, 2π), (4, 4, 4));
+
+julia> kvec[1]
+4-element AbstractFFTs.Frequencies{Float64}:
+  0.0
+  1.0
+ -2.0
+ -1.0
+
+```
+"""
+function k_vec(lengths, resols)
+    sample_rate = 2π .* resols ./ lengths
+
+    kx = fftfreq(resols[1], sample_rate[1])
+
+    ky = fftfreq(resols[2], sample_rate[2])
+    kz = fftfreq(resols[3], sample_rate[3])
+
+    kvec = (kx, ky, kz)
+end
+
+function rk_vec(lengths, resols)
+    sample_rate = 2π .* resols ./ lengths
+
+    kx = rfftfreq(resols[1], sample_rate[1])
+
+    ky = fftfreq(resols[2], sample_rate[2])
+    kz = fftfreq(resols[3], sample_rate[3])
+
+    rkvec = (kx, ky, kz)
+end
+
+function k_norm(lengths, resols)
+    kvec = k_vec(lengths, resols)
+
+    kx = reshape(kvec[1], size(kvec[1])[1], 1, 1)
+    ky = reshape(kvec[2], 1, size(kvec[2])[1], 1)
+    kz = reshape(kvec[3], 1, 1, size(kvec[3])[1])
 
     (kx.^2 .+ ky.^2 .+ kz.^2).^0.5
 end
 
-function rk_array(length, resol::Integer)
-    resol_r = resol ÷ 2 + 1
+function rk_norm(lengths, resols)
+    kvec = rk_vec(lengths, resols)
 
-    gridvec = fftfreq(resol, length/resol)
-    r_gridvec = rfftfreq(resol, length/resol)
-
-    kx = reshape(r_gridvec, resol_r, 1, 1)
-    ky = reshape(gridvec, 1, resol, 1)
-    kz = reshape(gridvec, 1, 1, resol)
+    kx = reshape(kvec[1], size(kvec[1])[1], 1, 1)
+    ky = reshape(kvec[2], 1, size(kvec[2])[1], 1)
+    kz = reshape(kvec[3], 1, 1, size(kvec[3])[1])
 
     (kx.^2 .+ ky.^2 .+ kz.^2).^0.5
 end

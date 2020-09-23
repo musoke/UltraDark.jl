@@ -2,7 +2,8 @@ module JultraDark
 
 using Base.Threads: @threads
 using Statistics
-using FFTW
+using AbstractFFTs: fftfreq, rfftfreq
+using PencilFFTs, MPI
 
 export simulate
 export Grids
@@ -139,13 +140,13 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
     t = t_start
 
     while (t < t_end) && ~(t ≈ t_end)
-        @debug "t = $t"
 
         Δt, n_steps = actual_time_step(
             max_time_step(grids, config.a(t)),
             t_end - t,
             config.time_step_update_period,
         )
+        @debug "t = $t, max_time_step = $(max_time_step(grids, config.a(t))), Δt = $Δt"
 
         t = take_steps!(grids, t, Δt, n_steps, output_config, config.a)
     end
@@ -158,6 +159,14 @@ function simulate(grids::Grids, options::Config.SimulationConfig, output_config:
     mkpath(output_config.directory)
 
     t_begin = output_config.output_times[1]
+
+    # Initialise vars other than ψx
+    grids.ψk .= (grids.fft_plan * grids.ψx)
+    grids.ρx .= abs2.(grids.ψx)
+    grids.Φk .= -4 * π * (grids.rfft_plan * grids.ρx) ./ (options.a(t_begin) * grids.rk.^2)
+    grids.Φk[1, 1, 1] = 0
+    grids.Φx .= grids.rfft_plan \ grids.Φk
+
     output_grids(grids, output_config, 0)
 
     for (index, t_end) in enumerate(output_config.output_times[2:end])
