@@ -1,20 +1,23 @@
 using JultraDark
-import JultraDark
 using Test, Documenter
+using SafeTestsets
 
 doctest(JultraDark)
 
-@testset "grids.jl" begin
+@safetestset "grids.jl" begin
+    using JultraDark
     grids = Grids(zeros(Complex{Float64}, 16, 16, 16), 1)
 
     @test typeof(grids) == Grids
 end
 
-@testset "Evolution" begin
+@safetestset "Evolution" begin
     include("evolution.jl")
 end
 
-@testset "full sim" begin
+@safetestset "full sim" begin
+    using JultraDark
+    
     resol = 16
 
     grids = JultraDark.Grids(zeros(Complex{Float64}, resol, resol, resol), 1)
