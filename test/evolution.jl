@@ -1,3 +1,5 @@
+using JultraDark
+
 @testset "Actual time step" begin
     @test JultraDark.actual_time_step(0.5, 1, 2)[1] ≈ 0.5
     @test JultraDark.actual_time_step(0.5, 1, 2)[2] == 2
