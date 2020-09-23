@@ -1,14 +1,14 @@
 using JultraDark
 using Test, Documenter
 using SafeTestsets
+using MPI
+
+MPI.Init()
 
 doctest(JultraDark)
 
 @safetestset "grids.jl" begin
-    using JultraDark
-    grids = Grids(zeros(Complex{Float64}, 16, 16, 16), 1)
-
-    @test typeof(grids) == Grids
+    include("grids.jl")
 end
 
 @safetestset "Evolution" begin
