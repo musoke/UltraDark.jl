@@ -119,7 +119,9 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
 
     t = t_start
 
-    while ~(t >= t_end || t ≈ t_end)
+    while (t < t_end) && ~(t ≈ t_end)
+        @debug "t = $t"
+
         Δt, n_steps = actual_time_step(
             max_time_step(grids, config.a(t)),
             t_end - t,
