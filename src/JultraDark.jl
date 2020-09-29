@@ -1,5 +1,6 @@
 module JultraDark
 
+using Base.Threads: @threads
 using Statistics
 using FFTW
 
@@ -12,21 +13,34 @@ include("output.jl")
 include("config.jl")
 
 function psi_half_step!(Δt::Real, grids)
-    grids.ψx .*= exp.(- im * Δt / 2 * grids.Φx)
+    @threads for i in eachindex(grids.ψx)
+        grids.ψx[i] *= exp(- im * Δt / 2 * grids.Φx[i])
+    end
 end
 
 function psi_whole_step!(Δt::Real, grids)
-    grids.ψx .*= exp.(- im * Δt / 1 * grids.Φx)
+    @threads for i in eachindex(grids.ψx)
+        grids.ψx[i] *= exp(- im * Δt / 1 * grids.Φx[i])
+    end
 end
 
 function phi_whole_step!(Δt::Real, grids; a::Real=1.0)
     # TODO: not all part of Φ update
 
-    grids.ψk .= (grids.fft_plan * grids.ψx) .* exp.(-im * Δt/2 * grids.k.^2 / a^2)
+    grids.ψk .= grids.fft_plan * grids.ψx
+    @threads for i in eachindex(grids.ψk)
+        grids.ψk[i] *= exp(-im * Δt/2 * grids.k[i]^2 / a^2)
+    end
     grids.ψx .= grids.fft_plan \ grids.ψk
 
-    grids.ρx .= abs2.(grids.ψx)
-    grids.Φk .= -4 * π * (grids.rfft_plan * grids.ρx) ./ (a * grids.rk.^2)
+    @threads for i in eachindex(grids.ρx)
+        grids.ρx[i] = abs2(grids.ψx[i])
+    end
+
+    grids.Φk .= grids.rfft_plan * grids.ρx
+    @threads for i in eachindex(grids.Φk)
+        grids.Φk[i] *= -4 * π / (a * grids.rk[i]^2)
+    end
     grids.Φk[1, 1, 1] = 0
     grids.Φx .= grids.rfft_plan \ grids.Φk
 end
