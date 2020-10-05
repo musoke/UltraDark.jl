@@ -81,7 +81,13 @@ function Grids(length::Real, resol::Integer)::Grids
 
     # MPI topology information
     comm = MPI.COMM_WORLD  # we assume MPI.Comm_size(comm) == 12
-    proc_dims = (1, 1)     # 3 processes along `y`, 4 along `z`
+    Nproc = MPI.Comm_size(comm)
+
+    # Let MPI_Dims_create choose the decomposition.
+    proc_dims = let pdims = zeros(Int, 2)
+        MPI.Dims_create!(Nproc, pdims)
+        pdims[1], pdims[2]
+    end
 
     # Plan a 3D complex-to-complex (c2c) FFT.
     fft_plan = PencilFFTPlan(resol_tuple, Transforms.FFT(), proc_dims, comm)
