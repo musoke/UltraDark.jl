@@ -40,7 +40,12 @@ function max_time_step(grids, a)
     max_time_step_gravity = 2π / maximum(grids.Φx)
     max_time_step_pressure = 2π * 2 / maximum(grids.k)^2 * a^2  # TODO: cache k_max
 
-    min(max_time_step_gravity, max_time_step_pressure)
+    @assert isfinite(max_time_step_gravity)
+    @assert isfinite(max_time_step_pressure)
+
+    time_step = min(max_time_step_gravity, max_time_step_pressure)
+
+    time_step
 end
 
 """
@@ -149,6 +154,7 @@ function simulate(grids::Grids, options::Config.SimulationConfig, output_config:
             output_config,
             options,
         )
+        @info "Reached time $t_begin"
         output_grids(grids, output_config, index)
     end
 
