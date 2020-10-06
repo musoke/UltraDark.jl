@@ -14,10 +14,11 @@ rank == 0 || redirect_stdout(open(DEV_NULL, "w"))
 
 resol = 16
 
-grids = JultraDark.Grids(zeros(Complex{Float64}, resol, resol, resol), 1)
+grids = Grids(1.0, 16)
+grids.ψx .= grids.dist ./ 1e9 # Set ψx to something non-zero
 
 output_dir = "output"
-output_times = 0:10
+output_times = 0.0:0.01:0.1
 
 output_config = OutputConfig(output_dir, output_times; box=false)
 options = Config.SimulationConfig(10, t->1)
