@@ -1,3 +1,36 @@
+function psi_half_step!(Δt::Real, grids)
+    @threads for i in eachindex(grids.ψx)
+        grids.ψx[i] *= exp(- im * Δt / 2 * grids.Φx[i])
+    end
+end
+
+function psi_whole_step!(Δt::Real, grids)
+    @threads for i in eachindex(grids.ψx)
+        grids.ψx[i] *= exp(- im * Δt / 1 * grids.Φx[i])
+    end
+end
+
+function phi_whole_step!(Δt::Real, grids; a::Real=1.0)
+    # TODO: not all part of Φ update
+
+    grids.ψk .= grids.fft_plan * grids.ψx
+    @threads for i in eachindex(grids.ψk)
+        grids.ψk[i] *= exp(-im * Δt/2 * grids.k[i]^2 / a^2)
+    end
+    grids.ψx .= grids.fft_plan \ grids.ψk
+
+    @threads for i in eachindex(grids.ρx)
+        grids.ρx[i] = abs2(grids.ψx[i])
+    end
+
+    grids.Φk .= grids.rfft_plan * grids.ρx
+    @threads for i in eachindex(grids.Φk)
+        grids.Φk[i] *= -4 * π / (a * grids.rk[i]^2)
+    end
+    grids.Φk[1, 1, 1] = 0
+    grids.Φx .= grids.rfft_plan \ grids.Φk
+end
+
 """
 struct containing grids used in a simulation
 
@@ -11,11 +44,11 @@ julia> len = 1;
 
 julia> resol = 16;
 
-julia> Grids(len, resol);
+julia> PencilGrids(len, resol);
 
 ```
 """
-struct Grids
+struct PencilGrids
     "Real space distance array"
     dist
     "Fourier space postition array"
@@ -37,7 +70,7 @@ struct Grids
     fft_plan
     rfft_plan
 
-    function Grids(dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
+    function PencilGrids(dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
         n_dims = 3
         resol_tuple = size_global(dist)
         resol_tuple_realfft = (size_global(dist)[1] ÷ 2 + 1, size_global(dist)[2], size_global(dist)[3])
@@ -59,9 +92,9 @@ struct Grids
 end
 
 """
-    Grids(length::Real, resol::Integer)
+    PencilGrids(length::Real, resol::Integer)
 
-Constructor for `Grids`
+Constructor for `PencilGrids`
 
 Create an empty grid with length `length` and resolution `resol`.  Uses `PencilFFTs` to create `PencilArrays`.
 
@@ -70,11 +103,11 @@ Create an empty grid with length `length` and resolution `resol`.  Uses `PencilF
 ```jldoctest
 julia> using JultraDark
 
-julia> Grids(1.0, 64);
+julia> PencilGrids(1.0, 64);
 
 ```
 """
-function Grids(length::Real, resol::Integer)::Grids
+function PencilGrids(length::Real, resol::Integer)::PencilGrids
 
     resol_tuple = (resol, resol, resol)
     resol_tuple_realfft = (resol ÷ 2 + 1, resol, resol)
@@ -127,7 +160,7 @@ function Grids(length::Real, resol::Integer)::Grids
     end
 
 
-    Grids(
+    PencilGrids(
         dist,
         k, rk,
         ψx, ψk,
@@ -138,9 +171,9 @@ function Grids(length::Real, resol::Integer)::Grids
 end
 
 """
-    Grids(ψx::Array{Complex{Float64}}, length::Real)
+    PencilGrids(ψx::Array{Complex{Float64}}, length::Real)
 
-Constructor for `Grids`
+Constructor for `PencilGrids`
 
 Create a grid with given ψ field, length `length` and resolution inferred
 from `ψx`
@@ -155,11 +188,11 @@ julia> ψ = zeros(Complex{Float64}, 16, 16, 16);
 
 julia> len = 1;
 
-julia> Grids(ψ, len);
+julia> PencilGrids(ψ, len);
 
 ```
 """
-function Grids(ψx::Array{Complex{Float64}}, length::Real)::Grids
+function PencilGrids(ψx::Array{Complex{Float64}}, length::Real)::PencilGrids
     @assert(
         ndims(ψx) == 3,
         "Invalid ψ: only three dimensions supported"
@@ -170,7 +203,7 @@ function Grids(ψx::Array{Complex{Float64}}, length::Real)::Grids
     )
 
     resol = size(ψx, 1)
-    grids = Grids(length, resol)
+    grids = PencilGrids(length, resol)
 
     ψx_glob = global_view(grids.ψx)
     for I in CartesianIndices(ψx_glob)

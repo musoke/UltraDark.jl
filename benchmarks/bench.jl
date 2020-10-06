@@ -8,7 +8,7 @@ if ~MPI.Initialized()
 end
 
 n = 64
-grids = Grids(1.0, n)
+grids = PencilGrids(1.0, n)
 
 Δt = 0.1
 

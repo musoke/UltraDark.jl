@@ -46,7 +46,7 @@ end
     box_length = 1.
 
     # Define initial conditions
-    grids = JultraDark.Grids(box_length, resol)
+    grids = JultraDark.PencilGrids(box_length, resol)
 
     t_init = 1
 

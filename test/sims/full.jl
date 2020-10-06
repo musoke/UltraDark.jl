@@ -14,7 +14,7 @@ rank == 0 || redirect_stdout(open(DEV_NULL, "w"))
 
 resol = 16
 
-grids = Grids(1.0, 16)
+grids = PencilGrids(1.0, 16)
 grids.ψx .= grids.dist ./ 1e9 # Set ψx to something non-zero
 
 output_dir = "output"

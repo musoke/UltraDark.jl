@@ -9,45 +9,12 @@ using FFTW
 FFTW.set_num_threads(Threads.nthreads())
 
 export simulate
-export Grids
+export PencilGrids
 export Config, OutputConfig
 
-include("grids.jl")
+include("mpi_grids.jl")
 include("output.jl")
 include("config.jl")
-
-function psi_half_step!(Δt::Real, grids)
-    @threads for i in eachindex(grids.ψx)
-        grids.ψx[i] *= exp(- im * Δt / 2 * grids.Φx[i])
-    end
-end
-
-function psi_whole_step!(Δt::Real, grids)
-    @threads for i in eachindex(grids.ψx)
-        grids.ψx[i] *= exp(- im * Δt / 1 * grids.Φx[i])
-    end
-end
-
-function phi_whole_step!(Δt::Real, grids; a::Real=1.0)
-    # TODO: not all part of Φ update
-
-    grids.ψk .= grids.fft_plan * grids.ψx
-    @threads for i in eachindex(grids.ψk)
-        grids.ψk[i] *= exp(-im * Δt/2 * grids.k[i]^2 / a^2)
-    end
-    grids.ψx .= grids.fft_plan \ grids.ψk
-
-    @threads for i in eachindex(grids.ρx)
-        grids.ρx[i] = abs2(grids.ψx[i])
-    end
-
-    grids.Φk .= grids.rfft_plan * grids.ρx
-    @threads for i in eachindex(grids.Φk)
-        grids.Φk[i] *= -4 * π / (a * grids.rk[i]^2)
-    end
-    grids.Φk[1, 1, 1] = 0
-    grids.Φx .= grids.rfft_plan \ grids.Φk
-end
 
 """
     max_time_step(grids, a)
@@ -97,9 +64,9 @@ Take `n` steps with time step `Δt`
 # Examples
 
 ```jldoctest
-julia> using JultraDark: take_steps!, Grids, OutputConfig
+julia> using JultraDark: take_steps!, PencilGrids, OutputConfig
 
-julia> take_steps!(Grids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir(), []), t->1)
+julia> take_steps!(PencilGrids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir(), []), t->1)
 5.0
 
 ```
@@ -157,7 +124,7 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
     t
 end
 
-function simulate(grids::Grids, options::Config.SimulationConfig, output_config::OutputConfig)
+function simulate(grids, options::Config.SimulationConfig, output_config::OutputConfig)
 
     mkpath(output_config.directory)
 
