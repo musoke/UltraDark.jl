@@ -7,3 +7,12 @@
 [![Codecov](https://codecov.io/gh/musoke/JultraDark.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/musoke/JultraDark.jl)
 [![Coveralls](https://coveralls.io/repos/github/musoke/JultraDark.jl/badge.svg?branch=master)](https://coveralls.io/github/musoke/JultraDark.jl?branch=master)
 [![Build Status](https://api.cirrus-ci.com/github/musoke/JultraDark.jl.svg)](https://cirrus-ci.com/github/musoke/JultraDark.jl)
+
+Simulations of cosmological scalar fields inspired by [PyUltraLight](https://github.com/auckland-cosmo/PyUltraLight).
+
+Eventually may use [PencilFFTs](https://jipolanco.github.io/PencilFFTs.jl) to do Fourier transforms in distributed memory.
+
+
+## Installation
+
+You will need [Julia](https://julialang.org/).
