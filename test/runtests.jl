@@ -17,4 +17,5 @@ end
 
 @safetestset "full sim" begin
     include("sims/full.jl")
+    include("../examples/growth.jl")
 end
