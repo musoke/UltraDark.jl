@@ -4,8 +4,6 @@ using Test
 using MPI
 using PencilFFTs
 
-const DEV_NULL = @static Sys.iswindows() ? "nul" : "/dev/null"
-
 function x(k, a)
     m = 1
     H0 = 1
@@ -33,33 +31,24 @@ function a(t)
 end
 
 # function main()
-    if ~MPI.Initialized()
-        MPI.Init()
-    end
-
-    comm = MPI.COMM_WORLD
-    # Disable output on all but one process.
-    rank = MPI.Comm_rank(comm)
-    rank == 0 || redirect_stdout(open(DEV_NULL, "w"))
-
     resol = 64
     box_length = 1.
 
     # Define initial conditions
-    grids = JultraDark.PencilGrids(box_length, resol)
+    grids = JultraDark.Grids(box_length, resol)
 
     t_init = 1
 
-    A_k = allocate_output(grids.rfft_plan)
+    A_k = similar(grids.ρk)
     randn!(A_k)
 
     # Density perturbation
-    δ_k = allocate_output(grids.rfft_plan)
+    δ_k = similar(grids.ρk)
     δ_k .= A_k .* δ_g.(x.(grids.rk, a(t_init)))
     δ_k[1, 1, 1] = 0
 
     # Phase perturbation
-    S_k = allocate_output(grids.rfft_plan)
+    S_k = similar(grids.ρk)
     S_k .= A_k .* S_g.(x.(grids.rk, a(t_init)))
 
     grids.ψx .= (1 .+ grids.rfft_plan \ δ_k).^0.5 .* exp.(im .* (grids.rfft_plan \ S_k))

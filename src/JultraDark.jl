@@ -9,10 +9,11 @@ using FFTW
 FFTW.set_num_threads(Threads.nthreads())
 
 export simulate
-export PencilGrids
+export Grids, PencilGrids
 export Config, OutputConfig
 
-include("mpi_grids.jl")
+include("grids.jl")
+include("pencil_grids.jl")
 include("output.jl")
 include("config.jl")
 
