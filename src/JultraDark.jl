@@ -1,6 +1,7 @@
 module JultraDark
 
 using Base.Threads: @threads
+using LinearAlgebra
 using Statistics
 using AbstractFFTs: fftfreq, rfftfreq
 using PencilFFTs, MPI

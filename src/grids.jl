@@ -243,20 +243,20 @@ end
 function phi_whole_step!(Δt::Real, grids; a::Real=1.0)
     # TODO: not all part of Φ update
 
-    grids.ψk .= grids.fft_plan * grids.ψx
+    mul!(grids.ψk, grids.fft_plan, grids.ψx)
     @fastmath @inbounds @threads for i in eachindex(grids.ψk)
         grids.ψk[i] *= exp(-im * Δt/2 * grids.k[i]^2 / a^2)
     end
-    grids.ψx .= grids.fft_plan \ grids.ψk
+    ldiv!(grids.ψx, grids.fft_plan, grids.ψk)
 
     @fastmath @inbounds @threads for i in eachindex(grids.ρx)
         grids.ρx[i] = abs2(grids.ψx[i])
     end
 
-    grids.Φk .= grids.rfft_plan * grids.ρx
+    mul!(grids.Φk, grids.rfft_plan, grids.ρx)
     @fastmath @inbounds @threads for i in eachindex(grids.Φk)
         grids.Φk[i] *= -4 * π / (a * grids.rk[i]^2)
     end
     grids.Φk[1, 1, 1] = 0
-    grids.Φx .= grids.rfft_plan \ grids.Φk
+    ldiv!(grids.Φx, grids.rfft_plan, grids.Φk)
 end
