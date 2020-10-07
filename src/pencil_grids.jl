@@ -89,6 +89,7 @@ function PencilGrids(length::Real, resol::Integer)::PencilGrids
         pdims[1], pdims[2]
     end
 
+    FFTW.set_num_threads(Threads.nthreads())
     # Plan a 3D complex-to-complex (c2c) FFT.
     fft_plan = PencilFFTPlan(resol_tuple, Transforms.FFT(), proc_dims, comm)
 

@@ -7,7 +7,6 @@ using AbstractFFTs: fftfreq, rfftfreq
 using PencilFFTs, MPI
 
 using FFTW
-FFTW.set_num_threads(Threads.nthreads())
 
 export simulate
 export Grids, PencilGrids

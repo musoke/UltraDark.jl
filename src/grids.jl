@@ -52,6 +52,7 @@ struct Grids
             @assert(size(var) == resol_tuple_realfft)
         end
 
+        FFTW.set_num_threads(Threads.nthreads())
         fft_plan = plan_fft(
             zeros(Complex{Float64}, resol_tuple),
             flags=FFTW.MEASURE
