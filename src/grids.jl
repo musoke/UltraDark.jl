@@ -52,12 +52,13 @@ struct Grids
             @assert(size(var) == resol_tuple_realfft)
         end
 
+        FFTW.set_num_threads(Threads.nthreads())
         fft_plan = plan_fft(
             zeros(Complex{Float64}, resol_tuple),
             flags=FFTW.MEASURE
         )
         inv(fft_plan)
-        
+
         rfft_plan = plan_rfft(
             zeros(Float64, resol_tuple),
             flags=FFTW.MEASURE
@@ -85,10 +86,10 @@ julia> Grids(1.0, 64);
 ```
 """
 function Grids(length::Real, resol::Integer)::Grids
-    
+
     resol_tuple = (resol, resol, resol)
     resol_tuple_realfft = (resol ÷ 2 + 1, resol, resol)
-    
+
     ψx = zeros(Complex{Float64}, resol_tuple)
     ψk = zeros(Complex{Float64}, resol_tuple)
 
@@ -100,8 +101,8 @@ function Grids(length::Real, resol::Integer)::Grids
 
     Grids(
         dist_array(length, resol),
-        k_array(length, resol),
-        rk_array(length, resol),
+        k_norm((length, length, length), (resol, resol, resol)),
+        rk_norm((length, length, length), (resol, resol, resol)),
         ψx,
         ψk,
         ρx,
@@ -144,33 +145,16 @@ function Grids(ψx::Array{Complex{Float64}}, length::Real)::Grids
     )
 
     resol = size(ψx, 1)
-    resol_tuple = size(ψx)
-    resol_tuple_realfft = (resol ÷ 2 + 1, resol, resol)
-    
-    ρx = abs2.(ψx)
-    a_init = 1  # TODO
+    grids = Grids(length, resol)
 
-    ρk = rfft(ρx)
-    Φk = -4 * π * ρk ./ (a_init * rk_array(length, resol).^2)
-    Φk[1, 1, 1] = 0
-    Φx = irfft(Φk, resol)
+    grids.ψx .= ψx
 
-    Grids(
-        dist_array(length, resol),
-        k_array(length, resol),
-        rk_array(length, resol),
-        ψx,
-        fft(ψx),
-        ρx,
-        ρk,
-        Φx,
-        Φk,
-    )
+    grids
 end
 
 function dist_array(length, resol::Integer)
     gridvec = range(
-        -length / 2 + length / 2resol, 
+        -length / 2 + length / 2resol,
         +length / 2 - length / 2resol,
         length=resol
     )
@@ -182,25 +166,98 @@ function dist_array(length, resol::Integer)
     (x.^2 .+ y.^2 .+ z.^2).^0.5
 end
 
-function k_array(length, resol::Integer)
-    gridvec = fftfreq(resol, length/resol)
+"""
+    k_vec(lengths, resols)
 
-    kx = reshape(gridvec, resol, 1, 1)
-    ky = reshape(gridvec, 1, resol, 1)
-    kz = reshape(gridvec, 1, 1, resol)
+Calculate the Fourier frequencies of a box with side lengths `lengths` and resolutions `resols`
+
+# Examples
+
+```jldoctest
+julia> using JultraDark: k_vec
+
+julia> kvec = k_vec((2π, 2π, 2π), (4, 4, 4));
+
+julia> kvec[1]
+4-element AbstractFFTs.Frequencies{Float64}:
+  0.0
+  1.0
+ -2.0
+ -1.0
+
+```
+"""
+function k_vec(lengths, resols)
+    sample_rate = 2π .* resols ./ lengths
+
+    kx = fftfreq(resols[1], sample_rate[1])
+
+    ky = fftfreq(resols[2], sample_rate[2])
+    kz = fftfreq(resols[3], sample_rate[3])
+
+    kvec = (kx, ky, kz)
+end
+
+function rk_vec(lengths, resols)
+    sample_rate = 2π .* resols ./ lengths
+
+    kx = rfftfreq(resols[1], sample_rate[1])
+
+    ky = fftfreq(resols[2], sample_rate[2])
+    kz = fftfreq(resols[3], sample_rate[3])
+
+    rkvec = (kx, ky, kz)
+end
+
+function k_norm(lengths, resols)
+    kvec = k_vec(lengths, resols)
+
+    kx = reshape(kvec[1], size(kvec[1])[1], 1, 1)
+    ky = reshape(kvec[2], 1, size(kvec[2])[1], 1)
+    kz = reshape(kvec[3], 1, 1, size(kvec[3])[1])
 
     (kx.^2 .+ ky.^2 .+ kz.^2).^0.5
 end
 
-function rk_array(length, resol::Integer)
-    resol_r = resol ÷ 2 + 1
+function rk_norm(lengths, resols)
+    kvec = rk_vec(lengths, resols)
 
-    gridvec = fftfreq(resol, length/resol)
-    r_gridvec = rfftfreq(resol, length/resol)
-
-    kx = reshape(r_gridvec, resol_r, 1, 1)
-    ky = reshape(gridvec, 1, resol, 1)
-    kz = reshape(gridvec, 1, 1, resol)
+    kx = reshape(kvec[1], size(kvec[1])[1], 1, 1)
+    ky = reshape(kvec[2], 1, size(kvec[2])[1], 1)
+    kz = reshape(kvec[3], 1, 1, size(kvec[3])[1])
 
     (kx.^2 .+ ky.^2 .+ kz.^2).^0.5
+end
+
+function psi_half_step!(Δt::Real, grids)
+    @fastmath @inbounds @threads for i in eachindex(grids.ψx)
+        grids.ψx[i] *= exp(- im * Δt / 2 * grids.Φx[i])
+    end
+end
+
+function psi_whole_step!(Δt::Real, grids)
+    @fastmath @inbounds @threads for i in eachindex(grids.ψx)
+        grids.ψx[i] *= exp(- im * Δt / 1 * grids.Φx[i])
+    end
+end
+
+function phi_whole_step!(Δt::Real, grids; a::Real=1.0)
+    # TODO: not all part of Φ update
+
+    mul!(grids.ψk, grids.fft_plan, grids.ψx)
+    @fastmath @inbounds @threads for i in eachindex(grids.ψk)
+        grids.ψk[i] *= exp(-im * Δt/2 * grids.k[i]^2 / a^2)
+    end
+    ldiv!(grids.ψx, grids.fft_plan, grids.ψk)
+
+    @fastmath @inbounds @threads for i in eachindex(grids.ρx)
+        grids.ρx[i] = abs2(grids.ψx[i])
+    end
+
+    mul!(grids.Φk, grids.rfft_plan, grids.ρx)
+    @fastmath @inbounds @threads for i in eachindex(grids.Φk)
+        grids.Φk[i] *= -4 * π / (a * grids.rk[i]^2)
+    end
+    grids.Φk[1, 1, 1] = 0
+    ldiv!(grids.Φx, grids.rfft_plan, grids.Φk)
 end

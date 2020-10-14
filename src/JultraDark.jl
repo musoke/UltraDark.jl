@@ -1,35 +1,21 @@
 module JultraDark
 
+using Base.Threads: @threads
+using LinearAlgebra
 using Statistics
+using AbstractFFTs: fftfreq, rfftfreq
+using PencilFFTs, MPI
+
 using FFTW
 
 export simulate
-export Grids
+export Grids, PencilGrids
 export Config, OutputConfig
 
 include("grids.jl")
+include("pencil_grids.jl")
 include("output.jl")
 include("config.jl")
-
-function psi_half_step!(Δt::Real, grids)
-    grids.ψx .*= exp.(- im * Δt / 2 * grids.Φx)
-end
-
-function psi_whole_step!(Δt::Real, grids)
-    grids.ψx .*= exp.(- im * Δt / 1 * grids.Φx)
-end
-
-function phi_whole_step!(Δt::Real, grids; a::Real=1.0)
-    # TODO: not all part of Φ update
-
-    grids.ψk .= (grids.fft_plan * grids.ψx) .* exp.(-im * Δt/2 * grids.k.^2 / a^2)
-    grids.ψx .= grids.fft_plan \ grids.ψk
-
-    grids.ρx .= abs2.(grids.ψx)
-    grids.Φk .= -4 * π * (grids.rfft_plan * grids.ρx) ./ (a * grids.rk.^2)
-    grids.Φk[1, 1, 1] = 0
-    grids.Φx .= grids.rfft_plan \ grids.Φk
-end
 
 """
     max_time_step(grids, a)
@@ -40,7 +26,12 @@ function max_time_step(grids, a)
     max_time_step_gravity = 2π / maximum(grids.Φx)
     max_time_step_pressure = 2π * 2 / maximum(grids.k)^2 * a^2  # TODO: cache k_max
 
-    min(max_time_step_gravity, max_time_step_pressure)
+    @assert isfinite(max_time_step_gravity)
+    @assert isfinite(max_time_step_pressure)
+
+    time_step = min(max_time_step_gravity, max_time_step_pressure)
+
+    time_step
 end
 
 """
@@ -74,9 +65,9 @@ Take `n` steps with time step `Δt`
 # Examples
 
 ```jldoctest
-julia> using JultraDark: take_steps!, Grids, OutputConfig
+julia> using JultraDark: take_steps!, PencilGrids, OutputConfig
 
-julia> take_steps!(Grids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir(), []), t->1)
+julia> take_steps!(PencilGrids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir(), []), t->1)
 5.0
 
 ```
@@ -120,13 +111,13 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
     t = t_start
 
     while (t < t_end) && ~(t ≈ t_end)
-        @debug "t = $t"
 
         Δt, n_steps = actual_time_step(
             max_time_step(grids, config.a(t)),
             t_end - t,
             config.time_step_update_period,
         )
+        @debug "t = $t, max_time_step = $(max_time_step(grids, config.a(t))), Δt = $Δt"
 
         t = take_steps!(grids, t, Δt, n_steps, output_config, config.a)
     end
@@ -134,11 +125,19 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
     t
 end
 
-function simulate(grids::Grids, options::Config.SimulationConfig, output_config::OutputConfig)
+function simulate(grids, options::Config.SimulationConfig, output_config::OutputConfig)
 
     mkpath(output_config.directory)
 
     t_begin = output_config.output_times[1]
+
+    # Initialise vars other than ψx
+    grids.ψk .= (grids.fft_plan * grids.ψx)
+    grids.ρx .= abs2.(grids.ψx)
+    grids.Φk .= -4 * π * (grids.rfft_plan * grids.ρx) ./ (options.a(t_begin) * grids.rk.^2)
+    grids.Φk[1, 1, 1] = 0
+    grids.Φx .= grids.rfft_plan \ grids.Φk
+
     output_grids(grids, output_config, 0)
 
     for (index, t_end) in enumerate(output_config.output_times[2:end])
@@ -149,6 +148,7 @@ function simulate(grids::Grids, options::Config.SimulationConfig, output_config:
             output_config,
             options,
         )
+        @info "Reached time $t_begin"
         output_grids(grids, output_config, index)
     end
 

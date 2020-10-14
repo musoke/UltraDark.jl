@@ -10,6 +10,7 @@ makedocs(;
     sitename="JultraDark.jl",
     authors="Nathan Musoke <n.musoke@auckland.ac.nz>",
     assets=String[],
+    doctest=false,  # TODO: remove this line
 )
 
 deploydocs(;
