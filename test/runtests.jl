@@ -15,7 +15,14 @@ end
     include("evolution.jl")
 end
 
+# Run examples
 @safetestset "full sim" begin
     include("sims/full.jl")
-    include("../examples/growth.jl")
+end
+
+# Put notebook in module to emulate SafeTestsets
+# https://github.com/YingboMa/SafeTestsets.jl/issues/3
+module GrowthNotebook
+    using NBInclude
+    @nbinclude("../examples/growth.ipynb")
 end
