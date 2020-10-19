@@ -140,7 +140,7 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
     grids.Φk[1, 1, 1] = 0
     grids.Φx .= grids.rfft_plan \ grids.Φk
 
-    output_grids(grids, output_config, 0)
+    output_grids(grids, output_config, 1)
 
     for (index, t_end) in enumerate(output_config.output_times[2:end])
         t_begin = evolve_to!(
@@ -151,7 +151,7 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
             options,
         )
         @info "Reached time $t_begin"
-        output_grids(grids, output_config, index)
+        output_grids(grids, output_config, index + 1)
     end
 
 end
