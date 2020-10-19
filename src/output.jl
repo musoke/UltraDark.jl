@@ -24,7 +24,45 @@ function OutputConfig(
     OutputConfig(directory, output_times, box, slice, psi, rho)
 end
 
+"""
+    output_grids(grids, output_config, step)
+
+Write output from `grids` as specified in `output_config`
+"""
 function output_grids(grids, output_config, step)
+
+    if output_config.box
+        if output_config.psi
+            NPZ.npzwrite(
+                joinpath(output_config.directory, "psi_$step.npy"),
+                grids.ψx
+            )
+        end
+        if output_config.rho
+            NPZ.npzwrite(
+                joinpath(output_config.directory, "rho_$step.npy"),
+                grids.ρx
+            )
+        end
+    end
+
+    if output_config.slice
+        if output_config.psi
+            NPZ.npzwrite(
+                joinpath(output_config.directory, "psi_slice_$step.npy"),
+                grids.ψx[1, :, :]
+            )
+        end
+        if output_config.rho
+            NPZ.npzwrite(
+                joinpath(output_config.directory, "rho_slice_$step.npy"),
+                grids.ρx[1, :, :]
+            )
+        end
+    end
+end
+
+function output_grids(grids::PencilGrids, output_config, step)
 
     #TODO: don't use gather.  This sends all data to one node.  Should instead use multithreaded HDF5 output
     if output_config.box
