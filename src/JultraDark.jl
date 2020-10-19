@@ -90,13 +90,13 @@ function take_steps!(grids, t_start, Δt, n, output_config, a)
 
         phi_whole_step!(Δt, grids, a=a(t))
 
-        output_summary(grids, output_config, t, a(t), Δt)
+        output_summary_row(grids, output_config, t, a(t), Δt)
     end
 
     psi_half_step!(Δt, grids)
     t += Δt / 2
 
-    output_summary(grids, output_config, t, a(t), Δt)
+    output_summary_row(grids, output_config, t, a(t), Δt)
 
     t
 end
@@ -127,7 +127,9 @@ end
 
 function simulate(grids, options::Config.SimulationConfig, output_config::OutputConfig)
 
+    # Setup output
     mkpath(output_config.directory)
+    output_summary_header(output_config)
 
     t_begin = output_config.output_times[1]
 
@@ -138,7 +140,7 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
     grids.Φk[1, 1, 1] = 0
     grids.Φx .= grids.rfft_plan \ grids.Φk
 
-    output_grids(grids, output_config, 0)
+    output_grids(grids, output_config, 1)
 
     for (index, t_end) in enumerate(output_config.output_times[2:end])
         t_begin = evolve_to!(
@@ -149,7 +151,7 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
             options,
         )
         @info "Reached time $t_begin"
-        output_grids(grids, output_config, index)
+        output_grids(grids, output_config, index + 1)
     end
 
 end
