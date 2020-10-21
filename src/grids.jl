@@ -261,3 +261,25 @@ function phi_whole_step!(Δt::Real, grids; a::Real=1.0)
     grids.Φk[1, 1, 1] = 0
     ldiv!(grids.Φx, grids.rfft_plan, grids.Φk)
 end
+
+"""
+    max_phase_grad(field)
+
+Compute maximum phase gradient of a grid
+"""
+function max_phase_grad(field)
+
+    tmp = similar(field, Real)
+
+    max_grads = zeros(ndims(field))
+    shift = zeros(ndims(field))
+    shift[1] = 1
+
+    for i in 1:ndims(field)
+        tmp .= angle.(circshift(field, circshift(shift, i)) ./  field)
+        max_grads[i] = maximum(tmp)
+    end
+
+    maximum(max_grads)
+
+end
