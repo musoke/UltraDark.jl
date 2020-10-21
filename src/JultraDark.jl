@@ -112,6 +112,11 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
 
     while (t < t_end) && ~(t ≈ t_end)
 
+        if max_phase_grad(grids.ψx) > π / 4
+            output_grids(grids, output_config, -1)
+            throw("Phase gradient is too large to continue")
+        end
+
         Δt, n_steps = actual_time_step(
             max_time_step(grids, config.a(t)),
             t_end - t,
@@ -142,6 +147,10 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
 
     output_grids(grids, output_config, 1)
 
+    if max_phase_grad(grids.ψx) > π / 4
+        throw("Phase gradient is too large to start")
+    end
+
     for (index, t_end) in enumerate(output_config.output_times[2:end])
         t_begin = evolve_to!(
             t_begin,
@@ -152,6 +161,10 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
         )
         @info "Reached time $t_begin"
         output_grids(grids, output_config, index + 1)
+    end
+
+    if max_phase_grad(grids.ψx) > π / 4
+        throw("Phase gradient is too large to end")
     end
 
 end

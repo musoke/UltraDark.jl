@@ -11,6 +11,10 @@ doctest(JultraDark)
     include("grids.jl")
 end
 
+@testset "Phase grad Grids" begin
+    include("phase_gradient.jl")
+end
+
 @safetestset "Evolution" begin
     include("evolution.jl")
 end
