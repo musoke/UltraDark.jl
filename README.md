@@ -2,6 +2,7 @@
 
 [![Stable](https://img.shields.io/badge/docs-stable-blue.svg)](https://musoke.github.io/JultraDark.jl/stable)
 [![Dev](https://img.shields.io/badge/docs-dev-blue.svg)](https://musoke.github.io/JultraDark.jl/dev)
+[![Build Status](https://github.com/musoke/JultraDark.jl/workflows/CI/badge.svg)](https://github.com/musoke/JultraDark.jl/actions)
 [![Build Status](https://travis-ci.org/musoke/JultraDark.jl.svg?branch=master)](https://travis-ci.org/musoke/JultraDark.jl)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/musoke/JultraDark.jl?svg=true)](https://ci.appveyor.com/project/musoke/JultraDark-jl)
 [![Codecov](https://codecov.io/gh/musoke/JultraDark.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/musoke/JultraDark.jl)
