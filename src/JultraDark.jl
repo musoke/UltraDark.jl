@@ -65,9 +65,9 @@ Take `n` steps with time step `Δt`
 # Examples
 
 ```jldoctest
-julia> using JultraDark: take_steps!, PencilGrids, OutputConfig
+julia> using JultraDark: take_steps!, Grids, OutputConfig
 
-julia> take_steps!(PencilGrids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir(), []), t->1)
+julia> take_steps!(Grids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir(), []), t->1)
 5.0
 
 ```

@@ -79,6 +79,10 @@ function PencilGrids(length::Real, resol::Integer)::PencilGrids
     resol_tuple = (resol, resol, resol)
     resol_tuple_realfft = (resol ÷ 2 + 1, resol, resol)
 
+    if ~MPI.Initialized()
+        MPI.Init()
+    end
+
     # MPI topology information
     comm = MPI.COMM_WORLD  # we assume MPI.Comm_size(comm) == 12
     Nproc = MPI.Comm_size(comm)
