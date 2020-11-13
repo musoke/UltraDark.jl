@@ -16,3 +16,20 @@ Eventually may use [PencilFFTs](https://jipolanco.github.io/PencilFFTs.jl) to do
 ## Installation
 
 You will need [Julia](https://julialang.org/).
+
+To install and runs tests, open the Julia REPL and enter `pkg` mode by pressing
+`]`.
+```julia
+pkg> dev https://github.com/musoke/JultraDark.jl
+
+pkg> test JultraDark
+```
+
+Run a IJulia/Jupyter notebook with
+```julia
+pkg> add IJulia
+
+julia> using IJulia
+
+julia> notebook()
+```
