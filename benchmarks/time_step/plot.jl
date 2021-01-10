@@ -31,6 +31,8 @@ for resol in unique(df_julia.resol)
 
 end
 
+savefig("threads.pdf")
+
 p_resol = plot(
      xlabel="resol",
      ylabel="time (s)",
@@ -51,6 +53,8 @@ for threads in [1, 4]
     )
 
 end
+
+savefig("resol.pdf")
 
 p = plot(p_threads, p_resol)
 savefig("bench")
