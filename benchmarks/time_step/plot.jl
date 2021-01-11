@@ -21,12 +21,23 @@ for resol in unique(df_julia.resol)
 
     df_filtered = df_julia[df_julia.resol .== resol, :]
 
+    sort!(df_filtered, :threads)
+
+    df_filtered[!, :theory] = df_filtered[1, :time] .* df_filtered[1, :threads] ./ df_filtered[!, :threads]
+
     plot!(
         p_threads,
         df_filtered.threads,
         df_filtered.time,
         seriestype = :scatter,
         label = "$resol^3",
+    )
+
+    plot!(
+        p_threads,
+        df_filtered.threads,
+        df_filtered.theory,
+        label = "theory, $resol",
     )
 
 end
@@ -40,9 +51,13 @@ p_resol = plot(
      legendtitle="threads",
 )
 
-for threads in [1, 4]
+for threads in [2, 4]
 
     df_filtered = df_julia[df_julia.threads .== threads, :]
+
+    sort!(df_filtered, :resol)
+
+    df_filtered[!, :theory] = df_filtered[1, :time] ./ df_filtered[1, :resol]^3 .* df_filtered[!, :resol].^3
 
     plot!(
         p_resol,
@@ -50,6 +65,13 @@ for threads in [1, 4]
         df_filtered.time,
         seriestype = :scatter,
         label = "$threads",
+    )
+
+    plot!(
+        p_resol,
+        df_filtered.resol,
+        df_filtered.theory,
+        label = "theory, $threads",
     )
 
 end
