@@ -6,7 +6,7 @@ resol = 16
 
 
 output_dir = "output"
-output_times = 0.0:0.01:0.1
+output_times = 0.0:0.002:0.01
 
 output_config = OutputConfig(output_dir, output_times; box=false)
 options = Config.SimulationConfig(10, t->1)
