@@ -22,7 +22,7 @@ FFTW = "1.2"
 MPI = "0.16, 0.15"
 NBInclude = "2.2"
 NPZ = "0.4"
-PencilFFTs = "0.9, 0.10, 0.11"
+PencilFFTs = "0.9, 0.10, 0.11, 0.12"
 julia = "1"
 
 [extras]
