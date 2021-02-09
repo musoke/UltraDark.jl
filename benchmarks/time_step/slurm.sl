@@ -8,9 +8,9 @@
 #SBATCH --mem                   16G
 #SBATCH --output                log/MyJuliaJob.%j.out # Include the job ID in the names of
 #SBATCH --error                 log/MyJuliaJob.%j.err # the output and error files
-#SBATCH --mail-type=ALL
-#SBATCH --mail-user="n.musoke@auckland.ac.nz"
 
+#############
+# JultraDark.jl
 module purge
 module load Julia/1.5.1-GCC-9.2.0-VTune gimkl
 
@@ -22,13 +22,28 @@ julia -e 'ENV["JULIA_MPI_BINARY"]="system"; using Pkg; Pkg.build("MPI"; verbose=
 
 
 # SLURM_CPUS_PER_TASK=4
+resol_list="64 128 256"
 
-echo "Writing output to $OUTPUT_FILE"
-
-for resol in 64 128 256
+echo "Writing output to $OUTPUT_FILE_JUD for JultraDark.jl"
+for resol in $resol_list
 do
         echo $(date)
         echo "Starting Julia script with threads=$SLURM_CPUS_PER_TASK, resol=$resol"
-        srun julia -t $SLURM_CPUS_PER_TASK benchmarks/time_step/time_step.jl $resol >> $OUTPUT_FILE
-        # julia -t $threads benchmarks/time_step/time_step.jl $resol >> $OUTPUT_FILE
+        srun julia -t $SLURM_CPUS_PER_TASK benchmarks/time_step/time_step.jl $resol >> $OUTPUT_FILE_JUD
+        # julia -t $threads benchmarks/time_step/time_step.jl $resol >> $OUTPUT_FILE_JUD
+done
+
+#############
+# PyUltraLight
+module purge
+module load Python/3.7.3-gimkl-2018b
+
+cd ../PyUltraLight
+
+echo "Writing output to $OUTPUT_FILE_PUL for PyUltraLight"
+for resol in $resol_list
+do
+        echo $(date)
+        echo "Starting PyUltraLight script with threads=$SLURM_CPUS_PER_TASK, resol=$resol"
+        srun python benchmark_script.py $resol >> ../JultraDark.jl/$OUTPUT_FILE_PUL
 done
