@@ -25,7 +25,7 @@ const PHASE_GRAD_LIMIT = π / 4
 Calculate an upper bound on the time step
 """
 function max_time_step(grids, a)
-    max_time_step_gravity = 2π / maximum(grids.Φx)
+    max_time_step_gravity = 2π / maximum(abs.(grids.Φx))
     max_time_step_pressure = 2π * 2 / maximum(grids.k)^2 * a^2  # TODO: cache k_max
 
     @assert isfinite(max_time_step_gravity)
