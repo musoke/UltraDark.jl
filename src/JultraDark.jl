@@ -114,7 +114,7 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
 
     while (t < t_end) && ~(t ≈ t_end)
 
-        if max_phase_grad(grids.ψx) > PHASE_GRAD_LIMIT
+        if max_normed_phase_grad(grids) > PHASE_GRAD_LIMIT
             output_grids(grids, output_config, -1)
             throw("Phase gradient is too large to continue")
         end
@@ -149,7 +149,7 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
 
     output_grids(grids, output_config, 1)
 
-    if max_phase_grad(grids.ψx) > PHASE_GRAD_LIMIT
+    if max_normed_phase_grad(grids) > PHASE_GRAD_LIMIT
         throw("Phase gradient is too large to start")
     end
 
@@ -165,7 +165,7 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
         output_grids(grids, output_config, index + 1)
     end
 
-    if max_phase_grad(grids.ψx) > PHASE_GRAD_LIMIT
+    if max_normed_phase_grad(grids) > PHASE_GRAD_LIMIT
         throw("Phase gradient is too large to end")
     end
 
