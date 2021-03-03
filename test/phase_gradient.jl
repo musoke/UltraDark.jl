@@ -1,47 +1,77 @@
-@safetestset "correct max phase grad" begin
-    using JultraDark:max_phase_grad
+@safetestset "correct phase diff" begin
+    using JultraDark:phase_diff
 
-    n = 16
+    n = 4
+
+    @testset "correct size" begin
+        a = reshape(Vector{Complex}(1:n^3), (n, n, n))
+
+        @test size(phase_diff(a, [1, 0, 0])) == (n, n, n)
+        @test size(phase_diff(a, [0, 1, 0])) == (n, n, n)
+        @test size(phase_diff(a, [0, 0, 1])) == (n, n, n)
+    end
 
     @testset "purely real" begin
         a = reshape(Vector{Complex}(1:n^3), (n, n, n))
-        @test max_phase_grad(a) == 0
+        @test all(phase_diff(a, [1, 0, 0]) .== 0)
+        @test all(phase_diff(a, [0, 1, 0]) .== 0)
+        @test all(phase_diff(a, [0, 0, 1]) .== 0)
     end
 
     @testset "purely imaginary" begin
         a = reshape(Vector{Complex}(1:n^3), (n, n, n)) * im
-        @test max_phase_grad(a) == 0
+        @test all(phase_diff(a, [1, 0, 0]) .== 0)
+        @test all(phase_diff(a, [0, 1, 0]) .== 0)
+        @test all(phase_diff(a, [0, 0, 1]) .== 0)
     end
 
     @testset "real with 1 row negated" begin
         a = reshape(Vector{Complex}(1:n^3), (n, n, n))
         a[1, :, :] *= -1
-        @test max_phase_grad(a) ≈ π
+
+        diff = zeros(Real, size(a))
+        diff .= 0
+        diff[1, :, :] .= -π
+        diff[2, :, :] .= +π
+
+        @test all(phase_diff(a, [1, 0, 0]) .≈ diff)
+        @test all(phase_diff(a, [0, 1, 0]) .≈ 0)
+        @test all(phase_diff(a, [0, 0, 1]) .≈ 0)
     end
 
     @testset "real with 1 row negated" begin
         a = reshape(Vector{Complex}(1:n^3), (n, n, n))
         a[:, 3, :] *= -1
-        @test max_phase_grad(a) ≈ π
-    end
 
-    @testset "real with 1 row negated" begin
-        a = reshape(Vector{Complex}(1:n^3), (n, n, n))
-        a[:, :, 5] *= -1
-        @test max_phase_grad(a) ≈ π
+        diff = zeros(Real, size(a))
+        diff .= 0
+        diff[:, 3, :] .= -π
+        diff[:, 4, :] .= +π
+
+        @test all(phase_diff(a, [1, 0, 0]) .≈ 0)
+        @test all(phase_diff(a, [0, 1, 0]) .≈ diff)
+        @test all(phase_diff(a, [0, 0, 1]) .≈ 0)
     end
 
     @testset "real with 1 row imaginary" begin
         a = reshape(Vector{Complex}(1:n^3), (n, n, n))
-        a[1, :, :] *= im
-        @test max_phase_grad(a) ≈ π / 2
+        a[:, :, 2] *= im
+
+        diff = zeros(Real, size(a))
+        diff .= 0
+        diff[:, :, 2] .= -π/2
+        diff[:, :, 3] .= +π/2
+
+        @test all(phase_diff(a, [1, 0, 0]) .≈ 0)
+        @test all(phase_diff(a, [0, 1, 0]) .≈ 0)
+        @test all(phase_diff(a, [0, 0, 1]) .≈ diff)
     end
 
 end
 
 @safetestset "terminate if grad too large" begin
     using JultraDark
-    using JultraDark: evolve_to!, max_phase_grad
+    using JultraDark: evolve_to!
 
     n = 16
 
