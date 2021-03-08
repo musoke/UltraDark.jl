@@ -16,6 +16,12 @@ julia> Grids(len, resol);
 ```
 """
 struct Grids
+    "Array of x positions"
+    x::Array{Float64,3}
+    "Array of y positions"
+    y::Array{Float64,3}
+    "Array of z positions"
+    z::Array{Float64,3}
     "Real space distance array"
     dist::Array{Float64,3}
     "Fourier space postition array"
@@ -37,12 +43,12 @@ struct Grids
     fft_plan
     rfft_plan
 
-    function Grids(dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk)
+    function Grids(x, y, z, dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk)
         n_dims = 3
         resol_tuple = size(dist)
         resol_tuple_realfft = (size(dist, 1) ÷ 2 + 1, size(dist, 2), size(dist, 3))
 
-        for var in [dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk]
+        for var in [dist, x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk]
             @assert(ndims(var) == n_dims)
         end
         for var in [dist, k, ψx, ψk, ρx, Φx]
@@ -51,6 +57,9 @@ struct Grids
         for var in [rk, ρk, Φk]
             @assert(size(var) == resol_tuple_realfft)
         end
+        @assert(size(x) == (resol_tuple[1], 1, 1))
+        @assert(size(y) == (1, resol_tuple[2], 1))
+        @assert(size(z) == (1, 1, resol_tuple[3]))
 
         FFTW.set_num_threads(Threads.nthreads())
         fft_plan = plan_fft(
@@ -65,7 +74,7 @@ struct Grids
         )
         inv(rfft_plan)
 
-        new(dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
+        new(x, y, z, dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
     end
 end
 
@@ -99,8 +108,19 @@ function Grids(length::Real, resol::Integer)::Grids
     Φx = zeros(Float64, resol_tuple)
     Φk = zeros(Complex{Float64}, resol_tuple_realfft)
 
+    gridvec = range(
+        -length / 2 + length / 2resol,
+        +length / 2 - length / 2resol,
+        length=resol
+    )
+
+    x = reshape(gridvec, resol, 1, 1)
+    y = reshape(gridvec, 1, resol, 1)
+    z = reshape(gridvec, 1, 1, resol)
+
     Grids(
-        dist_array(length, resol),
+        x, y, z,
+        (x.^2 .+ y.^2 .+ z.^2).^0.5,
         k_norm((length, length, length), (resol, resol, resol)),
         rk_norm((length, length, length), (resol, resol, resol)),
         ψx,
@@ -150,20 +170,6 @@ function Grids(ψx::Array{Complex{Float64}}, length::Real)::Grids
     grids.ψx .= ψx
 
     grids
-end
-
-function dist_array(length, resol::Integer)
-    gridvec = range(
-        -length / 2 + length / 2resol,
-        +length / 2 - length / 2resol,
-        length=resol
-    )
-
-    x = reshape(gridvec, resol, 1, 1)
-    y = reshape(gridvec, 1, resol, 1)
-    z = reshape(gridvec, 1, 1, resol)
-
-    (x.^2 .+ y.^2 .+ z.^2).^0.5
 end
 
 """

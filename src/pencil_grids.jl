@@ -193,3 +193,17 @@ function PencilGrids(ψx::Array{Complex{Float64}}, length::Real)::PencilGrids
     grids
 
 end
+
+function dist_array(length, resol::Integer)
+    gridvec = range(
+        -length / 2 + length / 2resol,
+        +length / 2 - length / 2resol,
+        length=resol
+    )
+
+    x = reshape(gridvec, resol, 1, 1)
+    y = reshape(gridvec, 1, resol, 1)
+    z = reshape(gridvec, 1, 1, resol)
+
+    (x.^2 .+ y.^2 .+ z.^2).^0.5
+end
