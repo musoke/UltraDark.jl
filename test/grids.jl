@@ -1,19 +1,9 @@
 using JultraDark
 
-@testset "Initialise Grids" begin
-    grids = Grids(zeros(Complex{Float64}, 16, 16, 16), 1)
-    @test typeof(grids) == Grids
+for grids_type in [Grids, PencilGrids]
+    grids = grids_type(zeros(Complex{Float64}, 16, 16, 16), 1)
+    @test typeof(grids) == grids_type
 
-    grids = Grids(1.0, 4)
-    @test typeof(grids) == Grids
-
-end
-
-@testset "Initialise PencilGrids" begin
-    grids = PencilGrids(zeros(Complex{Float64}, 16, 16, 16), 1)
-    @test typeof(grids) == PencilGrids
-
-    grids = PencilGrids(1.0, 4)
-    @test typeof(grids) == PencilGrids
-
+    grids = grids_type(1.0, 4)
+    @test typeof(grids) == grids_type
 end
