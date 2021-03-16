@@ -207,3 +207,21 @@ function dist_array(length, resol::Integer)
 
     (x.^2 .+ y.^2 .+ z.^2).^0.5
 end
+
+"""
+    phase_diff(field::PencilArray, dir)
+
+Compute point-to-point difference of phase on a grid along a direction
+
+Returns an array of size `(size(field)[1], size(field)[2], size(field)[2])`
+containing gradients in direction `dir`.
+"""
+function phase_diff(field::PencilArray, dir)
+    @warn "phase diff unimplemented for PencilArrays"
+    0
+    # out = similar(field, Real)
+
+    # out .= angle.(circshift(field, dir) ./  field)
+
+    # out
+end
