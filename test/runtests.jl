@@ -3,12 +3,14 @@ using Test, Documenter
 using SafeTestsets
 using MPI
 
-MPI.Init()
-
 doctest(JultraDark)
 
 @safetestset "grids.jl" begin
     include("grids.jl")
+end
+
+@safetestset "output.jl" begin
+    include("output.jl")
 end
 
 @testset "Phase grad Grids" begin
