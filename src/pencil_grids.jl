@@ -42,8 +42,9 @@ struct PencilGrids
     Φk
     fft_plan
     rfft_plan
+    MPI_COMM
 
-    function PencilGrids(x, y, z, dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
+    function PencilGrids(x, y, z, dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
         n_dims = 3
         resol_tuple = size_global(dist)
         resol_tuple_realfft = (size_global(dist)[1] ÷ 2 + 1, size_global(dist)[2], size_global(dist)[3])
@@ -64,7 +65,7 @@ struct PencilGrids
         @assert(size(y) == (1, resol_tuple[2], 1))
         @assert(size(z) == (1, 1, resol_tuple[3]))
 
-        new(x, y, x, dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
+        new(x, y, x, dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
     end
 end
 
@@ -94,7 +95,7 @@ function PencilGrids(length::Real, resol::Integer)::PencilGrids
     end
 
     # MPI topology information
-    comm = MPI.COMM_WORLD  # we assume MPI.Comm_size(comm) == 12
+    comm = MPI.COMM_WORLD
     Nproc = MPI.Comm_size(comm)
 
     # Let MPI_Dims_create choose the decomposition.
@@ -160,6 +161,7 @@ function PencilGrids(length::Real, resol::Integer)::PencilGrids
         ρx, ρk,
         Φx, Φk,
         fft_plan, rfft_plan,
+        comm
     )
 end
 
