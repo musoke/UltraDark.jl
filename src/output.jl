@@ -67,31 +67,45 @@ function output_grids(grids::PencilGrids, output_config, step)
     #TODO: don't use gather.  This sends all data to one node.  Should instead use multithreaded HDF5 output
     if output_config.box
         if output_config.psi
-            NPZ.npzwrite(
-                joinpath(output_config.directory, "psi_$step.npy"),
-                gather(grids.ψx)
-            )
+            output = gather(grids.ψx)
+            if MPI.Comm_rank(grids.MPI_COMM) == 0
+                NPZ.npzwrite(
+                    joinpath(output_config.directory, "psi_$step.npy"),
+                    output,
+                )
+            end
         end
+
         if output_config.rho
-            NPZ.npzwrite(
-                joinpath(output_config.directory, "rho_$step.npy"),
-                gather(grids.ρx)
-            )
+            output = gather(grids.ρx)
+            if MPI.Comm_rank(grids.MPI_COMM) == 0
+                NPZ.npzwrite(
+                    joinpath(output_config.directory, "rho_$step.npy"),
+                    output,
+                )
+            end
         end
     end
 
     if output_config.slice
         if output_config.psi
-            NPZ.npzwrite(
-                joinpath(output_config.directory, "psi_slice_$step.npy"),
-                gather(grids.ψx[1, :, :])
-            )
+            output = gather(grids.ψx[1, :, :])
+            if MPI.Comm_rank(grids.MPI_COMM) == 0
+                NPZ.npzwrite(
+                    joinpath(output_config.directory, "psi_slice_$step.npy"),
+                    output[1, :, :],
+                )
+            end
         end
+
         if output_config.rho
-            NPZ.npzwrite(
-                joinpath(output_config.directory, "rho_slice_$step.npy"),
-                gather(grids.ρx[1, :, :])
-            )
+            output = gather(grids.ρx)
+            if MPI.Comm_rank(grids.MPI_COMM) == 0
+                NPZ.npzwrite(
+                    joinpath(output_config.directory, "rho_slice_$step.npy"),
+                    output[1, :, :],
+                )
+            end
         end
     end
 end
