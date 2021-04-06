@@ -211,6 +211,28 @@ function PencilGrids(ψx::Array{Complex{Float64}}, length::Real)::PencilGrids
 end
 
 """
+    max_time_step(grids, a)
+
+Calculate an upper bound on the time step
+"""
+function max_time_step(grids::PencilGrids, a)
+    # Find maximum on local grid
+    local_max_time_step_gravity = 2π / maximum(abs.(grids.Φx))
+    local_max_time_step_pressure = 2π * 2 / maximum(grids.k)^2 * a^2  # TODO: cache k_max
+
+    # Maximize over other grids
+    max_time_step_gravity = MPI.Allreduce(local_max_time_step_gravity, MPI.MIN, grids.MPI_COMM)
+    max_time_step_pressure = MPI.Allreduce(local_max_time_step_pressure, MPI.MIN, grids.MPI_COMM)
+
+    @assert isfinite(max_time_step_gravity)
+    @assert isfinite(max_time_step_pressure)
+
+    time_step = min(max_time_step_gravity, max_time_step_pressure)
+
+    time_step
+end
+
+"""
     phase_diff(field::PencilArray, dir)
 
 Compute point-to-point difference of phase on a grid along a direction

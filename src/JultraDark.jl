@@ -20,23 +20,6 @@ include("config.jl")
 const PHASE_GRAD_LIMIT = π / 4
 
 """
-    max_time_step(grids, a)
-
-Calculate an upper bound on the time step
-"""
-function max_time_step(grids, a)
-    max_time_step_gravity = 2π / maximum(abs.(grids.Φx))
-    max_time_step_pressure = 2π * 2 / maximum(grids.k)^2 * a^2  # TODO: cache k_max
-
-    @assert isfinite(max_time_step_gravity)
-    @assert isfinite(max_time_step_pressure)
-
-    time_step = min(max_time_step_gravity, max_time_step_pressure)
-
-    time_step
-end
-
-"""
     actual_time_step(max_timestep::Real, time_interval::Real, n::Integer)
 
 Actual size and number of time steps that should be taken if the maximum 
