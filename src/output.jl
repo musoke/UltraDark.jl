@@ -131,9 +131,62 @@ end
 Write a new row to the summary file
 """
 function output_summary_row(grids, output_config, t, a, Δt)
+    s = SummaryStat(grids)
+
     open(joinpath(output_config.directory, "summary.csv"), "a") do file
         ρx_mean = mean(grids.ρx)
         δx_rms = mean(((grids.ρx .- ρx_mean).^2))^0.5
-        write(file, "$t, $a, $Δt, $ρx_mean, $δx_rms\n")
+        write(file, "$t, $a, $Δt, $(s.ρx_mean), $(s.δx_rms)\n")
     end
+end
+
+"""
+    output_summary_row(grids::PencilGrids, output_config, t, a, Δt)
+
+Write a new row to the summary file
+"""
+function output_summary_row(grids::PencilGrids, output_config, t, a, Δt)
+    root = 0
+    s = MPI.Reduce(SummaryStat(grids), pool_summarystat, root, grids.MPI_COMM)
+
+    if MPI.Comm_rank(grids.MPI_COMM) == 0
+        open(joinpath(output_config.directory, "summary.csv"), "a") do file
+            ρx_mean = mean(grids.ρx)
+            δx_rms = mean(((grids.ρx .- ρx_mean).^2))^0.5
+            write(file, "$t, $a, $Δt, $(s.ρx_mean), $(s.δx_rms)\n")
+        end
+    end
+end
+
+"""
+    SummaryStat
+"""
+struct SummaryStat
+    "mean of density"
+    ρx_mean::Float64
+    "RMS of density contrast"
+    δx_rms::Float64
+    "number of grid points summarized"
+    n::Float64
+end
+
+function SummaryStat(grids)
+    ρx_mean = mean(grids.ρx)
+    δx_rms = mean(((grids.ρx .- ρx_mean).^2))^0.5
+    n = prod(size(grids.ρx))
+
+    SummaryStat(ρx_mean, δx_rms, n)
+end
+
+"""
+    pool_summarystat(S1::SummaryStat, S2::SummaryStat)
+
+Custom MPI reduction operator for summary statistics.
+"""
+function pool_summarystat(S1::SummaryStat, S2::SummaryStat)
+    n = S1.n + S2.n
+    ρx_mean = (S1.ρx_mean * S1.n + S2.ρx_mean * S2.n) / n
+    δx_rms = ((S1.n * S1.δx_rms^2 + S2.n * S2.δx_rms^2) / n)^0.5
+
+    SummaryStat(ρx_mean, δx_rms, n)
 end
