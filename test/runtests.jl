@@ -26,6 +26,14 @@ end
     include("sims/full.jl")
 end
 
+@safetestset "soliton" begin
+    include("sims/soliton_static.jl")
+end
+
+@safetestset "soliton" begin
+    include("../examples/soliton_velocity.jl")
+end
+
 # Put notebook in module to emulate SafeTestsets
 # https://github.com/YingboMa/SafeTestsets.jl/issues/3
 module GrowthNotebook

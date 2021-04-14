@@ -110,6 +110,7 @@ function PencilGrids(length::Real, resol::Integer)::PencilGrids
 
     # Allocate ψx and ψk arrays
     ψx = allocate_input(fft_plan)
+    ψx .= 0
     ψk = allocate_output(fft_plan)
 
     # Plan a 3D real-to-complex (r2c) FFT.
