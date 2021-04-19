@@ -22,8 +22,6 @@ struct PencilGrids
     y::Array{Float64,3}
     "Array of z positions"
     z::Array{Float64,3}
-    "Real space distance array"
-    dist
     "Fourier space postition array"
     k
     "Fourier space postition array for use with `rfft`"
@@ -44,16 +42,16 @@ struct PencilGrids
     rfft_plan
     MPI_COMM
 
-    function PencilGrids(x, y, z, dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
+    function PencilGrids(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
         n_dims = 3
-        resol_tuple = size_global(dist)
-        resol_tuple_realfft = (size_global(dist)[1] ÷ 2 + 1, size_global(dist)[2], size_global(dist)[3])
+        resol_tuple = (size(x)[1], size(y)[2], size(z)[3])
+        resol_tuple_realfft = (size(x)[1] ÷ 2 + 1, size(y)[2], size(z)[3])
 
-        for var in [dist, x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk]
+        for var in [x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk]
             @assert(ndims(var) == n_dims)
         end
 
-        for var in [dist, k, ψx, ψk, ρx, Φx]
+        for var in [k, ψx, ψk, ρx, Φx]
             @assert(size_global(var) == resol_tuple)
         end
 
@@ -65,7 +63,7 @@ struct PencilGrids
         @assert(size(y) == (1, resol_tuple[2], 1))
         @assert(size(z) == (1, 1, resol_tuple[3]))
 
-        new(x, y, x, dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
+        new(x, y, x, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
     end
 end
 
@@ -132,14 +130,6 @@ function PencilGrids(length::Real, resol::Integer)::PencilGrids
     y = reshape(gridvec, 1, resol, 1)
     z = reshape(gridvec, 1, 1, resol)
 
-    _dist = (x.^2 .+ y.^2 .+ z.^2).^0.5  # TODO: do in local coords
-    dist = allocate_input(rfft_plan)
-    dist_glob = global_view(dist)
-
-    for I in CartesianIndices(dist_glob)
-        dist_glob[I] = _dist[I]
-    end
-
     k = similar(ψk, Float64)
     k_glob = global_view(k)
     _k = k_norm((length, length, length), (resol, resol, resol))
@@ -156,7 +146,6 @@ function PencilGrids(length::Real, resol::Integer)::PencilGrids
 
     PencilGrids(
         x, y, z,
-        dist,
         k, rk,
         ψx, ψk,
         ρx, ρk,
