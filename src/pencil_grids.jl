@@ -242,11 +242,11 @@ Returns an array of size `(size(field)[1], size(field)[2], size(field)[2])`
 containing gradients in direction `dir`.
 """
 function phase_diff(field::PencilArray, dir)
-    @warn "phase diff unimplemented for PencilArrays"
-    0
-    # out = similar(field, Real)
+    out = similar(field, Real)
 
-    # out .= angle.(circshift(field, dir) ./  field)
+    # TODO diff at boundaries
+    out .= 0
+    out[1:end-dir[1], 1:end-dir[2], 1:end-dir[3]] .= angle.(circshift(field[1:end-dir[1], 1:end-dir[2], 1:end-dir[3]], dir) ./ field[1+dir[1]:end, 1+dir[2]:end, 1+dir[3]:end])
 
-    # out
+    out
 end

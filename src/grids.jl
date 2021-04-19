@@ -316,7 +316,7 @@ function max_normed_phase_grad(grids)
 
     max_grads = zeros(n)
 
-    shift = zeros(n)
+    shift = zeros(Int, n)
     shift[1] = 1
 
     for i in 1:n
