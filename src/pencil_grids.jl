@@ -16,6 +16,12 @@ julia> PencilGrids(len, resol);
 ```
 """
 struct PencilGrids
+    "Array of x positions"
+    x::Array{Float64,3}
+    "Array of y positions"
+    y::Array{Float64,3}
+    "Array of z positions"
+    z::Array{Float64,3}
     "Real space distance array"
     dist
     "Fourier space postition array"
@@ -36,13 +42,14 @@ struct PencilGrids
     Φk
     fft_plan
     rfft_plan
+    MPI_COMM
 
-    function PencilGrids(dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
+    function PencilGrids(x, y, z, dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
         n_dims = 3
         resol_tuple = size_global(dist)
         resol_tuple_realfft = (size_global(dist)[1] ÷ 2 + 1, size_global(dist)[2], size_global(dist)[3])
 
-        for var in [dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk]
+        for var in [dist, x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk]
             @assert(ndims(var) == n_dims)
         end
 
@@ -54,7 +61,11 @@ struct PencilGrids
             @assert(size_global(var) == resol_tuple_realfft)
         end
 
-        new(dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
+        @assert(size(x) == (resol_tuple[1], 1, 1))
+        @assert(size(y) == (1, resol_tuple[2], 1))
+        @assert(size(z) == (1, 1, resol_tuple[3]))
+
+        new(x, y, x, dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
     end
 end
 
@@ -84,7 +95,7 @@ function PencilGrids(length::Real, resol::Integer)::PencilGrids
     end
 
     # MPI topology information
-    comm = MPI.COMM_WORLD  # we assume MPI.Comm_size(comm) == 12
+    comm = MPI.COMM_WORLD
     Nproc = MPI.Comm_size(comm)
 
     # Let MPI_Dims_create choose the decomposition.
@@ -99,6 +110,7 @@ function PencilGrids(length::Real, resol::Integer)::PencilGrids
 
     # Allocate ψx and ψk arrays
     ψx = allocate_input(fft_plan)
+    ψx .= 0
     ψk = allocate_output(fft_plan)
 
     # Plan a 3D real-to-complex (r2c) FFT.
@@ -110,9 +122,20 @@ function PencilGrids(length::Real, resol::Integer)::PencilGrids
     Φx = allocate_input(rfft_plan)
     Φk = allocate_output(rfft_plan)
 
+    gridvec = range(
+        -length / 2 + length / 2resol,
+        +length / 2 - length / 2resol,
+        length=resol
+    )
+
+    x = reshape(gridvec, resol, 1, 1)
+    y = reshape(gridvec, 1, resol, 1)
+    z = reshape(gridvec, 1, 1, resol)
+
+    _dist = (x.^2 .+ y.^2 .+ z.^2).^0.5  # TODO: do in local coords
     dist = allocate_input(rfft_plan)
     dist_glob = global_view(dist)
-    _dist = dist_array(length, resol)
+
     for I in CartesianIndices(dist_glob)
         dist_glob[I] = _dist[I]
     end
@@ -131,14 +154,15 @@ function PencilGrids(length::Real, resol::Integer)::PencilGrids
         rk_glob[I] = _rk[I]
     end
 
-
     PencilGrids(
+        x, y, z,
         dist,
         k, rk,
         ψx, ψk,
         ρx, ρk,
         Φx, Φk,
         fft_plan, rfft_plan,
+        comm
     )
 end
 
@@ -177,33 +201,52 @@ function PencilGrids(ψx::Array{Complex{Float64}}, length::Real)::PencilGrids
     resol = size(ψx, 1)
     grids = PencilGrids(length, resol)
 
+    # Assign each ψx element desired value
     ψx_glob = global_view(grids.ψx)
     for I in CartesianIndices(ψx_glob)
         ψx_glob[I] = ψx[I]
     end
 
-    grids.ρx .= abs2.(grids.ψx)
-    a_init = 1  # TODO
-
-    grids.ρk .= grids.rfft_plan * grids.ρx
-    grids.Φk .= -4 * π * grids.ρk ./ (a_init * grids.rk.^2)
-    grids.Φk[1, 1, 1] = 0
-    grids.Φx .= grids.rfft_plan \ grids.Φk
-
     grids
 
 end
 
-function dist_array(length, resol::Integer)
-    gridvec = range(
-        -length / 2 + length / 2resol,
-        +length / 2 - length / 2resol,
-        length=resol
-    )
+"""
+    max_time_step(grids, a)
 
-    x = reshape(gridvec, resol, 1, 1)
-    y = reshape(gridvec, 1, resol, 1)
-    z = reshape(gridvec, 1, 1, resol)
+Calculate an upper bound on the time step
+"""
+function max_time_step(grids::PencilGrids, a)
+    # Find maximum on local grid
+    local_max_time_step_gravity = 2π / maximum(abs.(grids.Φx))
+    local_max_time_step_pressure = 2π * 2 / maximum(grids.k)^2 * a^2  # TODO: cache k_max
 
-    (x.^2 .+ y.^2 .+ z.^2).^0.5
+    # Maximize over other grids
+    max_time_step_gravity = MPI.Allreduce(local_max_time_step_gravity, MPI.MIN, grids.MPI_COMM)
+    max_time_step_pressure = MPI.Allreduce(local_max_time_step_pressure, MPI.MIN, grids.MPI_COMM)
+
+    @assert isfinite(max_time_step_gravity)
+    @assert isfinite(max_time_step_pressure)
+
+    time_step = min(max_time_step_gravity, max_time_step_pressure)
+
+    time_step
+end
+
+"""
+    phase_diff(field::PencilArray, dir)
+
+Compute point-to-point difference of phase on a grid along a direction
+
+Returns an array of size `(size(field)[1], size(field)[2], size(field)[2])`
+containing gradients in direction `dir`.
+"""
+function phase_diff(field::PencilArray, dir)
+    out = similar(field, Real)
+
+    # TODO diff at boundaries
+    out .= 0
+    out[1:end-dir[1], 1:end-dir[2], 1:end-dir[3]] .= angle.(circshift(field[1:end-dir[1], 1:end-dir[2], 1:end-dir[3]], dir) ./ field[1+dir[1]:end, 1+dir[2]:end, 1+dir[3]:end])
+
+    out
 end

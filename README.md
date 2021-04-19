@@ -5,11 +5,10 @@
 [![Build Status](https://github.com/musoke/JultraDark.jl/workflows/CI/badge.svg)](https://github.com/musoke/JultraDark.jl/actions)
 [![Build Status](https://ci.appveyor.com/api/projects/status/github/musoke/JultraDark.jl?svg=true)](https://ci.appveyor.com/project/musoke/JultraDark-jl)
 [![Codecov](https://codecov.io/gh/musoke/JultraDark.jl/branch/master/graph/badge.svg)](https://codecov.io/gh/musoke/JultraDark.jl)
-[![Build Status](https://api.cirrus-ci.com/github/musoke/JultraDark.jl.svg)](https://cirrus-ci.com/github/musoke/JultraDark.jl)
 
 Simulations of cosmological scalar fields inspired by [PyUltraLight](https://github.com/auckland-cosmo/PyUltraLight).
 
-Eventually may use [PencilFFTs](https://jipolanco.github.io/PencilFFTs.jl) to do Fourier transforms in distributed memory.
+JultraDark uses [PencilFFTs](https://jipolanco.github.io/PencilFFTs.jl) to do Fourier transforms in an MPI environment.
 
 
 ## Installation

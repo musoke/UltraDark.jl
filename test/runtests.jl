@@ -3,12 +3,14 @@ using Test, Documenter
 using SafeTestsets
 using MPI
 
-MPI.Init()
-
 doctest(JultraDark)
 
 @safetestset "grids.jl" begin
     include("grids.jl")
+end
+
+@safetestset "output.jl" begin
+    include("output.jl")
 end
 
 @testset "Phase grad Grids" begin
@@ -22,6 +24,14 @@ end
 # Run examples
 @safetestset "full sim" begin
     include("sims/full.jl")
+end
+
+@safetestset "soliton" begin
+    include("sims/soliton_static.jl")
+end
+
+@safetestset "soliton" begin
+    include("../examples/soliton_velocity.jl")
 end
 
 # Put notebook in module to emulate SafeTestsets
