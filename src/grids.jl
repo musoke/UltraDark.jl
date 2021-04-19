@@ -22,8 +22,6 @@ struct Grids
     y::Array{Float64,3}
     "Array of z positions"
     z::Array{Float64,3}
-    "Real space distance array"
-    dist::Array{Float64,3}
     "Fourier space postition array"
     k::Array{Float64,3}
     "Fourier space postition array for use with `rfft`"
@@ -43,15 +41,15 @@ struct Grids
     fft_plan
     rfft_plan
 
-    function Grids(x, y, z, dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk)
+    function Grids(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk)
         n_dims = 3
-        resol_tuple = size(dist)
-        resol_tuple_realfft = (size(dist, 1) ÷ 2 + 1, size(dist, 2), size(dist, 3))
+        resol_tuple = (size(x)[1], size(y)[2], size(z)[3])
+        resol_tuple_realfft = (size(x)[1] ÷ 2 + 1, size(y)[2], size(z)[3])
 
-        for var in [dist, x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk]
+        for var in [x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk]
             @assert(ndims(var) == n_dims)
         end
-        for var in [dist, k, ψx, ψk, ρx, Φx]
+        for var in [k, ψx, ψk, ρx, Φx]
             @assert(size(var) == resol_tuple)
         end
         for var in [rk, ρk, Φk]
@@ -74,7 +72,7 @@ struct Grids
         )
         inv(rfft_plan)
 
-        new(x, y, z, dist, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
+        new(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
     end
 end
 
@@ -120,7 +118,6 @@ function Grids(length::Real, resol::Integer)::Grids
 
     Grids(
         x, y, z,
-        (x.^2 .+ y.^2 .+ z.^2).^0.5,
         k_norm((length, length, length), (resol, resol, resol)),
         rk_norm((length, length, length), (resol, resol, resol)),
         ψx,

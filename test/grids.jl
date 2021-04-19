@@ -21,16 +21,16 @@ end
     grids = Grids(1.0, resol)
     pencil_grids = PencilGrids(1.0, resol)
 
-    gathered_pg = PencilFFTs.gather(pencil_grids.dist)
+    gathered_pg = PencilFFTs.gather(pencil_grids.k)
 
     if MPI.Comm_rank(pencil_grids.MPI_COMM) == 0
-        @test all(grids.dist .== gathered_pg)
+        @test all(grids.k .== gathered_pg)
 
-        npzwrite(dir * "/dist_grids.npy", grids.dist)
+        npzwrite(joinpath(dir, "k_grids.npy"), grids.k)
 
-        npzwrite(dir * "/dist_pencilgrids.npy", gathered_pg)
+        npzwrite(joinpath(dir, "k_pencilgrids.npy"), gathered_pg)
 
-        @test all(npzread(dir * "/dist_grids.npy") .== npzread(dir * "/dist_pencilgrids.npy"))
+        @test all(npzread(joinpath(dir, "k_grids.npy")) .== npzread(joinpath(dir, "k_pencilgrids.npy")))
     else
         @test size(gathered_pg) == 0
     end

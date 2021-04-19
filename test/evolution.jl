@@ -33,7 +33,7 @@ for grid_type in [Grids, PencilGrids]
         grids = grid_type(1.0, 16)
 
         a = 1
-        grids.ψx .= grids.dist ./ 1e9 # Set ψx to something non-zero
+        grids.ψx .= (grids.x.^2 .+ grids.y.^2 .+ grids.z.^2).^0.5 ./ 1e9 # Set ψx to something non-zero
         grids.ψk .= (grids.fft_plan * grids.ψx)
         grids.ρx .= abs2.(grids.ψx)
         grids.Φk .= -4 * π * (grids.rfft_plan * grids.ρx) ./ (a * grids.rk.^2)
