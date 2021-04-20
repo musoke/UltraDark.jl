@@ -40,3 +40,8 @@ module GrowthNotebook
     using NBInclude
     @nbinclude("../examples/growth.ipynb")
 end
+
+module TwoDNotebook
+    using NBInclude
+    @nbinclude("../examples/2d.ipynb")
+end

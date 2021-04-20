@@ -68,7 +68,7 @@ struct PencilGrids
 end
 
 """
-    PencilGrids(length::Real, resol::Integer)
+    PencilGrids(length, resol)
 
 Constructor for `PencilGrids`
 
@@ -83,10 +83,36 @@ julia> PencilGrids(1.0, 64);
 
 ```
 """
-function PencilGrids(length::Real, resol::Integer)::PencilGrids
+function PencilGrids(length, resol::Int)::PencilGrids
 
-    resol_tuple = (resol, resol, resol)
-    resol_tuple_realfft = (resol ÷ 2 + 1, resol, resol)
+    PencilGrids((length, length, length), (resol, resol, resol))
+
+end
+
+"""
+    PencilGrids(length_tuple, resol_tuple::Tuple{Int, Int, Int})
+
+Constructor for `PencilGrids`
+
+Create an empty `length[1]`x`length[2]`x`length[3]` grid with resolution
+`resol[1]`x`resol[2]`x`resol[3]`.
+Each grid is a `PencilArray`, allowing multiprocess FFTs.
+
+# Examples
+
+```jldoctest
+julia> using JultraDark
+
+julia> PencilGrids((1.0, 1.0, 0.5), (64, 64, 32));
+
+```
+"""
+function PencilGrids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::PencilGrids
+
+    resol_tuple_realfft = (resol_tuple[1] ÷ 2 + 1, resol_tuple[2], resol_tuple[3])
+
+    @assert length_tuple[1] / resol_tuple[1] ≈ length_tuple[2] / resol_tuple[2]
+    @assert length_tuple[1] / resol_tuple[1] ≈ length_tuple[3] / resol_tuple[3]
 
     if ~MPI.Initialized()
         MPI.Init()
@@ -120,26 +146,43 @@ function PencilGrids(length::Real, resol::Integer)::PencilGrids
     Φx = allocate_input(rfft_plan)
     Φk = allocate_output(rfft_plan)
 
-    gridvec = range(
-        -length / 2 + length / 2resol,
-        +length / 2 - length / 2resol,
-        length=resol
+    x = reshape(
+                range(
+                      -length_tuple[1] / 2 + length_tuple[1] / 2resol_tuple[1],
+                      +length_tuple[1] / 2 - length_tuple[1] / 2resol_tuple[1],
+                      length=resol_tuple[1]
+                     ),
+                resol_tuple[1], 1, 1
     )
 
-    x = reshape(gridvec, resol, 1, 1)
-    y = reshape(gridvec, 1, resol, 1)
-    z = reshape(gridvec, 1, 1, resol)
+    y = reshape(
+                range(
+                      -length_tuple[2] / 2 + length_tuple[2] / 2resol_tuple[2],
+                      +length_tuple[2] / 2 - length_tuple[2] / 2resol_tuple[2],
+                      length=resol_tuple[2]
+                     ),
+                1, resol_tuple[2], 1
+    )
+
+    z = reshape(
+                range(
+                      -length_tuple[3] / 2 + length_tuple[3] / 2resol_tuple[3],
+                      +length_tuple[3] / 2 - length_tuple[3] / 2resol_tuple[3],
+                      length=resol_tuple[3]
+                     ),
+                1, 1, resol_tuple[3]
+    )
 
     k = similar(ψk, Float64)
     k_glob = global_view(k)
-    _k = k_norm((length, length, length), (resol, resol, resol))
+    _k = k_norm(length_tuple, resol_tuple)
     for I in CartesianIndices(k_glob)
         k_glob[I] = _k[I]
     end
 
     rk = similar(ρk, Float64)
     rk_glob = global_view(rk)
-    _rk = rk_norm((length, length, length), (resol, resol, resol))
+    _rk = rk_norm(length_tuple, resol_tuple)
     for I in CartesianIndices(rk_glob)
         rk_glob[I] = _rk[I]
     end
@@ -153,51 +196,6 @@ function PencilGrids(length::Real, resol::Integer)::PencilGrids
         fft_plan, rfft_plan,
         comm
     )
-end
-
-"""
-    PencilGrids(ψx::Array{Complex{Float64}}, length::Real)
-
-Constructor for `PencilGrids`
-
-Create a grid with given ψ field, length `length` and resolution inferred
-from `ψx`
-
-# Examples
-
-Can be contructed from a ψ field and box length,
-```jldoctest
-julia> using JultraDark
-
-julia> ψ = zeros(Complex{Float64}, 16, 16, 16);
-
-julia> len = 1;
-
-julia> PencilGrids(ψ, len);
-
-```
-"""
-function PencilGrids(ψx::Array{Complex{Float64}}, length::Real)::PencilGrids
-    @assert(
-        ndims(ψx) == 3,
-        "Invalid ψ: only three dimensions supported"
-    )
-    @assert(
-        size(ψx, 1) == size(ψx, 2) == size(ψx, 3),
-        "Invalid ψ: heterogenous resolutions"
-    )
-
-    resol = size(ψx, 1)
-    grids = PencilGrids(length, resol)
-
-    # Assign each ψx element desired value
-    ψx_glob = global_view(grids.ψx)
-    for I in CartesianIndices(ψx_glob)
-        ψx_glob[I] = ψx[I]
-    end
-
-    grids
-
 end
 
 """
