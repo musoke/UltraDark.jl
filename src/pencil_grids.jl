@@ -63,7 +63,7 @@ struct PencilGrids
         @assert(size(y) == (1, resol_tuple[2], 1))
         @assert(size(z) == (1, 1, resol_tuple[3]))
 
-        new(x, y, x, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
+        new(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
     end
 end
 
