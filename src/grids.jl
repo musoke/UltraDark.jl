@@ -77,7 +77,7 @@ struct Grids
 end
 
 """
-    Grids(length::Real, resol::Integer)
+    Grids(length, resol::Int)
 
 Constructor for `Grids`
 
@@ -92,10 +92,36 @@ julia> Grids(1.0, 64);
 
 ```
 """
-function Grids(length::Real, resol::Integer)::Grids
+function Grids(length, resol::Int)::Grids
 
-    resol_tuple = (resol, resol, resol)
-    resol_tuple_realfft = (resol ÷ 2 + 1, resol, resol)
+    Grids((length, length, length), (resol, resol, resol))
+
+end
+
+"""
+    Grids(length_tuple, resol_tuple::Tuple{Int, Int, Int})
+
+Constructor for `Grids`
+
+Create an empty `length[1]`x`length[2]`x`length[3]` grid with resolution
+`resol[1]`x`resol[2]`x`resol[3]`.
+
+# Examples
+
+```jldoctest
+julia> using JultraDark
+
+julia> Grids((1.0, 1.0, 0.5), (64, 64, 32));
+
+```
+"""
+function Grids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::Grids
+
+    resol_tuple_realfft = (resol_tuple[1] ÷ 2 + 1, resol_tuple[2], resol_tuple[3])
+
+    @assert length_tuple[1] / resol_tuple[1] ≈ length_tuple[2] / resol_tuple[2]
+    @assert length_tuple[1] / resol_tuple[1] ≈ length_tuple[3] / resol_tuple[3]
+
 
     ψx = zeros(Complex{Float64}, resol_tuple)
     ψk = zeros(Complex{Float64}, resol_tuple)
@@ -106,20 +132,37 @@ function Grids(length::Real, resol::Integer)::Grids
     Φx = zeros(Float64, resol_tuple)
     Φk = zeros(Complex{Float64}, resol_tuple_realfft)
 
-    gridvec = range(
-        -length / 2 + length / 2resol,
-        +length / 2 - length / 2resol,
-        length=resol
+    x = reshape(
+                range(
+                      -length_tuple[1] / 2 + length_tuple[1] / 2resol_tuple[1],
+                      +length_tuple[1] / 2 - length_tuple[1] / 2resol_tuple[1],
+                      length=resol_tuple[1]
+                     ),
+                resol_tuple[1], 1, 1
     )
 
-    x = reshape(gridvec, resol, 1, 1)
-    y = reshape(gridvec, 1, resol, 1)
-    z = reshape(gridvec, 1, 1, resol)
+    y = reshape(
+                range(
+                      -length_tuple[2] / 2 + length_tuple[2] / 2resol_tuple[2],
+                      +length_tuple[2] / 2 - length_tuple[2] / 2resol_tuple[2],
+                      length=resol_tuple[2]
+                     ),
+                1, resol_tuple[2], 1
+    )
+
+    z = reshape(
+                range(
+                      -length_tuple[3] / 2 + length_tuple[3] / 2resol_tuple[3],
+                      +length_tuple[3] / 2 - length_tuple[3] / 2resol_tuple[3],
+                      length=resol_tuple[3]
+                     ),
+                1, 1, resol_tuple[3]
+    )
 
     Grids(
         x, y, z,
-        k_norm((length, length, length), (resol, resol, resol)),
-        rk_norm((length, length, length), (resol, resol, resol)),
+        k_norm(length_tuple, resol_tuple),
+        rk_norm(length_tuple, resol_tuple),
         ψx,
         ψk,
         ρx,
@@ -127,46 +170,6 @@ function Grids(length::Real, resol::Integer)::Grids
         Φx,
         Φk,
     )
-end
-
-"""
-    Grids(ψx::Array{Complex{Float64}}, length::Real)
-
-Constructor for `Grids`
-
-Create a grid with given ψ field, length `length` and resolution inferred
-from `ψx`
-
-# Examples
-
-Can be contructed from a ψ field and box length,
-```jldoctest
-julia> using JultraDark
-
-julia> ψ = zeros(Complex{Float64}, 16, 16, 16);
-
-julia> len = 1;
-
-julia> Grids(ψ, len);
-
-```
-"""
-function Grids(ψx::Array{Complex{Float64}}, length::Real)::Grids
-    @assert(
-        ndims(ψx) == 3,
-        "Invalid ψ: only three dimensions supported"
-    )
-    @assert(
-        size(ψx, 1) == size(ψx, 2) == size(ψx, 3),
-        "Invalid ψ: heterogenous resolutions"
-    )
-
-    resol = size(ψx, 1)
-    grids = Grids(length, resol)
-
-    grids.ψx .= ψx
-
-    grids
 end
 
 """

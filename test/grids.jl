@@ -4,13 +4,30 @@ using NPZ
 import MPI
 import PencilFFTs
 
-@testset "Can initialize" begin
-    for grids_type in [Grids, PencilGrids]
-        grids = grids_type(zeros(Complex{Float64}, 16, 16, 16), 1)
-        @test typeof(grids) == grids_type
+for grids_type in [Grids, PencilGrids]
+    @testset "Can initialize $grids_type" begin
+        resol = 8
 
-        grids = grids_type(1.0, 4)
+        grids = grids_type(1.0, resol)
         @test typeof(grids) == grids_type
+        @test all(grids.ψx .== 0)
+        @test reshape(grids.x, resol) == reshape(grids.y, resol)
+        @test reshape(grids.x, resol) == reshape(grids.z, resol)
+
+        grids = grids_type((1.0, 1.0, 1.0), (resol, resol, resol))
+        @test typeof(grids) == grids_type
+        @test all(grids.ψx .== 0)
+        @test reshape(grids.x, resol) == reshape(grids.y, resol)
+        @test reshape(grids.x, resol) == reshape(grids.z, resol)
+
+        grids = grids_type((4.0, 2.0, 1.0), (4resol, 2resol, 1resol))
+        @test typeof(grids) == grids_type
+        @test all(grids.ψx .== 0)
+        @test size(grids.x) == (4resol, 1, 1)
+        @test size(grids.y) == (1, 2resol, 1)
+        @test size(grids.z) == (1, 1, 1resol)
+        @test reshape(grids.x, 4resol)[1 + 4resol÷2 - 4resol÷8:4resol÷2 + 4resol÷8] == reshape(grids.z, resol)
+        @test reshape(grids.y, 2resol)[1 + 2resol÷2 - 2resol÷4:2resol÷2 + 2resol÷4] == reshape(grids.z, resol)
     end
 end
 
