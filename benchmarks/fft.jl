@@ -1,5 +1,5 @@
 using BenchmarkTools
-using JultraDark
+using UltraDark
 using LinearAlgebra
 using MPI
 

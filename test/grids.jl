@@ -1,5 +1,5 @@
 using Test
-using JultraDark
+using UltraDark
 using NPZ
 import MPI
 import PencilFFTs

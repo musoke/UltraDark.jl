@@ -1,6 +1,6 @@
 using BenchmarkTools
-using JultraDark
-using JultraDark: psi_half_step!, psi_whole_step!, phi_whole_step!, take_steps!
+using UltraDark
+using UltraDark: psi_half_step!, psi_whole_step!, phi_whole_step!, take_steps!
 using MPI
 
 if ~MPI.Initialized()

@@ -1,20 +1,20 @@
-using Documenter, JultraDark
+using Documenter, UltraDark
 
 makedocs(;
-    modules=[JultraDark],
+    modules=[UltraDark],
     format=Documenter.HTML(;
         prettyurls=get(ENV, "CI", "false") == "true",
-        canonical="https://musoke.github.io/JultraDark.jl",
+        canonical="https://musoke.github.io/UltraDark.jl",
         assets=String[],
     ),
     pages=[
         "Home" => "index.md",
     ],
-    repo="https://github.com/musoke/JultraDark.jl/blob/{commit}{path}#L{line}",
-    sitename="JultraDark.jl",
+    repo="https://github.com/musoke/UltraDark.jl/blob/{commit}{path}#L{line}",
+    sitename="UltraDark.jl",
     authors="Nathan Musoke <n.musoke@auckland.ac.nz>",
 )
 
 deploydocs(;
-    repo="github.com/musoke/JultraDark.jl",
+    repo="github.com/musoke/UltraDark.jl",
 )

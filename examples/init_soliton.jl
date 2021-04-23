@@ -1,4 +1,4 @@
-using JultraDark
+using UltraDark
 using PencilFFTs
 using NPZ
 

@@ -40,7 +40,7 @@ for (resol, color) in zip(unique(df_jud.resol), [:blue, :red, :black])
         df_jud_filtered.time,
         seriestype = :scatter,
         color=color,
-        label = "JultraDark.jl $resol^3",
+        label = "UltraDark.jl $resol^3",
     )
 
     plot!(

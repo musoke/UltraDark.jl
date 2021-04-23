@@ -5,7 +5,7 @@ struct containing grids used in a simulation
 
 
 ```jldoctest
-julia> using JultraDark
+julia> using UltraDark
 
 julia> len = 1;
 
@@ -86,7 +86,7 @@ Create an empty grid with length `length` and resolution `resol`
 # Examples
 
 ```jldoctest
-julia> using JultraDark
+julia> using UltraDark
 
 julia> Grids(1.0, 64);
 
@@ -109,7 +109,7 @@ Create an empty `length[1]`x`length[2]`x`length[3]` grid with resolution
 # Examples
 
 ```jldoctest
-julia> using JultraDark
+julia> using UltraDark
 
 julia> Grids((1.0, 1.0, 0.5), (64, 64, 32));
 
@@ -180,7 +180,7 @@ Calculate the Fourier frequencies of a box with side lengths `lengths` and resol
 # Examples
 
 ```jldoctest
-julia> using JultraDark: k_vec
+julia> using UltraDark: k_vec
 
 julia> kvec = k_vec((2π, 2π, 2π), (4, 4, 4));
 

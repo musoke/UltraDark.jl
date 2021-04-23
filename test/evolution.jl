@@ -1,29 +1,29 @@
-using JultraDark
+using UltraDark
 using Test
 using MPI
 
 @testset "Actual time step" begin
-    @test JultraDark.actual_time_step(0.5, 1, 2)[1] ≈ 0.5
-    @test JultraDark.actual_time_step(0.5, 1, 2)[2] == 2
+    @test UltraDark.actual_time_step(0.5, 1, 2)[1] ≈ 0.5
+    @test UltraDark.actual_time_step(0.5, 1, 2)[2] == 2
 
-    @test JultraDark.actual_time_step(0.5, 1, 3)[1] ≈ 0.5
-    @test JultraDark.actual_time_step(0.5, 1, 3)[2] == 2
+    @test UltraDark.actual_time_step(0.5, 1, 3)[1] ≈ 0.5
+    @test UltraDark.actual_time_step(0.5, 1, 3)[2] == 2
 
-    @test JultraDark.actual_time_step(0.01, 1, 10)[1] ≈ 0.01
-    @test JultraDark.actual_time_step(0.01, 1, 10)[2] == 10
+    @test UltraDark.actual_time_step(0.01, 1, 10)[1] ≈ 0.01
+    @test UltraDark.actual_time_step(0.01, 1, 10)[2] == 10
 
-    @test JultraDark.actual_time_step(0.7, 1, 2)[1] ≈ 0.5
-    @test JultraDark.actual_time_step(0.7, 1, 2)[2] == 2
+    @test UltraDark.actual_time_step(0.7, 1, 2)[1] ≈ 0.5
+    @test UltraDark.actual_time_step(0.7, 1, 2)[2] == 2
 
-    @test JultraDark.actual_time_step(0.7, 2, 3)[1] ≈ 2/3
-    @test JultraDark.actual_time_step(0.7, 2, 3)[2] == 3
+    @test UltraDark.actual_time_step(0.7, 2, 3)[1] ≈ 2/3
+    @test UltraDark.actual_time_step(0.7, 2, 3)[2] == 3
 end
 
 for grid_type in [Grids, PencilGrids]
     @testset "Take n steps, $grid_type" begin
         grids = grid_type(1.0, 16)
         output_config = OutputConfig(mktempdir(), [])
-        @test JultraDark.take_steps!(grids, 0, 1, 10, output_config, t -> 1) == 10.0
+        @test UltraDark.take_steps!(grids, 0, 1, 10, output_config, t -> 1) == 10.0
     end
 end
 
@@ -41,7 +41,7 @@ for grid_type in [Grids, PencilGrids]
         grids.Φx .= grids.rfft_plan \ grids.Φk
 
         output_config = OutputConfig(mktempdir(), [])
-        options = JultraDark.Config.SimulationConfig(10, t->1)
-        @test JultraDark.evolve_to!(t_begin, t_end, grids, output_config, options) ≈ t_end
+        options = UltraDark.Config.SimulationConfig(10, t->1)
+        @test UltraDark.evolve_to!(t_begin, t_end, grids, output_config, options) ≈ t_end
     end
 end

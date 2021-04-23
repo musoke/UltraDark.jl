@@ -1,8 +1,8 @@
-# JultraDark.jl
+# UltraDark.jl
 
 ```@index
 ```
 
 ```@autodocs
-Modules = [JultraDark]
+Modules = [UltraDark]
 ```
