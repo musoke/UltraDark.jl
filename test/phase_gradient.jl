@@ -1,5 +1,5 @@
 @safetestset "correct phase diff" begin
-    using JultraDark:phase_diff
+    using UltraDark:phase_diff
 
     n = 4
 
@@ -70,8 +70,8 @@
 end
 
 @safetestset "terminate if grad too large" begin
-    using JultraDark
-    using JultraDark: evolve_to!
+    using UltraDark
+    using UltraDark: evolve_to!
 
     n = 16
 
@@ -82,7 +82,7 @@ end
 
     grids_orig = deepcopy(grids)
 
-    options = JultraDark.Config.SimulationConfig(10, t->1)
+    options = UltraDark.Config.SimulationConfig(10, t->1)
     output_config = OutputConfig(mktempdir(), [1, 2])
 
     @test_throws "Phase gradient is too large to start" simulate(grids, options, output_config)

@@ -1,9 +1,9 @@
-using JultraDark
+using UltraDark
 using Test, Documenter
 using SafeTestsets
 using MPI
 
-doctest(JultraDark)
+doctest(UltraDark)
 
 @safetestset "grids.jl" begin
     include("grids.jl")

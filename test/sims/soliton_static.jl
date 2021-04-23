@@ -1,4 +1,4 @@
-using JultraDark
+using UltraDark
 using Test
 using MPI
 using NPZ

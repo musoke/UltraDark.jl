@@ -1,6 +1,6 @@
 #!/bin/bash -e
 
-#SBATCH --job-name              "Benchmark JultraDark.jl threading"
+#SBATCH --job-name              "Benchmark UltraDark.jl threading"
 #SBATCH --account               uoa00492
 #SBATCH --time                  00:10:00      # Walltime
 #SBATCH --ntasks=1
@@ -10,7 +10,7 @@
 #SBATCH --error                 log/MyJuliaJob.%j.err # the output and error files
 
 #############
-# JultraDark.jl
+# UltraDark.jl
 module purge
 module load Julia/1.5.1-GCC-9.2.0-VTune gimkl
 
@@ -24,7 +24,7 @@ julia -e 'ENV["JULIA_MPI_BINARY"]="system"; using Pkg; Pkg.build("MPI"; verbose=
 # SLURM_CPUS_PER_TASK=4
 resol_list="64 128 256"
 
-echo "Writing output to $OUTPUT_FILE_JUD for JultraDark.jl"
+echo "Writing output to $OUTPUT_FILE_JUD for UltraDark.jl"
 for resol in $resol_list
 do
         echo $(date)
@@ -45,5 +45,5 @@ for resol in $resol_list
 do
         echo $(date)
         echo "Starting PyUltraLight script with threads=$SLURM_CPUS_PER_TASK, resol=$resol"
-        srun python benchmark_script.py $resol >> ../JultraDark.jl/$OUTPUT_FILE_PUL
+        srun python benchmark_script.py $resol >> ../UltraDark.jl/$OUTPUT_FILE_PUL
 done

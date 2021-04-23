@@ -5,7 +5,7 @@ struct containing grids used in a simulation
 
 
 ```jldoctest
-julia> using JultraDark
+julia> using UltraDark
 
 julia> len = 1;
 
@@ -77,7 +77,7 @@ Create an empty grid with length `length` and resolution `resol`.  Uses `PencilF
 # Examples
 
 ```jldoctest
-julia> using JultraDark
+julia> using UltraDark
 
 julia> PencilGrids(1.0, 64);
 
@@ -101,7 +101,7 @@ Each grid is a `PencilArray`, allowing multiprocess FFTs.
 # Examples
 
 ```jldoctest
-julia> using JultraDark
+julia> using UltraDark
 
 julia> PencilGrids((1.0, 1.0, 0.5), (64, 64, 32));
 

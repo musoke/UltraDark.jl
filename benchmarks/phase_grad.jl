@@ -1,5 +1,5 @@
 using BenchmarkTools
-using JultraDark: Grids, max_phase_grad
+using UltraDark: Grids, max_phase_grad
 
 resol = 64
 

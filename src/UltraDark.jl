@@ -1,4 +1,4 @@
-module JultraDark
+module UltraDark
 
 using Base.Threads: @threads
 using LinearAlgebra
@@ -29,7 +29,7 @@ fit in `time_interval`.
 # Examples
 
 ```jldoctest
-julia> using JultraDark: actual_time_step
+julia> using UltraDark: actual_time_step
 
 julia> actual_time_step(0.11, 1, 20)
 (0.1, 10)
@@ -50,7 +50,7 @@ Take `n` steps with time step `Δt`
 # Examples
 
 ```jldoctest
-julia> using JultraDark: take_steps!, Grids, OutputConfig
+julia> using UltraDark: take_steps!, Grids, OutputConfig
 
 julia> take_steps!(Grids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir(), []), t->1)
 5.0

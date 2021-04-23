@@ -1,5 +1,5 @@
 using Test
-using JultraDark: Grids, PencilGrids, output_grids, OutputConfig
+using UltraDark: Grids, PencilGrids, output_grids, OutputConfig
 
 for grid_type in [Grids, ]
     grids = grid_type(1.0, 16)

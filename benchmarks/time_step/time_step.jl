@@ -1,7 +1,7 @@
 using BenchmarkTools
 using Statistics
-using JultraDark
-using JultraDark: take_steps!
+using UltraDark
+using UltraDark: take_steps!
 
 nthreads = Threads.nthreads()
 
