@@ -12,36 +12,46 @@ export simulate
 export Grids, PencilGrids
 export Config, OutputConfig
 
+const PHASE_GRAD_LIMIT = π / 4
+
 include("grids.jl")
 include("pencil_grids.jl")
+include("phase_diff.jl")
+include("time_step.jl")
 include("output.jl")
 include("config.jl")
 
-const PHASE_GRAD_LIMIT = π / 4
-
-"""
-    actual_time_step(max_timestep::Real, time_interval::Real, n::Integer)
-
-Actual size and number of time steps that should be taken if the maximum 
-is `max_timestep`, no more than `n` steps should be taken, and they should
-fit in `time_interval`.
-
-# Examples
-
-```jldoctest
-julia> using UltraDark: actual_time_step
-
-julia> actual_time_step(0.11, 1, 20)
-(0.1, 10)
-```
-"""
-function actual_time_step(max_timestep, time_interval, n)::Tuple{Real, Integer}
-    if max_timestep * n > time_interval
-        num_steps = ceil(time_interval / max_timestep)
-        time_interval / num_steps, num_steps
-    else
-        max_timestep, n
+function psi_half_step!(Δt::Real, grids)
+    @fastmath @inbounds @threads for i in eachindex(grids.ψx)
+        grids.ψx[i] *= exp(- im * Δt / 2 * grids.Φx[i])
     end
+end
+
+function psi_whole_step!(Δt::Real, grids)
+    @fastmath @inbounds @threads for i in eachindex(grids.ψx)
+        grids.ψx[i] *= exp(- im * Δt / 1 * grids.Φx[i])
+    end
+end
+
+function phi_whole_step!(Δt::Real, grids; a::Real=1.0)
+    # TODO: not all part of Φ update
+
+    mul!(grids.ψk, grids.fft_plan, grids.ψx)
+    @fastmath @inbounds @threads for i in eachindex(grids.ψk)
+        grids.ψk[i] *= exp(-im * Δt/2 * grids.k[i]^2 / a^2)
+    end
+    ldiv!(grids.ψx, grids.fft_plan, grids.ψk)
+
+    @fastmath @inbounds @threads for i in eachindex(grids.ρx)
+        grids.ρx[i] = abs2(grids.ψx[i])
+    end
+
+    mul!(grids.Φk, grids.rfft_plan, grids.ρx)
+    @fastmath @inbounds @threads for i in eachindex(grids.Φk)
+        grids.Φk[i] *= -4 * π / (a * grids.rk[i]^2)
+    end
+    grids.Φk[1, 1, 1] = 0
+    ldiv!(grids.Φx, grids.rfft_plan, grids.Φk)
 end
 
 """
