@@ -21,19 +21,19 @@ include("time_step.jl")
 include("output.jl")
 include("config.jl")
 
-function psi_half_step!(Δt::Real, grids)
+function psi_half_step!(Δt::Real, grids, constants)
     @fastmath @inbounds @threads for i in eachindex(grids.ψx)
         grids.ψx[i] *= exp(- im * Δt / 2 * grids.Φx[i])
     end
 end
 
-function psi_whole_step!(Δt::Real, grids)
+function psi_whole_step!(Δt::Real, grids, constants)
     @fastmath @inbounds @threads for i in eachindex(grids.ψx)
         grids.ψx[i] *= exp(- im * Δt / 1 * grids.Φx[i])
     end
 end
 
-function phi_whole_step!(Δt::Real, grids; a::Real=1.0)
+function phi_whole_step!(Δt::Real, grids, constants; a::Real=1.0)
     # TODO: not all part of Φ update
 
     mul!(grids.ψk, grids.fft_plan, grids.ψx)
@@ -55,12 +55,12 @@ function phi_whole_step!(Δt::Real, grids; a::Real=1.0)
 end
 
 """
-    add_external_potential!(t, grids)
+    add_external_potential!(t, grids, constants)
 
 Add a gravitational potential to the grid.
 By default this does nothing, but can be overridden in multiple dispatch.
 """
-function add_external_potential!(t, grids)
+function add_external_potential!(t, grids, constants)
 end
 
 """
@@ -71,12 +71,12 @@ Take `n` steps with time step `Δt`
 ```jldoctest
 julia> using UltraDark: take_steps!, Grids, OutputConfig
 
-julia> take_steps!(Grids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir(), []), t->1)
+julia> take_steps!(Grids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir(), []), t->1, nothing)
 5.0
 
 ```
 """
-function take_steps!(grids, t_start, Δt, n, output_config, a)
+function take_steps!(grids, t_start, Δt, n, output_config, a, constants)
 
     t = t_start
 
@@ -84,21 +84,21 @@ function take_steps!(grids, t_start, Δt, n, output_config, a)
 
     for step in 1:n
         if half_step
-            psi_half_step!(Δt, grids)
+            psi_half_step!(Δt, grids, constants)
             t += Δt / 2
             half_step = false
         else
-            psi_whole_step!(Δt, grids)
+            psi_whole_step!(Δt, grids, constants)
             t += Δt
         end
 
-        phi_whole_step!(Δt, grids, a=a(t))
-        add_external_potential!(t, grids)
+        phi_whole_step!(Δt, grids, constants; a=a(t))
+        add_external_potential!(t, grids, constants)
 
         output_summary_row(grids, output_config, t, a(t), Δt)
     end
 
-    psi_half_step!(Δt, grids)
+    psi_half_step!(Δt, grids, constants)
     t += Δt / 2
 
     output_summary_row(grids, output_config, t, a(t), Δt)
@@ -109,7 +109,7 @@ end
 """
 Evolve `grids` forward from `t_start` to `t_end`
 """
-function evolve_to!(t_start, t_end, grids, output_config, config::Config.SimulationConfig)
+function evolve_to!(t_start, t_end, grids, output_config, config::Config.SimulationConfig; constants=nothing)
 
     @assert t_start < t_end
 
@@ -129,13 +129,13 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
         )
         @debug "t = $t, max_time_step = $(max_time_step(grids, config.a(t))), Δt = $Δt"
 
-        t = take_steps!(grids, t, Δt, n_steps, output_config, config.a)
+        t = take_steps!(grids, t, Δt, n_steps, output_config, config.a, constants)
     end
 
     t
 end
 
-function simulate(grids, options::Config.SimulationConfig, output_config::OutputConfig)
+function simulate(grids, options::Config.SimulationConfig, output_config::OutputConfig; constants=nothing)
 
     # Setup output
     mkpath(output_config.directory)
@@ -162,7 +162,8 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
             t_end,
             grids,
             output_config,
-            options,
+            options;
+            constants=constants,
         )
         @info "Reached time $t_begin"
         output_grids(grids, output_config, index + 1)
