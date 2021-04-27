@@ -55,6 +55,15 @@ function phi_whole_step!(Δt::Real, grids; a::Real=1.0)
 end
 
 """
+    add_external_potential!(t, grids)
+
+Add a gravitational potential to the grid.
+By default this does nothing, but can be overridden in multiple dispatch.
+"""
+function add_external_potential!(t, grids)
+end
+
+"""
 Take `n` steps with time step `Δt`
 
 # Examples
@@ -84,6 +93,7 @@ function take_steps!(grids, t_start, Δt, n, output_config, a)
         end
 
         phi_whole_step!(Δt, grids, a=a(t))
+        add_external_potential!(t, grids)
 
         output_summary_row(grids, output_config, t, a(t), Δt)
     end
