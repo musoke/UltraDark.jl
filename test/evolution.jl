@@ -23,7 +23,7 @@ for grid_type in [Grids, PencilGrids]
     @testset "Take n steps, $grid_type" begin
         grids = grid_type(1.0, 16)
         output_config = OutputConfig(mktempdir(), [])
-        @test UltraDark.take_steps!(grids, 0, 1, 10, output_config, t -> 1) == 10.0
+        @test UltraDark.take_steps!(grids, 0, 1, 10, output_config, t -> 1, nothing) == 10.0
     end
 end
 
