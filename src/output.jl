@@ -14,14 +14,18 @@ struct OutputConfig
     psi::Bool
     "whether to output ρ"
     rho::Bool
+
+    "whether to output HDF5; only has an effect with PencilGrids"
+    hdf5::Bool
 end
 
 function OutputConfig(
     directory, output_times;
-    box=true, slice=false, psi=true, rho=true
+    box=true, slice=false, psi=true, rho=true,
+    hdf5=false,
 )
 
-    OutputConfig(directory, output_times, box, slice, psi, rho)
+    OutputConfig(directory, output_times, box, slice, psi, rho, hdf5)
 end
 
 """
@@ -64,47 +68,70 @@ end
 
 function output_grids(grids::PencilGrids, output_config, step)
 
-    #TODO: don't use gather.  This sends all data to one node.  Should instead use multithreaded HDF5 output
     if output_config.box
         if output_config.psi
-            output = gather(grids.ψx)
-            if MPI.Comm_rank(grids.MPI_COMM) == 0
-                NPZ.npzwrite(
-                    joinpath(output_config.directory, "psi_$step.npy"),
-                    output,
-                )
+            if output_config.hdf5
+                open(MPIIODriver(), "psi_$step.hdf5", grids.MPI_COMM_WORLD; write=true) do ff
+                    ff["psi_plane"] = ψx
+                end
+            else
+                output = gather(grids.ψx)
+                if MPI.Comm_rank(grids.MPI_COMM) == 0
+                    NPZ.npzwrite(
+                        joinpath(output_config.directory, "psi_$step.npy"),
+                        output,
+                    )
+                end
             end
         end
 
         if output_config.rho
-            output = gather(grids.ρx)
-            if MPI.Comm_rank(grids.MPI_COMM) == 0
-                NPZ.npzwrite(
-                    joinpath(output_config.directory, "rho_$step.npy"),
-                    output,
-                )
+            if output_config.hdf5
+                open(MPIIODriver(), "rho_$step.hdf5", grids.MPI_COMM_WORLD; write=true) do ff
+                    ff["psi_plane"] = ρx
+                end
+            else
+                output = gather(grids.ρx)
+                if MPI.Comm_rank(grids.MPI_COMM) == 0
+                    NPZ.npzwrite(
+                        joinpath(output_config.directory, "rho_$step.npy"),
+                        output,
+                    )
+                end
             end
         end
     end
 
     if output_config.slice
         if output_config.psi
-            output = gather(grids.ψx[1, :, :])
-            if MPI.Comm_rank(grids.MPI_COMM) == 0
-                NPZ.npzwrite(
-                    joinpath(output_config.directory, "psi_slice_$step.npy"),
-                    output[1, :, :],
-                )
+            if output_config.hdf5
+                open(MPIIODriver(), "psi_slice_$step.hdf5", grids.MPI_COMM_WORLD; write=true) do ff
+                    ff["psi_plane"] = ψx[1, :, :]
+                end
+            else
+                output = gather(grids.ψx[1, :, :])
+                if MPI.Comm_rank(grids.MPI_COMM) == 0
+                    NPZ.npzwrite(
+                        joinpath(output_config.directory, "psi_slice_$step.npy"),
+                        output[1, :, :],
+                    )
+                end
             end
         end
 
         if output_config.rho
-            output = gather(grids.ρx)
-            if MPI.Comm_rank(grids.MPI_COMM) == 0
-                NPZ.npzwrite(
-                    joinpath(output_config.directory, "rho_slice_$step.npy"),
-                    output[1, :, :],
-                )
+            if output_config.hdf5
+                open(MPIIODriver(), "rho_slice_$step.hdf5", grids.MPI_COMM_WORLD; write=true) do ff
+                    ff["rho_plane"] = ρx[1, :, :]
+                end
+            else
+                output = gather(grids.ρx)
+                if MPI.Comm_rank(grids.MPI_COMM) == 0
+                    NPZ.npzwrite(
+                        joinpath(output_config.directory, "rho_slice_$step.npy"),
+                        output[1, :, :],
+                    )
+                end
             end
         end
     end
