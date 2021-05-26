@@ -71,7 +71,7 @@ function output_grids(grids::PencilGrids, output_config, step)
     if output_config.box
         if output_config.psi
             if output_config.hdf5
-                open(MPIIODriver(), "psi_$step.hdf5", grids.MPI_COMM_WORLD; write=true) do ff
+                open(PencilArrays.PencilIO.PHDF5Driver(), "psi_$step.hdf5", grids.MPI_COMM_WORLD; write=true) do ff
                     ff["psi_plane"] = ψx
                 end
             else
@@ -87,7 +87,7 @@ function output_grids(grids::PencilGrids, output_config, step)
 
         if output_config.rho
             if output_config.hdf5
-                open(MPIIODriver(), "rho_$step.hdf5", grids.MPI_COMM_WORLD; write=true) do ff
+                open(PencilArrays.PencilIO.PHDF5Driver(), "rho_$step.hdf5", grids.MPI_COMM_WORLD; write=true) do ff
                     ff["psi_plane"] = ρx
                 end
             else
@@ -105,7 +105,7 @@ function output_grids(grids::PencilGrids, output_config, step)
     if output_config.slice
         if output_config.psi
             if output_config.hdf5
-                open(MPIIODriver(), "psi_slice_$step.hdf5", grids.MPI_COMM_WORLD; write=true) do ff
+                open(PencilArrays.PencilIO.PHDF5Driver(), "psi_slice_$step.hdf5", grids.MPI_COMM_WORLD; write=true) do ff
                     ff["psi_plane"] = ψx[1, :, :]
                 end
             else
@@ -121,7 +121,7 @@ function output_grids(grids::PencilGrids, output_config, step)
 
         if output_config.rho
             if output_config.hdf5
-                open(MPIIODriver(), "rho_slice_$step.hdf5", grids.MPI_COMM_WORLD; write=true) do ff
+                open(PencilArrays.PencilIO.PHDF5Driver(), "rho_slice_$step.hdf5", grids.MPI_COMM_WORLD; write=true) do ff
                     ff["rho_plane"] = ρx[1, :, :]
                 end
             else
