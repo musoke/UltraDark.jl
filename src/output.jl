@@ -1,5 +1,11 @@
 import NPZ
 
+"""
+
+Parallel HDF5 output is possible when using `PencilGrids`.
+See the docs for `PencilArrays` for instructions to enable it.
+https://jipolanco.github.io/PencilArrays.jl/v0.9/PencilIO/#setting_up_parallel_hdf5
+"""
 struct OutputConfig
     "where to write output"
     directory::String
