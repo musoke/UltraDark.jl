@@ -9,19 +9,19 @@ for grids_type in [Grids, PencilGrids]
         resol = 8
 
         grids = grids_type(1.0, resol)
-        @test typeof(grids) == grids_type
+        @test typeof(grids) <: grids_type
         @test all(grids.ψx .== 0)
         @test reshape(grids.x, resol) == reshape(grids.y, resol)
         @test reshape(grids.x, resol) == reshape(grids.z, resol)
 
         grids = grids_type((1.0, 1.0, 1.0), (resol, resol, resol))
-        @test typeof(grids) == grids_type
+        @test typeof(grids) <: grids_type
         @test all(grids.ψx .== 0)
         @test reshape(grids.x, resol) == reshape(grids.y, resol)
         @test reshape(grids.x, resol) == reshape(grids.z, resol)
 
         grids = grids_type((4.0, 2.0, 1.0), (4resol, 2resol, 1resol))
-        @test typeof(grids) == grids_type
+        @test typeof(grids) <: grids_type
         @test all(grids.ψx .== 0)
         @test size(grids.x) == (4resol, 1, 1)
         @test size(grids.y) == (1, 2resol, 1)

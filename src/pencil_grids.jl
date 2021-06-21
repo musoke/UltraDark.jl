@@ -15,7 +15,7 @@ julia> PencilGrids(len, resol);
 
 ```
 """
-struct PencilGrids
+struct PencilGrids{K, RX, RK, CX, CK, FFT, RFFT, M}
     "Array of x positions"
     x::Array{Float64,3}
     "Array of y positions"
@@ -23,24 +23,24 @@ struct PencilGrids
     "Array of z positions"
     z::Array{Float64,3}
     "Fourier space postition array"
-    k
+    k::K
     "Fourier space postition array for use with `rfft`"
-    rk
+    rk::K
     "ψ field"
-    ψx
+    ψx::CX
     "ψ field in Fourier space"
-    ψk
+    ψk::CK
     "density field ρ"
-    ρx
+    ρx::RX
     "density field ρ in Fourier space"
-    ρk
+    ρk::RK
     "gravitational potential field Φ"
-    Φx
+    Φx::RX
     "gravitational potential field Φ in fourier space"
-    Φk
-    fft_plan
-    rfft_plan
-    MPI_COMM
+    Φk::RK
+    fft_plan::FFT
+    rfft_plan::RFFT
+    MPI_COMM::M
 
     function PencilGrids(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
         n_dims = 3
@@ -63,7 +63,16 @@ struct PencilGrids
         @assert(size(y) == (1, resol_tuple[2], 1))
         @assert(size(z) == (1, 1, resol_tuple[3]))
 
-        new(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
+        K = typeof(k)
+        RX = typeof(Φx)
+        RK = typeof(Φk)
+        CX = typeof(ψx)
+        CK = typeof(ψk)
+        FFT = typeof(fft_plan)
+        RFFT = typeof(rfft_plan)
+        M = typeof(MPI_COMM)
+
+        new{K, RX, RK, CX, CK, FFT, RFFT, M}(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
     end
 end
 
