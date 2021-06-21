@@ -22,13 +22,13 @@ include("output.jl")
 include("config.jl")
 
 function psi_half_step!(Δt::Real, grids, constants)
-    @fastmath @inbounds @threads for i in eachindex(grids.ψx)
+    @inbounds @threads for i in eachindex(grids.ψx)
         grids.ψx[i] *= exp(- im * Δt / 2 * grids.Φx[i])
     end
 end
 
 function psi_whole_step!(Δt::Real, grids, constants)
-    @fastmath @inbounds @threads for i in eachindex(grids.ψx)
+    @inbounds @threads for i in eachindex(grids.ψx)
         grids.ψx[i] *= exp(- im * Δt / 1 * grids.Φx[i])
     end
 end
@@ -37,17 +37,17 @@ function phi_whole_step!(Δt::Real, grids, constants; a::Real=1.0)
     # TODO: not all part of Φ update
 
     mul!(grids.ψk, grids.fft_plan, grids.ψx)
-    @fastmath @inbounds @threads for i in eachindex(grids.ψk)
+    @inbounds @threads for i in eachindex(grids.ψk)
         grids.ψk[i] *= exp(-im * Δt/2 * grids.k[i]^2 / a^2)
     end
     ldiv!(grids.ψx, grids.fft_plan, grids.ψk)
 
-    @fastmath @inbounds @threads for i in eachindex(grids.ρx)
+    @inbounds @threads for i in eachindex(grids.ρx)
         grids.ρx[i] = abs2(grids.ψx[i])
     end
 
     mul!(grids.Φk, grids.rfft_plan, grids.ρx)
-    @fastmath @inbounds @threads for i in eachindex(grids.Φk)
+    @inbounds @threads for i in eachindex(grids.Φk)
         grids.Φk[i] *= -4 * π / (a * grids.rk[i]^2)
     end
     grids.Φk[1, 1, 1] = 0
