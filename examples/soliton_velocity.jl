@@ -11,7 +11,7 @@ num_snapshots = 20
 output_times = LinRange(0, 5, num_snapshots)
 
 output_config = OutputConfig(output_dir, output_times; box=true, slice=false)
-options = Config.SimulationConfig(10, t->1)
+options = Config.SimulationConfig(10)
 
 mass = 10
 position0 = [-4, 0, 0]

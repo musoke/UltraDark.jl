@@ -23,7 +23,7 @@ for grid_type in [Grids, PencilGrids]
     @testset "Take n steps, $grid_type" begin
         grids = grid_type(1.0, 16)
         output_config = OutputConfig(mktempdir(), [])
-        @test UltraDark.take_steps!(grids, 0, 1, 10, output_config, t -> 1, nothing) == 10.0
+        @test UltraDark.take_steps!(grids, 0, 1, 10, output_config, Config.constant_scale_factor, nothing) == 10.0
     end
 end
 
@@ -41,7 +41,7 @@ for grid_type in [Grids, PencilGrids]
         grids.Φx .= grids.rfft_plan \ grids.Φk
 
         output_config = OutputConfig(mktempdir(), [])
-        options = UltraDark.Config.SimulationConfig(10, t->1)
+        options = UltraDark.Config.SimulationConfig(10)
         @test UltraDark.evolve_to!(t_begin, t_end, grids, output_config, options) ≈ t_end
     end
 end

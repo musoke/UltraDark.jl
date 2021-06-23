@@ -10,7 +10,8 @@ using FFTW
 
 export simulate
 export Grids, PencilGrids
-export Config, OutputConfig
+export Config, constant_scale_factor
+export OutputConfig
 
 const PHASE_GRAD_LIMIT = π / 4
 
@@ -69,9 +70,9 @@ Take `n` steps with time step `Δt`
 # Examples
 
 ```jldoctest
-julia> using UltraDark: take_steps!, Grids, OutputConfig
+julia> using UltraDark: take_steps!, Grids, OutputConfig, Config
 
-julia> take_steps!(Grids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir(), []), t->1, nothing)
+julia> take_steps!(Grids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir(), []), Config.constant_scale_factor, nothing)
 5.0
 
 ```
