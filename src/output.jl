@@ -134,8 +134,6 @@ function output_summary_row(grids, output_config, t, a, Δt)
     s = SummaryStat(grids)
 
     open(joinpath(output_config.directory, "summary.csv"), "a") do file
-        ρx_mean = mean(grids.ρx)
-        δx_rms = mean(((grids.ρx .- ρx_mean).^2))^0.5
         write(file, "$t, $a, $Δt, $(s.ρx_mean), $(s.δx_rms)\n")
     end
 end
@@ -151,8 +149,6 @@ function output_summary_row(grids::PencilGrids, output_config, t, a, Δt)
 
     if MPI.Comm_rank(grids.MPI_COMM) == 0
         open(joinpath(output_config.directory, "summary.csv"), "a") do file
-            ρx_mean = mean(grids.ρx)
-            δx_rms = mean(((grids.ρx .- ρx_mean).^2))^0.5
             write(file, "$t, $a, $Δt, $(s.ρx_mean), $(s.δx_rms)\n")
         end
     end
