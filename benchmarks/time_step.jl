@@ -21,8 +21,8 @@ for (label, grids) in [("Grids", Grids(1.0, n)), ("PencilGrids", PencilGrids(1.0
     suite[label]["phi_whole_step"] = @benchmarkable phi_whole_step!($Δt, $grids)
 
 
-    suite[label]["take_steps"] = @benchmarkable take_steps!($grids, $1.0, $Δt, 1, $(OutputConfig("output", 1:2)), $(t -> 1))
-    suite[label]["take_steps 10"] = @benchmarkable take_steps!($grids, $1.0, $Δt, 10, $(OutputConfig("output", 1:2)), $(t -> 1))
+    suite[label]["take_steps"] = @benchmarkable take_steps!($grids, $1.0, $Δt, 1, $(OutputConfig("output", 1:2)), $(Config.constant_scale_factor))
+    suite[label]["take_steps 10"] = @benchmarkable take_steps!($grids, $1.0, $Δt, 10, $(OutputConfig("output", 1:2)), $(Config.constant_scale_factor))
 
 end
 

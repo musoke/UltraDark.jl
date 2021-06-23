@@ -82,7 +82,7 @@ end
 
     grids_orig = deepcopy(grids)
 
-    options = UltraDark.Config.SimulationConfig(10, t->1)
+    options = UltraDark.Config.SimulationConfig(10)
     output_config = OutputConfig(mktempdir(), [1, 2])
 
     @test_throws "Phase gradient is too large to start" simulate(grids, options, output_config)
