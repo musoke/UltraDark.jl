@@ -7,7 +7,7 @@ Returns an array of size `(size(field)[1], size(field)[2], size(field)[2])`
 containing gradients in direction `dir`.
 """
 function phase_diff(field, dir)
-    out = similar(field, Real)
+    out = similar(field, Float64)
 
     out .= angle.(circshift(field, dir) ./  field)
 
@@ -23,7 +23,7 @@ Returns an array of size `(size(field)[1], size(field)[2], size(field)[2])`
 containing gradients in direction `dir`.
 """
 function phase_diff(field::PencilArray, dir)
-    out = similar(field, Real)
+    out = similar(field, Float64)
 
     # TODO diff at boundaries
     out .= 0
@@ -42,7 +42,7 @@ to be anomalous.
 """
 function max_normed_phase_grad(grids)
     DENSITY_THRESHOLD = 1e-6
-    tmp = similar(grids.ψx, Real)
+    tmp = similar(grids.ψx, Float64)
     n = ndims(tmp)
 
     max_grads = zeros(n)

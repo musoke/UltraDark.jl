@@ -22,19 +22,19 @@ include("time_step.jl")
 include("output.jl")
 include("config.jl")
 
-function psi_half_step!(Δt::Real, grids, constants)
+function psi_half_step!(Δt, grids, constants)
     @inbounds @threads for i in eachindex(grids.ψx)
         grids.ψx[i] *= exp(- im * Δt / 2 * grids.Φx[i])
     end
 end
 
-function psi_whole_step!(Δt::Real, grids, constants)
+function psi_whole_step!(Δt, grids, constants)
     @inbounds @threads for i in eachindex(grids.ψx)
         grids.ψx[i] *= exp(- im * Δt / 1 * grids.Φx[i])
     end
 end
 
-function phi_whole_step!(Δt::Real, grids, constants; a::Real=1.0)
+function phi_whole_step!(Δt, grids, constants; a=1.0)
     # TODO: not all part of Φ update
 
     mul!(grids.ψk, grids.fft_plan, grids.ψx)
@@ -79,7 +79,7 @@ julia> take_steps!(Grids(1.0, 16), 0, 0.5, 10, OutputConfig(mktempdir(), []), Co
 """
 function take_steps!(grids, t_start, Δt, n, output_config, a, constants)
 
-    t = t_start
+    t::Float64 = t_start
 
     half_step = true
 
