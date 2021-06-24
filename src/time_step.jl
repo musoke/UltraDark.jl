@@ -1,5 +1,5 @@
 """
-    actual_time_step(max_timestep::Real, time_interval::Real, n::Integer)
+    actual_time_step(max_timestep, time_interval, n::Integer)
 
 Actual size and number of time steps that should be taken if the maximum 
 is `max_timestep`, no more than `n` steps should be taken, and they should
@@ -14,7 +14,7 @@ julia> actual_time_step(0.11, 1, 20)
 (0.1, 10)
 ```
 """
-function actual_time_step(max_timestep, time_interval, n)::Tuple{Real, Integer}
+function actual_time_step(max_timestep, time_interval, n)::Tuple{Float64, Integer}
     if max_timestep * n > time_interval
         num_steps = ceil(time_interval / max_timestep)
         time_interval / num_steps, num_steps

@@ -2,9 +2,9 @@ import NPZ
 
 struct OutputConfig
     "where to write output"
-    directory
+    directory::String
     "times at which to output"
-    output_times::Array{Real}
+    output_times::Array{Float64}
 
     "whether to output boxes"
     box::Bool
