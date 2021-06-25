@@ -51,7 +51,7 @@ function phi_whole_step!(Δt, grids, constants; a=1.0)
     @inbounds @threads for i in eachindex(grids.Φk)
         grids.Φk[i] *= -4 * π / (a * grids.rk[i]^2)
     end
-    grids.Φk[1, 1, 1] = 0
+    grids.Φk[grids.rk_vanish_indices] .= 0
     ldiv!(grids.Φx, grids.rfft_plan, grids.Φk)
 end
 
@@ -128,7 +128,6 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
             t_end - t,
             config.time_step_update_period,
         )
-        @debug "t = $t, max_time_step = $(max_time_step(grids, config.a(t))), Δt = $Δt"
 
         t = take_steps!(grids, t, Δt, n_steps, output_config, config.a, constants)
     end
@@ -153,7 +152,7 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
     @inbounds @threads for i in eachindex(grids.Φk)
         grids.Φk[i] *= -4 * π / (options.a(t_begin) * grids.rk[i]^2)
     end
-    grids.Φk[1, 1, 1] = 0
+    grids.Φk[grids.rk_vanish_indices] .= 0
     ldiv!(grids.Φx, grids.rfft_plan, grids.Φk)
 
     # Output initial conditions

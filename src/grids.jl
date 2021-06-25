@@ -38,8 +38,16 @@ struct Grids
     Φx::Array{Float64,3}
     "gravitational potential field Φ in fourier space"
     Φk::Array{Complex{Float64},3}
+
+    "FFT plan for complex-to-complex transforms"
     fft_plan
+    "FFT plan for real-to-complex transforms"
     rfft_plan
+
+    "Indices at which k==0.0"
+    k_vanish_indices::Vector{CartesianIndex{3}}
+    "Indices at which rk==0.0"
+    rk_vanish_indices#::Vector{CartesianIndex{3}}
 
     function Grids(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk)
         n_dims = 3
@@ -72,7 +80,10 @@ struct Grids
         )
         inv(rfft_plan)
 
-        new(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan)
+        k_vanish_indices = findall(x -> x==0.0, k)
+        rk_vanish_indices = findall(x -> x==0.0, rk)
+
+        new(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, k_vanish_indices, rk_vanish_indices)
     end
 end
 

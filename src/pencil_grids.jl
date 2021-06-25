@@ -38,8 +38,18 @@ struct PencilGrids{K, RX, RK, CX, CK, FFT, RFFT, M}
     Φx::RX
     "gravitational potential field Φ in fourier space"
     Φk::RK
+
+    "FFT plan for complex-to-complex transforms"
     fft_plan::FFT
+    "FFT plan for real-to-complex transforms"
     rfft_plan::RFFT
+
+    "Indices at which k==0.0"
+    k_vanish_indices::Vector{CartesianIndex{3}}
+    "Indices at which rk==0.0"
+    rk_vanish_indices#::Vector{CartesianIndex{3}}
+
+    "MPI communicator"
     MPI_COMM::M
 
     function PencilGrids(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
@@ -63,6 +73,9 @@ struct PencilGrids{K, RX, RK, CX, CK, FFT, RFFT, M}
         @assert(size(y) == (1, resol_tuple[2], 1))
         @assert(size(z) == (1, 1, resol_tuple[3]))
 
+        k_vanish_indices = findall(x -> x==0.0, k)
+        rk_vanish_indices = findall(x -> x==0.0, rk)
+
         K = typeof(k)
         RX = typeof(Φx)
         RK = typeof(Φk)
@@ -72,7 +85,7 @@ struct PencilGrids{K, RX, RK, CX, CK, FFT, RFFT, M}
         RFFT = typeof(rfft_plan)
         M = typeof(MPI_COMM)
 
-        new{K, RX, RK, CX, CK, FFT, RFFT, M}(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
+        new{K, RX, RK, CX, CK, FFT, RFFT, M}(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, k_vanish_indices, rk_vanish_indices, MPI_COMM)
     end
 end
 
