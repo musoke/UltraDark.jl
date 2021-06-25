@@ -15,4 +15,4 @@ PATH=$PATH:~/julia-1.6.1/bin/
 
 julia --project -e 'ENV["JULIA_MPI_BINARY"]="system"; using Pkg; Pkg.build("MPI"; verbose=true)'
 
-mpiexec julia --project=. soliton_velocity.jl
+mpiexec julia --project ../soliton_velocity.jl
