@@ -145,12 +145,18 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
     t_begin = output_config.output_times[1]
 
     # Initialise vars other than ψx
-    grids.ψk .= (grids.fft_plan * grids.ψx)
-    grids.ρx .= abs2.(grids.ψx)
-    grids.Φk .= -4 * π * (grids.rfft_plan * grids.ρx) ./ (options.a(t_begin) * grids.rk.^2)
-    grids.Φk[1, 1, 1] = 0
-    grids.Φx .= grids.rfft_plan \ grids.Φk
+    mul!(grids.ψk, grids.fft_plan, grids.ψx)
 
+    grids.ρx .= abs2.(grids.ψx)
+
+    mul!(grids.Φk, grids.rfft_plan, grids.ρx)
+    @inbounds @threads for i in eachindex(grids.Φk)
+        grids.Φk[i] *= -4 * π / (options.a(t_begin) * grids.rk[i]^2)
+    end
+    grids.Φk[1, 1, 1] = 0
+    ldiv!(grids.Φx, grids.rfft_plan, grids.Φk)
+
+    # Output initial conditions
     output_grids(grids, output_config, 1)
 
     if max_normed_phase_grad(grids) > PHASE_GRAD_LIMIT
