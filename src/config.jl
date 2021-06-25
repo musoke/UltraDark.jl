@@ -3,7 +3,7 @@ module Config
 export SimulationConfig, constant_scale_factor
 
 struct SimulationConfig
-    time_step_update_period::UInt8
+    time_step_update_period::Int64
     "function defining a(t)"
     a
 end
