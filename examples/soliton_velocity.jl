@@ -26,7 +26,7 @@ const output_dir = "output/vel"
 
 function run_sim()
 
-    output_config = OutputConfig(output_dir, output_times; box=true, slice=false)
+    output_config = OutputConfig(output_dir, output_times; box=true, slice=false, hdf5=true)
     options = Config.SimulationConfig(10)
 
     grids = PencilGrids(10.0, resol)

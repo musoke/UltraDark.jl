@@ -16,6 +16,8 @@ PATH=$PATH:~/julia-1.6.1/bin/
 
 echo "Building MPI.jl" >&2
 julia --project -e 'ENV["JULIA_MPI_BINARY"]="system"; using Pkg; Pkg.build("MPI"; verbose=true)'
+
+echo "Building HDF5.jl" >&2
 julia --project -e 'ENV["JULIA_HDF5_PATH"]="/sdf/sw/gcc-4.8.5/openmpi-4.0.4/hdf5-1.12.0/"; using Pkg; Pkg.build("HDF5"; verbose=true)'
 
 echo "Running simulation" >&2
