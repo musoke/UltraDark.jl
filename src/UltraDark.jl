@@ -2,7 +2,6 @@ module UltraDark
 
 using Base.Threads: @threads
 using LinearAlgebra
-using Statistics
 using AbstractFFTs: fftfreq, rfftfreq
 using PencilFFTs, MPI
 
@@ -10,7 +9,7 @@ using FFTW
 
 export simulate
 export Grids, PencilGrids
-export Config, constant_scale_factor
+export Config, SimulationConfig, constant_scale_factor
 export OutputConfig
 
 const PHASE_GRAD_LIMIT = π / 4
@@ -21,6 +20,10 @@ include("phase_diff.jl")
 include("time_step.jl")
 include("output.jl")
 include("config.jl")
+
+import .Output: OutputConfig
+import .Output: output_summary_row, output_summary_header, output_grids
+import .Config: SimulationConfig, constant_scale_factor
 
 function psi_half_step!(Δt, grids, constants)
     @inbounds @threads for i in eachindex(grids.ψx)
