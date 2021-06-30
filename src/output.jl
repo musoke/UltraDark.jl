@@ -253,26 +253,37 @@ function column_titles(stat_struct)
 end
 
 """
-    pool_summarystat(S1::SummaryStatisticsMaxRms, S2::SummaryStatisticsMaxRms)
+    pool_summarystat(S1::SummaryStatistics, S2::SummaryStatistics)
 
-Custom MPI reduction operator for summary statistics.
+MPI reduction operator for summary statistics.
+
+Check that t, a, Δt are equal and return them.
 """
 function pool_summarystat(S1::SummaryStatistics, S2::SummaryStatistics)
 
-    SummaryStatistics(S1.t, S1.a, S1.Δt)
+    if (S1.t != S2.t) || (S1.a != S2.a) || (S1.Δt != S2.Δt)
+        @error "Summaries incompatible across nodes" S1 S2
+    end
+
+    S1
 end
 
 """
     pool_summarystat(S1::SummaryStatisticsMaxRms, S2::SummaryStatisticsMaxRms)
 
-Custom MPI reduction operator for summary statistics.
+MPI reduction operator for summary statistics.
 """
 function pool_summarystat(S1::SummaryStatisticsMaxRms, S2::SummaryStatisticsMaxRms)
+
+    if (S1.t != S2.t) || (S1.a != S2.a) || (S1.Δt != S2.Δt)
+        @error "Summaries incompatible across nodes" S1 S2
+    end
+
     n = S1.n + S2.n
     ρx_mean = (S1.ρx_mean * S1.n + S2.ρx_mean * S2.n) / n
     δx_rms = ((S1.n * S1.δx_rms^2 + S2.n * S2.δx_rms^2) / n)^0.5
 
-    SummaryStatisticsMaxRms(S1.t, S1.a, S1.Δt, ρx_mean, δx_rms, n)
+    SummaryStatisticsMaxRms(S1.date, S1.t, S1.a, S1.Δt, ρx_mean, δx_rms, n)
 end
 
 end # module
