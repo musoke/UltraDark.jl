@@ -9,10 +9,12 @@ function add_soliton(grids, mass, position, velocity, phase, t0)
     alpha = (mass / 3.883)^2
     beta = 2.454
 
-    if typeof(grids) == PencilGrids
+    if typeof(grids) <: PencilGrids
         ψ_glob = global_view(grids.ψx)
-    else
+    elseif typeof(grids) <: Grids
         ψ_glob = grids.ψx
+    else
+        throw("Unrecognised grids type")
     end
 
     for I in CartesianIndices(ψ_glob)
