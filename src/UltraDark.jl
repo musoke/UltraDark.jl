@@ -46,6 +46,9 @@ function phi_whole_step!(Δt, grids, constants; a=1.0)
     end
     ldiv!(grids.ψx, grids.fft_plan, grids.ψk)
 
+end
+
+function update_gravitational_potential!(grids, constants; a=1.0)
     @inbounds @threads for i in eachindex(grids.ρx)
         grids.ρx[i] = abs2(grids.ψx[i])
     end
@@ -97,6 +100,7 @@ function take_steps!(grids, t_start, Δt, n, output_config, a, constants)
         end
 
         phi_whole_step!(Δt, grids, constants; a=a(t))
+        update_gravitational_potential!(grids, constants; a=a(t))
         add_external_potential!(t, grids, constants)
 
         output_summary_row(grids, output_config, t, a(t), Δt)
@@ -147,16 +151,9 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
     t_begin = output_config.output_times[1]
 
     # Initialise vars other than ψx
-    mul!(grids.ψk, grids.fft_plan, grids.ψx)
-
-    grids.ρx .= abs2.(grids.ψx)
-
-    mul!(grids.Φk, grids.rfft_plan, grids.ρx)
-    @inbounds @threads for i in eachindex(grids.Φk)
-        grids.Φk[i] *= -4 * π / (options.a(t_begin) * grids.rk[i]^2)
-    end
-    grids.Φk[grids.rk_vanish_indices] .= 0
-    ldiv!(grids.Φx, grids.rfft_plan, grids.Φk)
+    # This is required so the initial time step can be calculated
+    t_initial = output_config.output_times[1]
+    update_gravitational_potential!(grids, constants; a=options.a(t_initial))
 
     # Output initial conditions
     output_grids(grids, output_config, 1)
