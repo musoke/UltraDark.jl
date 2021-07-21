@@ -25,18 +25,44 @@ import .Output: OutputConfig
 import .Output: output_summary_row, output_summary_header, output_grids
 import .Config: SimulationConfig, constant_scale_factor
 
+function outer_step!(Δt, grids, constants; a=1.0)
+    psi_whole_step!(Δt, grids, constants)
+end
+
+"""
+    psi_half_step
+
+Deprecated.
+Use `outer_step` with Δt/2 instead.
+"""
 function psi_half_step!(Δt, grids, constants)
     @inbounds @threads for i in eachindex(grids.ψx)
         grids.ψx[i] *= exp(- im * Δt / 2 * grids.Φx[i])
     end
 end
 
+"""
+    psi_half_step
+
+Deprecated.
+Use `outer_step` instead.
+"""
 function psi_whole_step!(Δt, grids, constants)
     @inbounds @threads for i in eachindex(grids.ψx)
         grids.ψx[i] *= exp(- im * Δt / 1 * grids.Φx[i])
     end
 end
 
+function inner_step!(Δt, grids, constants; a=1.0)
+    phi_whole_step!(Δt, grids, constants; a=1.0)
+end
+
+"""
+    phi_whole_step
+
+Deprecated.
+Use `inner_step` instead.
+"""
 function phi_whole_step!(Δt, grids, constants; a=1.0)
     # TODO: not all part of Φ update
 
@@ -91,22 +117,22 @@ function take_steps!(grids, t_start, Δt, n, output_config, a, constants)
 
     for step in 1:n
         if half_step
-            psi_half_step!(Δt, grids, constants)
+            outer_step!(Δt/2, grids, constants; a=a(t))
             t += Δt / 2
             half_step = false
         else
-            psi_whole_step!(Δt, grids, constants)
+            outer_step!(Δt, grids, constants; a=a(t))
             t += Δt
         end
 
-        phi_whole_step!(Δt, grids, constants; a=a(t))
+        inner_step!(Δt, grids, constants; a=a(t))
         update_gravitational_potential!(grids, constants; a=a(t))
         add_external_potential!(t, grids, constants)
 
         output_summary_row(grids, output_config, t, a(t), Δt)
     end
 
-    psi_half_step!(Δt, grids, constants)
+    outer_step!(Δt/2, grids, constants)
     t += Δt / 2
 
     output_summary_row(grids, output_config, t, a(t), Δt)
