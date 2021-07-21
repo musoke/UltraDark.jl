@@ -214,11 +214,11 @@ function SummaryStatistics(wall_time, sim_time, a, Δt, grids)
 end
 
 """
-    SummaryStatisticsMaxRms
+    SummaryStatisticsMeanMaxRms
 
-Summary statistics including the maximum and RMS values of the density grid ρx.
+Summary statistics including the mean density and RMS density contrast.
 """
-struct SummaryStatisticsMaxRms
+struct SummaryStatisticsMeanMaxRms
     "wall time"
     date::Dates.DateTime
     "time"
@@ -229,18 +229,21 @@ struct SummaryStatisticsMaxRms
     Δt::Float64
     "mean of density"
     ρx_mean::Float64
+    "max of density"
+    ρx_max::Float64
     "RMS of density contrast"
     δx_rms::Float64
     "number of grid points summarized"
     n::Int64
 end
 
-function SummaryStatisticsMaxRms(wall_time, sim_time, a, Δt, grids)
+function SummaryStatisticsMeanMaxRms(wall_time, sim_time, a, Δt, grids)
     ρx_mean = mean(grids.ρx)
+    ρx_max = maximum(grids.ρx)
     δx_rms = mean(((grids.ρx .- ρx_mean).^2))^0.5
     n = prod(size(grids.ρx))
 
-    SummaryStatisticsMaxRms(wall_time, sim_time, a, Δt, ρx_mean, δx_rms, n)
+    SummaryStatisticsMeanMaxRms(wall_time, sim_time, a, Δt, ρx_mean, ρx_max, δx_rms, n)
 end
 
 """
@@ -249,7 +252,7 @@ end
 Generate column titles for a CSV file from fields names of a struct
 """
 function column_titles(stat_struct)
-    reduce(replace, [":"=>"", "("=>"", ")"=>"", " "=>""], init="$(fieldnames(stat_struct))") * ",\n"
+    reduce(replace, [":"=>"", "("=>"", ")"=>"", " "=>""], init="$(fieldnames(stat_struct))") * "\n"
 end
 
 """
@@ -259,7 +262,7 @@ MPI reduction operator for summary statistics.
 
 Check that t, a, Δt are equal and return them.
 """
-function pool_summarystat(S1::SummaryStatistics, S2::SummaryStatistics)
+function pool_summarystat(S1::SummaryStatistics, S2::SummaryStatistics)::SummaryStatistics
 
     if (S1.t != S2.t) || (S1.a != S2.a) || (S1.Δt != S2.Δt)
         @error "Summaries incompatible across nodes" S1 S2
@@ -269,11 +272,11 @@ function pool_summarystat(S1::SummaryStatistics, S2::SummaryStatistics)
 end
 
 """
-    pool_summarystat(S1::SummaryStatisticsMaxRms, S2::SummaryStatisticsMaxRms)
+    pool_summarystat(S1::SummaryStatisticsMeanMaxRms, S2::SummaryStatisticsMeanMaxRms)
 
 MPI reduction operator for summary statistics.
 """
-function pool_summarystat(S1::SummaryStatisticsMaxRms, S2::SummaryStatisticsMaxRms)
+function pool_summarystat(S1::SummaryStatisticsMeanMaxRms, S2::SummaryStatisticsMeanMaxRms)::SummaryStatisticsMeanMaxRms
 
     if (S1.t != S2.t) || (S1.a != S2.a) || (S1.Δt != S2.Δt)
         @error "Summaries incompatible across nodes" S1 S2
@@ -281,9 +284,10 @@ function pool_summarystat(S1::SummaryStatisticsMaxRms, S2::SummaryStatisticsMaxR
 
     n = S1.n + S2.n
     ρx_mean = (S1.ρx_mean * S1.n + S2.ρx_mean * S2.n) / n
+    ρx_max = maximum(S1.ρx_max, S2.ρx_max)
     δx_rms = ((S1.n * S1.δx_rms^2 + S2.n * S2.δx_rms^2) / n)^0.5
 
-    SummaryStatisticsMaxRms(S1.date, S1.t, S1.a, S1.Δt, ρx_mean, δx_rms, n)
+    SummaryStatisticsMeanMaxRms(S1.date, S1.t, S1.a, S1.Δt, ρx_mean, ρx_max, δx_rms, n)
 end
 
 end # module
