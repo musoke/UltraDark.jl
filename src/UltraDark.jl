@@ -154,6 +154,7 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
     # This is required so the initial time step can be calculated
     t_initial = output_config.output_times[1]
     update_gravitational_potential!(grids, constants; a=options.a(t_initial))
+    add_external_potential!(t_initial, grids, constants)
 
     # Output initial conditions
     output_grids(grids, output_config, 1)
