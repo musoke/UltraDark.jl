@@ -12,8 +12,6 @@ export Grids, PencilGrids
 export Config, SimulationConfig, constant_scale_factor
 export OutputConfig
 
-const PHASE_GRAD_LIMIT = π / 4
-
 include("grids.jl")
 include("pencil_grids.jl")
 include("phase_diff.jl")
@@ -151,7 +149,7 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
 
     while (t < t_end) && ~(t ≈ t_end)
 
-        if max_normed_phase_grad(grids) > PHASE_GRAD_LIMIT
+        if ~good_phase_diff(grids, config)
             output_grids(grids, output_config, -1)
             throw("Phase gradient is too large to continue")
         end
@@ -184,9 +182,8 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
 
     # Output initial conditions
     output_grids(grids, output_config, 1)
-
-    if max_normed_phase_grad(grids) > PHASE_GRAD_LIMIT
-        throw("Phase gradient is too large to start")
+    if ~good_phase_diff(grids, options)
+        throw("Initial phase gradient is already in untrusted regime")
     end
 
     for (index, t_end) in enumerate(output_config.output_times[2:end])
@@ -202,7 +199,7 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
         output_grids(grids, output_config, index + 1)
     end
 
-    if max_normed_phase_grad(grids) > PHASE_GRAD_LIMIT
+    if ~good_phase_diff(grids, options)
         throw("Phase gradient is too large to end")
     end
 

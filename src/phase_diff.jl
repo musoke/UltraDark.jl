@@ -40,9 +40,8 @@ Compute maximum phase gradient of a grid
 Normalised to ignore large gradients in regions with low density.  These tend
 to be anomalous.
 """
-function max_normed_phase_grad(grids)
-    DENSITY_THRESHOLD = 1e-6
-    tmp = similar(grids.ψx, Float64)
+function max_normed_phase_diff(psi, rho, density_threshold)
+    tmp = similar(psi, Float64)
     n = ndims(tmp)
 
     max_grads = zeros(n)
@@ -52,11 +51,27 @@ function max_normed_phase_grad(grids)
 
     for i in 1:n
         dir = circshift(shift, i)
-        tmp .= abs.(phase_diff(grids.ψx, dir))
-        tmp[grids.ρx / maximum(grids.ρx) .< DENSITY_THRESHOLD] .= NaN
+        tmp .= abs.(phase_diff(psi, dir))
+        tmp[rho / maximum(rho) .< density_threshold] .= NaN
         max_grads[i] = maximum(tmp)
     end
 
     maximum(max_grads)
 
+end
+
+"""
+    bad_phase_diff(grids, config)
+
+Check if the phase of the ψ field is in a trustable regime.
+
+Returns
+"""
+function good_phase_diff(grids, config)
+    density_threshold = config.density_threshold
+    if max_normed_phase_diff(grids.ψx, grids.ρx, density_threshold) > config.phase_grad_limit
+        false
+    else
+        true
+    end
 end
