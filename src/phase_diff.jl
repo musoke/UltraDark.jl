@@ -3,8 +3,8 @@
 
 Compute point-to-point difference of phase on a grid along a direction
 
-Returns an array of size `(size(field)[1], size(field)[2], size(field)[2])`
-containing gradients in direction `dir`.
+Returns an array of size `(size(field)[1], size(field)[2], size(field)[3])`
+containing differences in direction `dir`.
 """
 function phase_diff(field, dir)
     out = similar(field, Float64)
@@ -19,8 +19,8 @@ end
 
 Compute point-to-point difference of phase on a grid along a direction
 
-Returns an array of size `(size(field)[1], size(field)[2], size(field)[2])`
-containing gradients in direction `dir`.
+Returns an array of size `(size(field)[1], size(field)[2], size(field)[3])`
+containing differences in direction `dir`.
 """
 function phase_diff(field::PencilArray, dir)
     out = similar(field, Float64)
