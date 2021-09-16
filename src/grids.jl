@@ -22,8 +22,20 @@ struct Grids
     y::Array{Float64,3}
     "Array of z positions"
     z::Array{Float64,3}
+    "Array of x Fourier modes"
+    kx::Array{Float64,3}
+    "Array of y Fourier modes"
+    ky::Array{Float64,3}
+    "Array of z Fourier modes"
+    kz::Array{Float64,3}
     "Fourier space postition array"
     k::Array{Float64,3}
+    "Array of x Fourier modes for use with `rfft`"
+    rkx::Array{Float64,3}
+    "Array of y Fourier modes for use with `rfft`"
+    rky::Array{Float64,3}
+    "Array of z Fourier modes for use with `rfft`"
+    rkz::Array{Float64,3}
     "Fourier space postition array for use with `rfft`"
     rk::Array{Float64,3}
     "ψ field"
@@ -49,7 +61,7 @@ struct Grids
     "Indices at which rk==0.0"
     rk_vanish_indices#::Vector{CartesianIndex{3}}
 
-    function Grids(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk)
+    function Grids(x, y, z, kx, ky, kz, k, rkx, rky, rkz, rk, ψx, ψk, ρx, ρk, Φx, Φk)
         n_dims = 3
         resol_tuple = (size(x)[1], size(y)[2], size(z)[3])
         resol_tuple_realfft = (size(x)[1] ÷ 2 + 1, size(y)[2], size(z)[3])
@@ -83,7 +95,7 @@ struct Grids
         k_vanish_indices = findall(x -> x==0.0, k)
         rk_vanish_indices = findall(x -> x==0.0, rk)
 
-        new(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, k_vanish_indices, rk_vanish_indices)
+        new(x, y, z, kx, ky, kz, k, rkx, rky, rkz, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, k_vanish_indices, rk_vanish_indices)
     end
 end
 
@@ -170,10 +182,24 @@ function Grids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::Grids
                 1, 1, resol_tuple[3]
     )
 
+    kvec = k_vec(length_tuple, resol_tuple)
+
+    kx = reshape(kvec[1], size(kvec[1])[1], 1, 1)
+    ky = reshape(kvec[2], 1, size(kvec[2])[1], 1)
+    kz = reshape(kvec[3], 1, 1, size(kvec[3])[1])
+    k_norm = (kx.^2 .+ ky.^2 .+ kz.^2).^0.5
+
+    rkvec = rk_vec(length_tuple, resol_tuple)
+
+    rkx = reshape(rkvec[1], size(rkvec[1])[1], 1, 1)
+    rky = reshape(rkvec[2], 1, size(rkvec[2])[1], 1)
+    rkz = reshape(rkvec[3], 1, 1, size(rkvec[3])[1])
+    rk_norm = (rkx.^2 .+ rky.^2 .+ rkz.^2).^0.5
+
     Grids(
         x, y, z,
-        k_norm(length_tuple, resol_tuple),
-        rk_norm(length_tuple, resol_tuple),
+        kx, ky, kz, k_norm,
+        rkx, rky, rkz, rk_norm,
         ψx,
         ψk,
         ρx,

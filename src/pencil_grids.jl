@@ -22,8 +22,20 @@ struct PencilGrids{K, RX, RK, CX, CK, FFT, RFFT, M}
     y::Array{Float64,3}
     "Array of z positions"
     z::Array{Float64,3}
+    "Array of x Fourier modes"
+    kx::Array{Float64,3}
+    "Array of y Fourier modes"
+    ky::Array{Float64,3}
+    "Array of z Fourier modes"
+    kz::Array{Float64,3}
     "Fourier space postition array"
     k::K
+    "Array of x Fourier modes for use with `rfft`"
+    rkx::Array{Float64,3}
+    "Array of y Fourier modes for use with `rfft`"
+    rky::Array{Float64,3}
+    "Array of z Fourier modes for use with `rfft`"
+    rkz::Array{Float64,3}
     "Fourier space postition array for use with `rfft`"
     rk::K
     "ψ field"
@@ -52,7 +64,7 @@ struct PencilGrids{K, RX, RK, CX, CK, FFT, RFFT, M}
     "MPI communicator"
     MPI_COMM::M
 
-    function PencilGrids(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
+    function PencilGrids(x, y, z, kx, ky, kz, k, rkx, rky, rkz, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
         n_dims = 3
         resol_tuple = (size(x)[1], size(y)[2], size(z)[3])
         resol_tuple_realfft = (size(x)[1] ÷ 2 + 1, size(y)[2], size(z)[3])
@@ -85,7 +97,7 @@ struct PencilGrids{K, RX, RK, CX, CK, FFT, RFFT, M}
         RFFT = typeof(rfft_plan)
         M = typeof(MPI_COMM)
 
-        new{K, RX, RK, CX, CK, FFT, RFFT, M}(x, y, z, k, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, k_vanish_indices, rk_vanish_indices, MPI_COMM)
+        new{K, RX, RK, CX, CK, FFT, RFFT, M}(x, y, z, kx, ky, kz, k, rkx, rky, rkz, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, k_vanish_indices, rk_vanish_indices, MPI_COMM)
     end
 end
 
@@ -195,23 +207,38 @@ function PencilGrids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::PencilGri
                 1, 1, resol_tuple[3]
     )
 
+    kvec = k_vec(length_tuple, resol_tuple)
+
+    kx = reshape(kvec[1], size(kvec[1])[1], 1, 1)
+    ky = reshape(kvec[2], 1, size(kvec[2])[1], 1)
+    kz = reshape(kvec[3], 1, 1, size(kvec[3])[1])
+    k_norm = (kx.^2 .+ ky.^2 .+ kz.^2).^0.5  #TODO: don't allocate full array on every node
+
     k = similar(ψk, Float64)
     k_glob = global_view(k)
-    _k = k_norm(length_tuple, resol_tuple)
+    _k = k_norm
     for I in CartesianIndices(k_glob)
         k_glob[I] = _k[I]
     end
 
+    rkvec = rk_vec(length_tuple, resol_tuple)
+
+    rkx = reshape(rkvec[1], size(rkvec[1])[1], 1, 1)
+    rky = reshape(rkvec[2], 1, size(rkvec[2])[1], 1)
+    rkz = reshape(rkvec[3], 1, 1, size(rkvec[3])[1])
+    rk_norm = (rkx.^2 .+ rky.^2 .+ rkz.^2).^0.5
+
     rk = similar(ρk, Float64)
     rk_glob = global_view(rk)
-    _rk = rk_norm(length_tuple, resol_tuple)
+    _rk = rk_norm
     for I in CartesianIndices(rk_glob)
         rk_glob[I] = _rk[I]
     end
 
     PencilGrids(
         x, y, z,
-        k, rk,
+        kx, ky, kz, k,
+        rkx, rky, rkz, rk,
         ψx, ψk,
         ρx, ρk,
         Φx, Φk,
