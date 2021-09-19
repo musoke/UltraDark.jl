@@ -10,11 +10,12 @@ fit in `time_interval`.
 ```jldoctest
 julia> using UltraDark: actual_time_step
 
-julia> actual_time_step(0.11, 1, 20)
+julia> actual_time_step(0.11, 1, 20, 1.0)
 (0.1, 10)
 ```
 """
-function actual_time_step(max_timestep, time_interval, n)::Tuple{Float64, Integer}
+function actual_time_step(max_timestep, time_interval, n, multiplier)::Tuple{Float64, Integer}
+    max_timestep *= multiplier
     if max_timestep * n > time_interval
         num_steps = ceil(time_interval / max_timestep)
         time_interval / num_steps, num_steps
