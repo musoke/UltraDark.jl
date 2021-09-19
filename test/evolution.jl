@@ -3,20 +3,23 @@ using Test
 using MPI
 
 @testset "Actual time step" begin
-    @test UltraDark.actual_time_step(0.5, 1, 2)[1] ≈ 0.5
-    @test UltraDark.actual_time_step(0.5, 1, 2)[2] == 2
+    @test UltraDark.actual_time_step(0.5, 1, 2, 1.0)[1] ≈ 0.5
+    @test UltraDark.actual_time_step(0.5, 1, 2, 1.0)[2] == 2
 
-    @test UltraDark.actual_time_step(0.5, 1, 3)[1] ≈ 0.5
-    @test UltraDark.actual_time_step(0.5, 1, 3)[2] == 2
+    @test UltraDark.actual_time_step(0.5, 1, 3, 1.0)[1] ≈ 0.5
+    @test UltraDark.actual_time_step(0.5, 1, 3, 1.0)[2] == 2
 
-    @test UltraDark.actual_time_step(0.01, 1, 10)[1] ≈ 0.01
-    @test UltraDark.actual_time_step(0.01, 1, 10)[2] == 10
+    @test UltraDark.actual_time_step(0.01, 1, 10, 1.0)[1] ≈ 0.01
+    @test UltraDark.actual_time_step(0.01, 1, 10, 1.0)[2] == 10
 
-    @test UltraDark.actual_time_step(0.7, 1, 2)[1] ≈ 0.5
-    @test UltraDark.actual_time_step(0.7, 1, 2)[2] == 2
+    @test UltraDark.actual_time_step(0.01, 1, 10, 10.)[1] ≈ 0.1
+    @test UltraDark.actual_time_step(0.01, 1, 10, 10.)[2] == 10
 
-    @test UltraDark.actual_time_step(0.7, 2, 3)[1] ≈ 2/3
-    @test UltraDark.actual_time_step(0.7, 2, 3)[2] == 3
+    @test UltraDark.actual_time_step(0.7, 1, 2, 1.0)[1] ≈ 0.5
+    @test UltraDark.actual_time_step(0.7, 1, 2, 1.0)[2] == 2
+
+    @test UltraDark.actual_time_step(0.7, 2, 3, 1.0)[1] ≈ 2/3
+    @test UltraDark.actual_time_step(0.7, 2, 3, 1.0)[2] == 3
 end
 
 for grid_type in [Grids, PencilGrids]

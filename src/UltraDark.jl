@@ -158,6 +158,7 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
             max_time_step(grids, config.a(t)),
             t_end - t,
             config.time_step_update_period,
+            config.time_step_multiplier,
         )
 
         t = take_steps!(grids, t, Δt, n_steps, output_config, config.a, constants)
