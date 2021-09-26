@@ -141,7 +141,7 @@ end
 """
 Evolve `grids` forward from `t_start` to `t_end`
 """
-function evolve_to!(t_start, t_end, grids, output_config, config::Config.SimulationConfig; constants=nothing)
+function evolve_to!(t_start, t_end, grids, output_config, sim_config; constants=nothing)
 
     @assert t_start < t_end
 
@@ -149,25 +149,25 @@ function evolve_to!(t_start, t_end, grids, output_config, config::Config.Simulat
 
     while (t < t_end) && ~(t ≈ t_end)
 
-        if ~good_phase_diff(grids, config)
+        if ~good_phase_diff(grids, sim_config)
             output_grids(grids, output_config, -1)
             throw("Phase gradient is too large to continue")
         end
 
         Δt, n_steps = actual_time_step(
-            max_time_step(grids, config.a(t)),
+            max_time_step(grids, sim_config.a(t)),
             t_end - t,
-            config.time_step_update_period,
-            config.time_step_multiplier,
+            sim_config.time_step_update_period,
+            sim_config.time_step_multiplier,
         )
 
-        t = take_steps!(grids, t, Δt, n_steps, output_config, config.a, constants)
+        t = take_steps!(grids, t, Δt, n_steps, output_config, sim_config.a, constants)
     end
 
     t
 end
 
-function simulate(grids, options::Config.SimulationConfig, output_config::OutputConfig; constants=nothing)
+function simulate(grids, sim_config, output_config::OutputConfig; constants=nothing)
 
     # Setup output
     mkpath(output_config.directory)
@@ -178,12 +178,12 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
     # Initialise vars other than ψx
     # This is required so the initial time step can be calculated
     t_initial = output_config.output_times[1]
-    update_gravitational_potential!(grids, constants; a=options.a(t_initial))
+    update_gravitational_potential!(grids, constants; a=sim_config.a(t_initial))
     add_external_potential!(t_initial, grids, constants)
 
     # Output initial conditions
     output_grids(grids, output_config, 1)
-    if ~good_phase_diff(grids, options)
+    if ~good_phase_diff(grids, sim_config)
         throw("Initial phase gradient is already in untrusted regime")
     end
 
@@ -193,14 +193,14 @@ function simulate(grids, options::Config.SimulationConfig, output_config::Output
             t_end,
             grids,
             output_config,
-            options;
+            sim_config;
             constants=constants,
         )
         @info "Reached time $t_begin"
         output_grids(grids, output_config, index + 1)
     end
 
-    if ~good_phase_diff(grids, options)
+    if ~good_phase_diff(grids, sim_config)
         throw("Phase gradient is too large to end")
     end
 
