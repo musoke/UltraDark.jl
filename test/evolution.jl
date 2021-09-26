@@ -1,25 +1,32 @@
 using UltraDark
+using UltraDark: TimeStepOptions
 using Test
 using MPI
 
 @testset "Actual time step" begin
-    @test UltraDark.actual_time_step(0.5, 1, 2, 1.0)[1] ≈ 0.5
-    @test UltraDark.actual_time_step(0.5, 1, 2, 1.0)[2] == 2
+    time_step_options = TimeStepOptions(update_period=2)
+    @test UltraDark.actual_time_step(0.5, 1, time_step_options)[1] ≈ 0.5
+    @test UltraDark.actual_time_step(0.5, 1, time_step_options)[2] == 2
 
-    @test UltraDark.actual_time_step(0.5, 1, 3, 1.0)[1] ≈ 0.5
-    @test UltraDark.actual_time_step(0.5, 1, 3, 1.0)[2] == 2
+    time_step_options = TimeStepOptions(update_period=3)
+    @test UltraDark.actual_time_step(0.5, 1, time_step_options)[1] ≈ 0.5
+    @test UltraDark.actual_time_step(0.5, 1, time_step_options)[2] == 2
 
-    @test UltraDark.actual_time_step(0.01, 1, 10, 1.0)[1] ≈ 0.01
-    @test UltraDark.actual_time_step(0.01, 1, 10, 1.0)[2] == 10
+    time_step_options = TimeStepOptions()
+    @test UltraDark.actual_time_step(0.01, 1, time_step_options)[1] ≈ 0.01
+    @test UltraDark.actual_time_step(0.01, 1, time_step_options)[2] == 10
 
-    @test UltraDark.actual_time_step(0.01, 1, 10, 10.)[1] ≈ 0.1
-    @test UltraDark.actual_time_step(0.01, 1, 10, 10.)[2] == 10
+    time_step_options = TimeStepOptions(multiplier=10.0)
+    @test UltraDark.actual_time_step(0.01, 1, time_step_options)[1] ≈ 0.1
+    @test UltraDark.actual_time_step(0.01, 1, time_step_options)[2] == 10
 
-    @test UltraDark.actual_time_step(0.7, 1, 2, 1.0)[1] ≈ 0.5
-    @test UltraDark.actual_time_step(0.7, 1, 2, 1.0)[2] == 2
+    time_step_options = TimeStepOptions(update_period=2)
+    @test UltraDark.actual_time_step(0.7, 1, time_step_options)[1] ≈ 0.5
+    @test UltraDark.actual_time_step(0.7, 1, time_step_options)[2] == 2
 
-    @test UltraDark.actual_time_step(0.7, 2, 3, 1.0)[1] ≈ 2/3
-    @test UltraDark.actual_time_step(0.7, 2, 3, 1.0)[2] == 3
+    time_step_options = TimeStepOptions(update_period=3)
+    @test UltraDark.actual_time_step(0.7, 2, time_step_options)[1] ≈ 2/3
+    @test UltraDark.actual_time_step(0.7, 2, time_step_options)[2] == 3
 end
 
 for grid_type in [Grids, PencilGrids]
@@ -44,7 +51,7 @@ for grid_type in [Grids, PencilGrids]
         grids.Φx .= grids.rfft_plan \ grids.Φk
 
         output_config = OutputConfig(mktempdir(), [])
-        options = UltraDark.Config.SimulationConfig(10)
+        options = UltraDark.Config.SimulationConfig()
         @test UltraDark.evolve_to!(t_begin, t_end, grids, output_config, options) ≈ t_end
     end
 end

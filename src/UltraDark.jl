@@ -9,7 +9,7 @@ using FFTW
 
 export simulate
 export Grids, PencilGrids
-export Config, SimulationConfig, constant_scale_factor
+export Config, SimulationConfig, constant_scale_factor, TimeStepOptions
 export OutputConfig
 
 include("grids.jl")
@@ -21,7 +21,7 @@ include("config.jl")
 
 import .Output: OutputConfig
 import .Output: output_summary_row, output_summary_header, output_grids
-import .Config: SimulationConfig, constant_scale_factor
+import .Config: SimulationConfig, constant_scale_factor, TimeStepOptions
 
 function outer_step!(Δt, grids, constants; a=1.0)
     psi_whole_step!(Δt, grids, constants)
@@ -155,10 +155,9 @@ function evolve_to!(t_start, t_end, grids, output_config, sim_config; constants=
         end
 
         Δt, n_steps = actual_time_step(
-            max_time_step(grids, sim_config.a(t)),
+            max_time_step(grids, sim_config.a(t), sim_config.time_step_options),
             t_end - t,
-            sim_config.time_step_update_period,
-            sim_config.time_step_multiplier,
+            sim_config.time_step_options,
         )
 
         t = take_steps!(grids, t, Δt, n_steps, output_config, sim_config.a, constants)
