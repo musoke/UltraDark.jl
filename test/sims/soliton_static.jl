@@ -16,7 +16,7 @@ for grid_type in [Grids, PencilGrids]
     output_times = [0, 1]
 
     output_config = OutputConfig(this_output_dir, output_times; box=true, slice=false)
-    options = Config.SimulationConfig(10)
+    options = Config.SimulationConfig()
 
     grids = grid_type(10.0, resol)
 

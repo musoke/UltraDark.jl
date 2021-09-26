@@ -27,7 +27,7 @@ const output_dir = "output/vel"
 function run_sim()
 
     output_config = OutputConfig(output_dir, output_times; box=true, slice=false)
-    options = Config.SimulationConfig(10)
+    options = Config.SimulationConfig()
 
     grids = PencilGrids(10.0, resol)
     @info "Grids created" MPI.Comm_rank(comm) size(grids.ψk)
