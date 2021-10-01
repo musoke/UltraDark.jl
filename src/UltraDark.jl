@@ -86,6 +86,15 @@ function update_gravitational_potential!(grids, constants; a=1.0)
 end
 
 """
+    auxiliary_step!(Δt, grids, t, constants)
+
+Do an auxiliary inner step.
+By default this does nothing, but can be overridden in multiple dispatch.
+"""
+function auxiliary_step!(Δt, grids, t, constants)
+end
+
+"""
     add_external_potential!(t, grids, constants)
 
 Add a gravitational potential to the grid.
@@ -126,6 +135,7 @@ function take_steps!(grids, t_start, Δt, n, output_config, a, constants)
         inner_step!(Δt, grids, constants; a=a(t))
         update_gravitational_potential!(grids, constants; a=a(t))
         add_external_potential!(t, grids, constants)
+        auxiliary_step!(Δt, grids, t, constants)
 
         output_summary_row(grids, output_config, t, a(t), Δt)
     end
