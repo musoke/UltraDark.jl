@@ -148,9 +148,9 @@ function output_summary_header(output_config)
 end
 
 function generate_summary_row(summary)::String
-    line = ""
-    for i in 1:nfields(summary)
-        line = line * "$(getfield(summary, i)),"
+    line = "$(getfield(summary, 1))"
+    for i in 2:nfields(summary)
+        line = line * ",$(getfield(summary, i))"
     end
     line = line * "\n"
 end
