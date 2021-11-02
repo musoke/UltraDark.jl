@@ -6,25 +6,31 @@ using UltraDark: take_steps!
 nthreads = Threads.nthreads()
 
 resol = try
-    parse(Int64, ARGS[1])
+    parse(Int64, ENV["ULTRADARK_RESOL"])
 catch
     @warn "Resolution not supplied, using default"
     64
 end
 
+grids_type = try
+    eval(Meta.parse(ENV["ULTRADARK_GRIDS_TYPE"]))
+catch
+    @warn "ULTRADARK_GRIDS_TYPE not supplied, using default"
+    Grids
+end
+
 Δt = 0.1
 n_steps = 10
 
-grids = Grids(1.0, resol)
+grids = grids_type(1.0, resol)
 
-# b = @benchmark take_steps!($grids, $1.0, $Δt, 10, $(OutputConfig("output", 1:2)), $(Config.constant_scale_factor))
-# time_mean = mean(b.times / 1e9 / n_steps)
+output_config = OutputConfig(mktempdir(), 1:2)
 
-# Run once to ensure function is precompiled
-take_steps!(grids, 1.0, Δt, n_steps, OutputConfig("output", 1:2), Config.constant_scale_factor)
+# Run once to ensure functions are precompiled
+take_steps!(grids, 1.0, Δt, n_steps, output_config, Config.constant_scale_factor, nothing)
 
 # Collect data
-res = @timed take_steps!(grids, 1.0, Δt, n_steps, OutputConfig("output", 1:2), Config.constant_scale_factor)
+res = @timed take_steps!(grids, 1.0, Δt, n_steps, output_config, Config.constant_scale_factor, nothing)
 
 time_mean = mean(res[2] / n_steps)
 
