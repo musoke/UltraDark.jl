@@ -209,9 +209,9 @@ function PencilGrids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::PencilGri
 
     kvec = k_vec(length_tuple, resol_tuple)
 
-    kx = reshape(kvec[1], size(kvec[1])[1], 1, 1)
-    ky = reshape(kvec[2], 1, size(kvec[2])[1], 1)
-    kz = reshape(kvec[3], 1, 1, size(kvec[3])[1])
+    kx = reshape(kvec[1], :, 1, 1)
+    ky = reshape(kvec[2], 1, :, 1)
+    kz = reshape(kvec[3], 1, 1, :)
     k_norm = (kx.^2 .+ ky.^2 .+ kz.^2).^0.5  #TODO: don't allocate full array on every node
 
     k = similar(ψk, Float64)
@@ -223,9 +223,9 @@ function PencilGrids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::PencilGri
 
     rkvec = rk_vec(length_tuple, resol_tuple)
 
-    rkx = reshape(rkvec[1], size(rkvec[1])[1], 1, 1)
-    rky = reshape(rkvec[2], 1, size(rkvec[2])[1], 1)
-    rkz = reshape(rkvec[3], 1, 1, size(rkvec[3])[1])
+    rkx = reshape(rkvec[1], :, 1, 1)
+    rky = reshape(rkvec[2], 1, :, 1)
+    rkz = reshape(rkvec[3], 1, 1, :)
     rk_norm = (rkx.^2 .+ rky.^2 .+ rkz.^2).^0.5
 
     rk = similar(ρk, Float64)
