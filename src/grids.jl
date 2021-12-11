@@ -161,7 +161,7 @@ function Grids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::Grids
                       +length_tuple[1] / 2 - length_tuple[1] / 2resol_tuple[1],
                       length=resol_tuple[1]
                      ),
-                resol_tuple[1], 1, 1
+                :, 1, 1
     )
 
     y = reshape(
@@ -170,7 +170,7 @@ function Grids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::Grids
                       +length_tuple[2] / 2 - length_tuple[2] / 2resol_tuple[2],
                       length=resol_tuple[2]
                      ),
-                1, resol_tuple[2], 1
+                1, :, 1
     )
 
     z = reshape(
@@ -179,21 +179,21 @@ function Grids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::Grids
                       +length_tuple[3] / 2 - length_tuple[3] / 2resol_tuple[3],
                       length=resol_tuple[3]
                      ),
-                1, 1, resol_tuple[3]
+                1, 1, :
     )
 
     kvec = k_vec(length_tuple, resol_tuple)
 
-    kx = reshape(kvec[1], size(kvec[1])[1], 1, 1)
-    ky = reshape(kvec[2], 1, size(kvec[2])[1], 1)
-    kz = reshape(kvec[3], 1, 1, size(kvec[3])[1])
+    kx = reshape(kvec[1], :, 1, 1)
+    ky = reshape(kvec[2], 1, :, 1)
+    kz = reshape(kvec[3], 1, 1, :)
     k_norm = (kx.^2 .+ ky.^2 .+ kz.^2).^0.5
 
     rkvec = rk_vec(length_tuple, resol_tuple)
 
-    rkx = reshape(rkvec[1], size(rkvec[1])[1], 1, 1)
-    rky = reshape(rkvec[2], 1, size(rkvec[2])[1], 1)
-    rkz = reshape(rkvec[3], 1, 1, size(rkvec[3])[1])
+    rkx = reshape(rkvec[1], :, 1, 1)
+    rky = reshape(rkvec[2], 1, :, 1)
+    rkz = reshape(rkvec[3], 1, 1, :)
     rk_norm = (rkx.^2 .+ rky.^2 .+ rkz.^2).^0.5
 
     Grids(
@@ -255,9 +255,9 @@ end
 function k_norm(lengths, resols)
     kvec = k_vec(lengths, resols)
 
-    kx = reshape(kvec[1], size(kvec[1])[1], 1, 1)
-    ky = reshape(kvec[2], 1, size(kvec[2])[1], 1)
-    kz = reshape(kvec[3], 1, 1, size(kvec[3])[1])
+    kx = reshape(kvec[1], :, 1, 1)
+    ky = reshape(kvec[2], 1, :, 1)
+    kz = reshape(kvec[3], 1, 1, :)
 
     (kx.^2 .+ ky.^2 .+ kz.^2).^0.5
 end
@@ -265,9 +265,9 @@ end
 function rk_norm(lengths, resols)
     kvec = rk_vec(lengths, resols)
 
-    kx = reshape(kvec[1], size(kvec[1])[1], 1, 1)
-    ky = reshape(kvec[2], 1, size(kvec[2])[1], 1)
-    kz = reshape(kvec[3], 1, 1, size(kvec[3])[1])
+    kx = reshape(kvec[1], :, 1, 1)
+    ky = reshape(kvec[2], 1, :, 1)
+    kz = reshape(kvec[3], 1, 1, :)
 
     (kx.^2 .+ ky.^2 .+ kz.^2).^0.5
 end
