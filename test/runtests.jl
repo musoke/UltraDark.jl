@@ -9,7 +9,11 @@ doctest(UltraDark)
     include("grids.jl")
 end
 
-@safetestset "output.jl" begin
+@safetestset "grid outputs" begin
+    include("output.jl")
+end
+
+@safetestset "summary ouputs" begin
     include("output.jl")
 end
 
