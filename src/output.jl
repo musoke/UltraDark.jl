@@ -134,6 +134,17 @@ function output_grids(grids::PencilGrids, output_config, step)
 end
 
 """
+    output_xyz(grids, output_config)
+
+Output the spatial coordinates defining the grid
+"""
+function output_xyz(grids, output_config)
+    NPZ.npzwrite(joinpath(output_config.directory, "x.npy"), grids.x)
+    NPZ.npzwrite(joinpath(output_config.directory, "y.npy"), grids.y)
+    NPZ.npzwrite(joinpath(output_config.directory, "z.npy"), grids.z)
+end
+
+"""
     output_summary_header(output_config)
 
 Write a header for a summary file
