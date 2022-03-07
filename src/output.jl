@@ -7,7 +7,7 @@ import NPZ
 using Statistics
 
 export OutputConfig
-export SummaryStatistics, SummaryStatisticsMaxRms
+export SummaryStatistics, SummaryStatisticsMeanMaxRms
 
 """
     OutputConfig
