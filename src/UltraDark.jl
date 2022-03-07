@@ -11,6 +11,7 @@ export simulate
 export Grids, PencilGrids
 export Config, SimulationConfig, constant_scale_factor, TimeStepOptions
 export OutputConfig
+export SummaryStatistics, SummaryStatisticsMeanMaxRms
 
 include("grids.jl")
 include("pencil_grids.jl")
@@ -21,6 +22,7 @@ include("config.jl")
 
 import .Output: OutputConfig
 import .Output: output_summary_row, output_summary_header, output_grids
+import .Output: SummaryStatistics, SummaryStatisticsMeanMaxRms
 import .Config: SimulationConfig, constant_scale_factor, TimeStepOptions
 
 function outer_step!(Δt, grids, constants; a=1.0)
