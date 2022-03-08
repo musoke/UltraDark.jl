@@ -21,8 +21,9 @@ include("output.jl")
 include("config.jl")
 
 import .Output: OutputConfig
-import .Output: output_summary_row, output_summary_header, output_grids, output_xyz
-import .Output: SummaryStatistics, SummaryStatisticsMeanMaxRms
+import .Output: output_grids, output_xyz
+import .Output: output_summary_row, output_summary_header
+import .Output.Summary: SummaryStatistics, SummaryStatisticsMeanMaxRms
 import .Config: SimulationConfig, constant_scale_factor, TimeStepOptions
 
 """
