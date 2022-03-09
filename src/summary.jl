@@ -34,8 +34,8 @@ end
 
 Write a new row to the summary file
 """
-function output_summary_row(grids, output_config, t, a, Δt)
-    summary = output_config.summary_statistics(Dates.now(), t, a, Δt, grids)
+function output_summary_row(grids, output_config, t, a, Δt, constants)
+    summary = output_config.summary_statistics(Dates.now(), t, a, Δt, grids, constants)
     line = generate_summary_row(summary)
     open(joinpath(output_config.directory, "summary.csv"), "a") do file
         write(file, line)
@@ -50,10 +50,10 @@ Write a new row to the summary file
 If the grids is a PencilGrids, this uses `MPI.Reduce` to compute partial
 summaries in each task and combine them.
 """
-function output_summary_row(grids::PencilGrids, output_config, t, a, Δt)
+function output_summary_row(grids::PencilGrids, output_config, t, a, Δt, constants)
     root = 0
     summary = MPI.Reduce(
-                   output_config.summary_statistics(Dates.now(), t, a, Δt, grids),
+                   output_config.summary_statistics(Dates.now(), t, a, Δt, grids, constants),
                    pool_summarystat,
                    root,
                    grids.MPI_COMM
@@ -83,7 +83,7 @@ struct SummaryStatistics
     Δt::Float64
 end
 
-function SummaryStatistics(wall_time, sim_time, a, Δt, grids)
+function SummaryStatistics(wall_time, sim_time, a, Δt, grids, constants)
     SummaryStatistics(wall_time, sim_time, a, Δt)
 end
 
@@ -111,7 +111,7 @@ struct SummaryStatisticsMeanMaxRms
     n::Int64
 end
 
-function SummaryStatisticsMeanMaxRms(wall_time, sim_time, a, Δt, grids)
+function SummaryStatisticsMeanMaxRms(wall_time, sim_time, a, Δt, grids, constants)
     ρx_mean = mean(grids.ρx)
     ρx_max = maximum(grids.ρx)
     δx_rms = mean(((grids.ρx .- ρx_mean).^2))^0.5

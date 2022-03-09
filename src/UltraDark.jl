@@ -155,7 +155,7 @@ function take_steps!(grids, t_start, Δt, n, output_config, a, constants)
         add_external_potential!(t, grids, constants)
         auxiliary_step!(Δt, grids, t, constants)
 
-        output_summary_row(grids, output_config, t, a(t), Δt)
+        output_summary_row(grids, output_config, t, a(t), Δt, constants)
     end
 
     outer_step!(Δt/2, grids, constants)
