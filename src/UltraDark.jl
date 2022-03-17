@@ -25,6 +25,14 @@ import .Output: output_summary_row, output_summary_header, output_grids, output_
 import .Output: SummaryStatistics, SummaryStatisticsMeanMaxRms
 import .Config: SimulationConfig, constant_scale_factor, TimeStepOptions
 
+"""
+    outer_step!(Δt, grids, constants; a=1.0)
+
+Perform the "outer" time step in the symmetrized split-step Fourier method.
+
+This step only updates the phase of ψ applying accelerations due to gravity,
+the amplitude is not changed.
+"""
 function outer_step!(Δt, grids, constants; a=1.0)
     psi_whole_step!(Δt, grids, constants)
 end
@@ -53,6 +61,13 @@ function psi_whole_step!(Δt, grids, constants)
     end
 end
 
+"""
+    inner_step!(Δt, grids, constants; a=1.0)
+
+Perform the "inner" time step in the symmetrized split-step Fourier method.
+
+This step applies the diffusion terms and updates the gravitational potential.
+"""
 function inner_step!(Δt, grids, constants; a=1.0)
     phi_whole_step!(Δt, grids, constants; a=1.0)
 end
@@ -144,8 +159,6 @@ function take_steps!(grids, t_start, Δt, n, output_config, a, constants)
 
     outer_step!(Δt/2, grids, constants)
     t += Δt / 2
-
-    output_summary_row(grids, output_config, t, a(t), Δt)
 
     t
 end
