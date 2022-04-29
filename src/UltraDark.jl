@@ -9,6 +9,7 @@ using FFTW
 
 export simulate
 export Grids, PencilGrids
+export dV
 export Config, SimulationConfig, constant_scale_factor, TimeStepOptions
 export OutputConfig
 export SummaryStatistics, SummaryStatisticsMeanMaxRms
