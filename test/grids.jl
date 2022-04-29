@@ -14,11 +14,15 @@ for grids_type in [Grids, PencilGrids]
         @test reshape(grids.x, resol) == reshape(grids.y, resol)
         @test reshape(grids.x, resol) == reshape(grids.z, resol)
 
+        @test dV(grids) * resol^3 == 1.0^3
+
         grids = grids_type((1.0, 1.0, 1.0), (resol, resol, resol))
         @test typeof(grids) <: grids_type
         @test all(grids.ψx .== 0)
         @test reshape(grids.x, resol) == reshape(grids.y, resol)
         @test reshape(grids.x, resol) == reshape(grids.z, resol)
+
+        @test dV(grids) * resol^3 == 1.0^3
 
         grids = grids_type((4.0, 2.0, 1.0), (4resol, 2resol, 1resol))
         @test typeof(grids) <: grids_type
@@ -28,6 +32,8 @@ for grids_type in [Grids, PencilGrids]
         @test size(grids.z) == (1, 1, 1resol)
         @test reshape(grids.x, 4resol)[1 + 4resol÷2 - 4resol÷8:4resol÷2 + 4resol÷8] == reshape(grids.z, resol)
         @test reshape(grids.y, 2resol)[1 + 2resol÷2 - 2resol÷4:2resol÷2 + 2resol÷4] == reshape(grids.z, resol)
+
+        @test dV(grids) * 4resol * 2resol * 1resol == 4.0 * 2.0 * 1.0
     end
 end
 

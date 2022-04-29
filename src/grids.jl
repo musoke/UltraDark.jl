@@ -271,3 +271,29 @@ function rk_norm(lengths, resols)
 
     (kx.^2 .+ ky.^2 .+ kz.^2).^0.5
 end
+
+"""
+    dV(grids)
+
+Calculate the volume of each grid cell
+
+# Examples
+
+```jldoctest
+julia> using UltraDark
+
+julia> box_length = 1.0;
+
+julia> resol = 16;
+
+julia> g = Grids(box_length, resol);
+
+julia> dV(g) * resol^3 == box_length^3
+true
+
+```
+
+"""
+function dV(grids)
+    diff(grids.x, dims=1)[1] * diff(grids.y, dims=2)[1] * diff(grids.z, dims=3)[1]
+end
