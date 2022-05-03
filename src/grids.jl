@@ -297,3 +297,121 @@ true
 function dV(grids)
     diff(grids.x, dims=1)[1] * diff(grids.y, dims=2)[1] * diff(grids.z, dims=3)[1]
 end
+
+"""
+    radius_spherical(grids, r0)
+
+Calculate the radial coordinate in a spherical coordinate system
+
+# Examples
+
+```jldoctest
+julia> using UltraDark
+
+julia> import UltraDark: radius_spherical, polar_angle, azimuthal_angle
+
+julia> box_length = 1.0;
+
+julia> resol = 16;
+
+julia> g = Grids(box_length, resol);
+
+julia> all(radius_spherical(g) .* sin.(polar_angle(g)) .* cos.(azimuthal_angle(g)) .≈ g.x)
+true
+
+julia> all(radius_spherical(g, (1., 0., 0.)) .* sin.(polar_angle(g, (1., 0., 0.))) .* cos.(azimuthal_angle(g, (1., 0., 0.))) .+ 1. .≈ g.x)
+true
+
+```
+"""
+function radius_spherical(x, y, z)
+    rs = (x^2 + y^2 + z^2)^(1//2);
+end
+
+function radius_spherical(grids)
+    radius_spherical.(grids.x, grids.y, grids.z)
+end
+
+function radius_spherical(grids, r0)
+    radius_spherical.(grids.x.-r0[1], grids.y.-r0[2], grids.z.-r0[3])
+end
+
+"""
+    polar_angle(grids, r0)
+
+Calculate the polar angle in spherical coordinates
+
+This is \\theta in conventional physics notation.
+
+"""
+function polar_angle(x, y, z)
+    rs = radius_spherical(x, y, z)
+    acos(z/rs);
+end
+
+function polar_angle(grids)
+    polar_angle.(grids.x, grids.y, grids.z)
+end
+
+function polar_angle(grids, r0)
+    polar_angle.(grids.x.-r0[1], grids.y.-r0[2], grids.z.-r0[3])
+end
+
+
+"""
+    polar_angle(grids, r0)
+
+Calculate the azimuthal angle in spherical or cylindrical coordinates
+
+This is \\phi in conventional physics notation.
+
+"""
+function azimuthal_angle(x, y, z)
+    atan(y, x);
+end
+
+function azimuthal_angle(grids)
+    azimuthal_angle.(grids.x, grids.y, grids.z)
+end
+
+function azimuthal_angle(grids, r0)
+    azimuthal_angle.(grids.x.-r0[1], grids.y.-r0[2], grids.z.-r0[3])
+end
+
+"""
+    radius_cylindrical(grids, r0)
+
+Calculate the radial coordinate in cylindrical coordinates
+
+# Examples
+
+```jldoctest
+julia> using UltraDark
+
+julia> import UltraDark: radius_cylindrical, azimuthal_angle
+
+julia> box_length = 1.0;
+
+julia> resol = 16;
+
+julia> g = Grids(box_length, resol);
+
+julia> all(radius_cylindrical(g) .* cos.(azimuthal_angle(g)) .≈ g.x)
+true
+
+julia> all(radius_cylindrical(g, (0., 0., 1.)) .* cos.(azimuthal_angle(g, (0., 0., 1.))) .≈ g.x)
+true
+
+```
+"""
+function radius_cylindrical(x, y, z)
+    (x^2 + y^2)^(1//2);
+end
+
+function radius_cylindrical(grids)
+    radius_cylindrical.(grids.x, grids.y, grids.z)
+end
+
+function radius_cylindrical(grids, r0)
+    radius_cylindrical.(grids.x.-r0[1], grids.y.-r0[2], grids.z.-r0[3])
+end
