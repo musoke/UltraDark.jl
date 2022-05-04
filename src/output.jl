@@ -5,9 +5,7 @@ import PencilFFTs, MPI
 import NPZ
 using Statistics
 
-include("summary.jl")
-
-import .Summary: output_summary_header, output_summary_row
+import ..Summary: output_summary_header, output_summary_row
 
 export Summary
 export OutputConfig
@@ -38,13 +36,13 @@ struct OutputConfig
     rho::Bool
 
     "Type of summary statistics to collect"
-    summary_statistics::DataType
+    summary_statistics::Tuple
 end
 
 function OutputConfig(
     directory, output_times;
     box=true, slice=false, psi=true, rho=true,
-    summary_statistics=SummaryStatistics,
+    summary_statistics=(Summary.WallTime, Summary.SimulationTime,)
 )
 
     OutputConfig(directory, output_times, box, slice, psi, rho, summary_statistics)
