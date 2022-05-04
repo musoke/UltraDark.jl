@@ -13,10 +13,6 @@ end
     include("output.jl")
 end
 
-@safetestset "summary ouputs" begin
-    include("output.jl")
-end
-
 @testset "Phase grad Grids" begin
     include("phase_gradient.jl")
 end
