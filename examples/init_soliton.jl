@@ -3,6 +3,10 @@ using PencilFFTs
 using NPZ
 
 function add_soliton(grids, mass, position, velocity, phase, t0)
+    add_soliton(grids, grids.ψx, mass, position, velocity, phase, t0)
+end
+
+function add_soliton(grids, psi, mass, position, velocity, phase, t0)
 
     profile = npzread(joinpath(@__DIR__, "initial_f.npy"))
     delta_x = 0.00001
