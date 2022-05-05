@@ -13,12 +13,12 @@ function add_soliton(grids, psi, mass, position, velocity, phase, t0)
     alpha = (mass / 3.883)^2
     beta = 2.454
 
-    if typeof(grids) <: PencilGrids
+    if typeof(psi) <: PencilArray
         ψ_glob = global_view(psi)
-    elseif typeof(grids) <: Grids
+    elseif typeof(psi) <: Array
         ψ_glob = psi
     else
-        throw("Unrecognised grids type")
+        throw("Unrecognised array type")
     end
 
     for I in CartesianIndices(ψ_glob)
