@@ -14,9 +14,9 @@ function add_soliton(grids, psi, mass, position, velocity, phase, t0)
     beta = 2.454
 
     if typeof(grids) <: PencilGrids
-        ψ_glob = global_view(grids.ψx)
+        ψ_glob = global_view(psi)
     elseif typeof(grids) <: Grids
-        ψ_glob = grids.ψx
+        ψ_glob = psi
     else
         throw("Unrecognised grids type")
     end
