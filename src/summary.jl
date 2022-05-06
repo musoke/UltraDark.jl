@@ -1,6 +1,7 @@
 module Summary
 
 using ..UltraDark
+using ..UltraDark: AbstractGrids
 import Dates
 import MPI
 using Statistics
@@ -338,6 +339,50 @@ function pool_summarystat(S1::RmsDensityContrast, S2::RmsDensityContrast)::RmsDe
     δx_rms = ((S1.n * S1.δx_rms^2 + S2.n * S2.δx_rms^2) / n)^0.5
 
     RmsDensityContrast(δx_rms, n)
+end
+
+"""
+    TotalMass
+
+Total mass on a grid
+
+# Examples
+
+```jldoctest
+julia> using UltraDark
+
+julia> g = Grids(1.0, 16);
+
+julia> g.ρx .= 0.;
+
+julia> g.ρx[1, 1, 1] = 1.;
+
+julia> getfield(Summary.TotalMass(g), 1) == 1.0 * (1.0/16)^3
+true
+
+```
+"""
+struct TotalMass
+    mass::Float64
+end
+
+function TotalMass(grids, rho)
+    mass = sum(rho * dV(grids))
+
+    TotalMass(mass)
+end
+
+function TotalMass(grids::AbstractGrids)
+    TotalMass(grids, grids.ρx)
+end
+
+function TotalMass(sim_time, a, Δt, grids, constants)
+    ToalMass(grids)
+end
+
+function pool_summarystat(S1::TotalMass, S2::TotalMass)::TotalMass
+    mass = S1.mass + S2.mass
+    TotalMass(mass)
 end
 
 end # module
