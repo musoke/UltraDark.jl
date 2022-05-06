@@ -1,4 +1,12 @@
 """
+    AbstractGrids
+
+Abstract type for grids containing simulation data
+"""
+
+abstract type AbstractGrids end
+
+"""
 struct containing grids used in a simulation
 
 # Examples
@@ -15,7 +23,7 @@ julia> Grids(len, resol);
 
 ```
 """
-struct Grids
+struct Grids <: AbstractGrids
     "Array of x positions"
     x::Array{Float64,3}
     "Array of y positions"

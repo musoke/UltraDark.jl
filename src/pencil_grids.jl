@@ -15,7 +15,7 @@ julia> PencilGrids(len, resol);
 
 ```
 """
-struct PencilGrids{K, RX, RK, CX, CK, FFT, RFFT, M}
+struct PencilGrids{K, RX, RK, CX, CK, FFT, RFFT, M} <: AbstractGrids
     "Array of x positions"
     x::Array{Float64,3}
     "Array of y positions"
