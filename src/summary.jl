@@ -377,7 +377,7 @@ function TotalMass(grids::AbstractGrids)
 end
 
 function TotalMass(sim_time, a, Δt, grids, constants)
-    ToalMass(grids)
+    TotalMass(grids)
 end
 
 function pool_summarystat(S1::TotalMass, S2::TotalMass)::TotalMass
