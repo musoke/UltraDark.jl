@@ -11,6 +11,8 @@ stats_list = [
               Summary.MaxDensity,
               Summary.RmsDensityContrast,
               Summary.TotalMass,
+              Summary.EnergyGravity,
+              Summary.EnergyKineticQuantum,
              ]
 
 sim_time = 0.0
@@ -33,6 +35,6 @@ for s in stats_list
     global_stat_pencilgrids = MPI.Reduce(local_stat_pencilgrids, Summary.pool_summarystat, 0, pencilgrids.MPI_COMM)
 
     if s !== Summary.WallTime
-        @assert stat_grids == global_stat_pencilgrids
+        @assert stat_grids == global_stat_pencilgrids "inequal summaries for $s"
     end
 end

@@ -175,9 +175,11 @@ function PencilGrids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::PencilGri
     rfft_plan = PencilFFTPlan(resol_tuple, Transforms.RFFT(), proc_dims, comm)
 
     ρx = allocate_input(rfft_plan)
+    ρx .= 0
     ρk = allocate_output(rfft_plan)
 
     Φx = allocate_input(rfft_plan)
+    Φx .= 0
     Φk = allocate_output(rfft_plan)
 
     x = reshape(
