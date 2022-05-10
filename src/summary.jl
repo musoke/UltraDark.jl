@@ -353,36 +353,20 @@ julia> using UltraDark
 
 julia> g = Grids(1.0, 16);
 
-julia> g.ρx .= 0.;
+julia> Summary.TotalMass(0., 1., 1e-1, g, nothing)
+UltraDark.Summary.TotalMass(0.0)
 
-julia> g.ρx[1, 1, 1] = 1.;
-
-julia> getfield(Summary.TotalMass(g), 1) == 1.0 * (1.0/16)^3
-true
-
-```
 """
 struct TotalMass
     mass::Float64
 end
 
-function TotalMass(grids, rho)
-    mass = sum(rho * dV(grids))
-
-    TotalMass(mass)
-end
-
-function TotalMass(grids::AbstractGrids)
-    TotalMass(grids, grids.ρx)
-end
-
-function TotalMass(sim_time, a, Δt, grids, constants)
-    TotalMass(grids)
+function TotalMass(sim_time, a, Δt, grids, constants)::TotalMass
+    TotalMass(UltraDark.mass(grids))
 end
 
 function pool_summarystat(S1::TotalMass, S2::TotalMass)::TotalMass
-    mass = S1.mass + S2.mass
-    TotalMass(mass)
+    TotalMass(S1.mass + S2.mass)
 end
 
 end # module
