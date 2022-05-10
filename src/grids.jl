@@ -423,3 +423,33 @@ end
 function radius_cylindrical(grids, r0)
     radius_cylindrical.(grids.x.-r0[1], grids.y.-r0[2], grids.z.-r0[3])
 end
+
+"""
+    total_mass(grids)
+    total_mass(grids, rho)
+
+Calculate total mass of a density field
+
+# Examples
+
+```jldoctest
+julia> using UltraDark
+
+julia> g = Grids(1.0, 16);
+
+julia> g.ρx .= 0.;
+
+julia> g.ρx[1, 1, 1] = 1.;
+
+julia> UltraDark.mass(g) == 1.0 * (1.0/16)^3
+true
+
+```
+"""
+function mass(grids, rho)
+    sum(rho * dV(grids))
+end
+
+function mass(grids)
+    mass(grids, grids.ρx)
+end
