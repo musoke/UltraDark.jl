@@ -369,4 +369,38 @@ function pool_summarystat(S1::TotalMass, S2::TotalMass)::TotalMass
     TotalMass(S1.mass + S2.mass)
 end
 
+"""
+    EnergyGravity
+
+Gravitational potential energy
+"""
+struct EnergyGravity
+    E_grav::Float64
+end
+
+function EnergyGravity(sim_time, a, Δt, grids, constants)::EnergyGravity
+    EnergyGravity(UltraDark.E_grav(grids))
+end
+
+function pool_summarystat(S1::EnergyGravity, S2::EnergyGravity)::EnergyGravity
+    TotalMass(S1.E_grav + S2.E_grav)
+end
+
+"""
+    EnergyKineticQuantum
+
+Gravitational potential energy
+"""
+struct EnergyKineticQuantum
+    E_kq::Float64
+end
+
+function EnergyKineticQuantum(sim_time, a, Δt, grids, constants)::EnergyKineticQuantum
+    EnergyKineticQuantum(UltraDark.E_kq(grids))
+end
+
+function pool_summarystat(S1::EnergyKineticQuantum, S2::EnergyKineticQuantum)::EnergyKineticQuantum
+    EnergyKineticQuantum(S1.E_kq + S2.E_kq)
+end
+
 end # module

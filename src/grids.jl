@@ -453,3 +453,39 @@ end
 function mass(grids)
     mass(grids, grids.ρx)
 end
+
+"""
+    E_grav(grids)
+    E_grav(grids, psi)
+
+Gravitational potential energy
+"""
+function E_grav(grids, psi)
+    sum(grids.Φx .* abs2.(psi) * dV(grids)) / 2.
+end
+
+function E_grav(grids::AbstractGrids)
+    E_grav(grids, grids.ψx)
+end
+
+"""
+    E_kq(grids)
+    E_kq(grids, psi)
+
+Sum of kinetic and quantum energies
+"""
+function E_kq(grids)
+    E_kq(grids, grids.ψx)
+end
+
+function E_kq(grids, psi)
+
+    f = grids.fft_plan * psi
+    @inbounds @threads for i in eachindex(f)
+        f[i] *= -grids.k[i]^2
+    end
+    g = grids.fft_plan \ f
+    f = nothing
+
+    out = sum(@. real(-0.5 * conj(psi) * g)) * dV(grids)
+end
