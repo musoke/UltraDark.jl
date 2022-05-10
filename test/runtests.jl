@@ -13,6 +13,10 @@ end
     include("output.jl")
 end
 
+@safetestset "summaries compute" begin
+    include("summary.jl")
+end
+
 @testset "Phase grad Grids" begin
     include("phase_gradient.jl")
 end
