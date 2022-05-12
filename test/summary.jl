@@ -9,6 +9,7 @@ stats_list = [
     Summary.TimeStep,
     Summary.MeanDensity,
     Summary.MaxDensity,
+    Summary.MaxDensityIndex,
     Summary.RmsDensityContrast,
     Summary.TotalMass,
     Summary.EnergyGravity,
@@ -42,4 +43,12 @@ for s in stats_list
     if s !== Summary.WallTime
         @assert stat_grids == global_stat_pencilgrids "inequal summaries for $s"
     end
+
+    column_title = Summary.column_title(Val(s))
+    @show number_column_title = length(split(column_title, ","))
+
+    entries = Summary.get_relevant_data(stat_grids)
+    @show number_entries = length(split(entries, ","))
+
+    @assert number_column_title == number_entries "same number of columns and entries"
 end
