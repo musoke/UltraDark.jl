@@ -75,8 +75,8 @@ end
 
 Generate column titles from an iterable of summaries
 """
-function column_titles(summaries)
-    mapreduce(column_title, (s1, s2) -> s1 * "," * s2, summaries) * "\n"
+function column_titles(summary_types)::String
+    mapreduce(t -> Val(t) |> column_title, (s1, s2) -> s1 * "," * s2, summary_types) * "\n"
 end
 
 """
@@ -87,9 +87,12 @@ Get column title
 Assumes that the desired column title is the name of the first field.  This can
 be refined for other structs by defining a specialization for the given
 datatype.
+
+Note that the input argument is of type `Val{T}`, so that one can dispatch on
+`T`.
 """
-function column_title(summary_struct)
-    "$(fieldname(summary_struct, 1))"
+function column_title(v::Val{T})::String where {T}
+    "$(fieldname(T, 1))"
 end
 
 """
