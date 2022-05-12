@@ -96,21 +96,21 @@ end
     generate_summary_row(summaries)
 """
 function generate_summary_row(summaries)::String
-    mapreduce(data, (s1, s2) -> "$s1,$s2", summaries) * "\n"
+    mapreduce(get_relevant_data, (s1, s2) -> "$s1,$s2", summaries) * "\n"
 end
 
 
 """
-    data(summary_struct)
+    get_relevant_data(summary_struct)
 
-Get column entry
+Format column entry as string
 
-Assumes that the desired data is in the first field of the struct.  This can
-be refined for other structs by defining a specialization for the given
-datatype.
+By default, assumes that the desired data is in the first field of the struct.
+This can be refined for other structs by defining a specialization for the
+given datatype and returning a comma separated string.
 """
-function data(summary_struct)
-    getfield(summary_struct, 1)
+function get_relevant_data(summary_data)::String
+    "$(getfield(summary_data, 1))"
 end
 
 """
@@ -157,9 +157,7 @@ MPI reduction operator for wall time
 Return the time of the first argument.
 """
 function pool_summarystat(S1::WallTime, S2::WallTime)::WallTime
-
     S1
-
 end
 
 struct SimulationTime
