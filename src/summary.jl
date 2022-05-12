@@ -320,6 +320,52 @@ function pool_summarystat(S1::MaxDensity, S2::MaxDensity)::MaxDensity
 end
 
 """
+    MaxDensityIndex
+
+This struct contains 4 useful pieces of information: the maxiumum value and
+three indices.  Each is output to a summary.
+"""
+struct MaxDensityIndex
+    "max of density"
+    ρx_max::Float64
+    "x index of max density"
+    max_index_x::Int32
+    "y index of max density"
+    max_index_y::Int32
+    "z index of max density"
+    max_index_z::Int32
+end
+
+function MaxDensityIndex(sim_time, a, Δt, grids, constants)
+    I = argmax(grids.ρx)
+
+    ρx_max = grids.ρx[I]
+
+    MaxDensityIndex(ρx_max, Tuple(I)...)
+end
+
+"""
+    pool_summarystat(S1::MaxDensity, S2::MaxDensity)
+
+MPI reduction operator for max density index
+"""
+function pool_summarystat(S1::MaxDensityIndex, S2::MaxDensityIndex)::MaxDensityIndex
+    if S1.ρx_max > S2.ρx_max
+        S1
+    else
+        S2
+    end
+end
+
+function column_title(v::Val{T})::String where {T<:MaxDensityIndex}
+    mapreduce(x -> "$x", (s1, s2) -> "$s1,$s2", fieldnames(T))
+end
+
+function get_relevant_data(summary_data::MaxDensityIndex)::String
+    mapreduce(i -> getfield(summary_data, i), (s1, s2) -> "$s1,$s2", 1:4)
+end
+
+"""
     RmsDensityContrast
 """
 struct RmsDensityContrast
