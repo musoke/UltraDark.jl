@@ -4,11 +4,11 @@ using Test
 using MPI
 
 @testset "Actual time step" begin
-    time_step_options = TimeStepOptions(update_period=2)
+    time_step_options = TimeStepOptions(update_period = 2)
     @test UltraDark.actual_time_step(0.5, 1, time_step_options)[1] ≈ 0.5
     @test UltraDark.actual_time_step(0.5, 1, time_step_options)[2] == 2
 
-    time_step_options = TimeStepOptions(update_period=3)
+    time_step_options = TimeStepOptions(update_period = 3)
     @test UltraDark.actual_time_step(0.5, 1, time_step_options)[1] ≈ 0.5
     @test UltraDark.actual_time_step(0.5, 1, time_step_options)[2] == 2
 
@@ -16,16 +16,16 @@ using MPI
     @test UltraDark.actual_time_step(0.01, 1, time_step_options)[1] ≈ 0.01
     @test UltraDark.actual_time_step(0.01, 1, time_step_options)[2] == 10
 
-    time_step_options = TimeStepOptions(multiplier=10.0)
+    time_step_options = TimeStepOptions(multiplier = 10.0)
     @test UltraDark.actual_time_step(0.01, 1, time_step_options)[1] ≈ 0.1
     @test UltraDark.actual_time_step(0.01, 1, time_step_options)[2] == 10
 
-    time_step_options = TimeStepOptions(update_period=2)
+    time_step_options = TimeStepOptions(update_period = 2)
     @test UltraDark.actual_time_step(0.7, 1, time_step_options)[1] ≈ 0.5
     @test UltraDark.actual_time_step(0.7, 1, time_step_options)[2] == 2
 
-    time_step_options = TimeStepOptions(update_period=3)
-    @test UltraDark.actual_time_step(0.7, 2, time_step_options)[1] ≈ 2/3
+    time_step_options = TimeStepOptions(update_period = 3)
+    @test UltraDark.actual_time_step(0.7, 2, time_step_options)[1] ≈ 2 / 3
     @test UltraDark.actual_time_step(0.7, 2, time_step_options)[2] == 3
 end
 
@@ -33,20 +33,30 @@ for grid_type in [Grids, PencilGrids]
     @testset "Take n steps, $grid_type" begin
         grids = grid_type(1.0, 16)
         output_config = OutputConfig(mktempdir(), [])
-        @test UltraDark.take_steps!(grids, 0, 1, 10, output_config, Config.constant_scale_factor, nothing) == 10.0
+        @test UltraDark.take_steps!(
+            grids,
+            0,
+            1,
+            10,
+            output_config,
+            Config.constant_scale_factor,
+            nothing,
+        ) == 10.0
     end
 end
 
 # Test that evolve to arrives at right time
 for grid_type in [Grids, PencilGrids]
-    @testset "Evolve from $t_begin to $t_end, $grid_type" for t_begin in [0, 0.123, 1], t_end in [1.23, 2]
+    @testset "Evolve from $t_begin to $t_end, $grid_type" for t_begin in [0, 0.123, 1],
+        t_end in [1.23, 2]
+
         grids = grid_type(1.0, 16)
 
         a = 1
-        grids.ψx .= (grids.x.^2 .+ grids.y.^2 .+ grids.z.^2).^0.5 ./ 1e9 # Set ψx to something non-zero
+        grids.ψx .= (grids.x .^ 2 .+ grids.y .^ 2 .+ grids.z .^ 2) .^ 0.5 ./ 1e9 # Set ψx to something non-zero
         grids.ψk .= (grids.fft_plan * grids.ψx)
         grids.ρx .= abs2.(grids.ψx)
-        grids.Φk .= -4 * π * (grids.rfft_plan * grids.ρx) ./ (a * grids.rk.^2)
+        grids.Φk .= -4 * π * (grids.rfft_plan * grids.ρx) ./ (a * grids.rk .^ 2)
         grids.Φk[1, 1, 1] = 0
         grids.Φx .= grids.rfft_plan \ grids.Φk
 

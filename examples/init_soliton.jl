@@ -33,11 +33,17 @@ function add_soliton(grids, psi, mass, position, velocity, phase, t0)
         vy = velocity[2]
         vz = velocity[3]
 
-        distfromcentre = ((x - position[1])^2 + (y - position[2])^2 + (z - position[3])^2)^0.5
+        distfromcentre =
+            ((x - position[1])^2 + (y - position[2])^2 + (z - position[3])^2)^0.5
 
         if alpha^0.5 * distfromcentre <= 5.6
             f = alpha * profile[trunc(Int, alpha^0.5 * (distfromcentre / delta_x + 1))]
-            f *= exp(im * (alpha * beta * t0 + (x * vx + y * vy + z * vz) - 0.5 * (vx^2 + vy^2 + vz^2) * t0 ))
+            f *= exp(
+                im * (
+                    alpha * beta * t0 + (x * vx + y * vy + z * vz) -
+                    0.5 * (vx^2 + vy^2 + vz^2) * t0
+                ),
+            )
             f *= exp(im * phase)
             ψ_glob[I] += f
         else

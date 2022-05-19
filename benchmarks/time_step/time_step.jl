@@ -42,7 +42,15 @@ output_config = OutputConfig(mktempdir(), 1:2)
 take_steps!(grids, 1.0, Δt, n_steps, output_config, Config.constant_scale_factor, nothing)
 
 # Collect data
-res = @timed take_steps!(grids, 1.0, Δt, n_steps, output_config, Config.constant_scale_factor, nothing)
+res = @timed take_steps!(
+    grids,
+    1.0,
+    Δt,
+    n_steps,
+    output_config,
+    Config.constant_scale_factor,
+    nothing,
+)
 
 time_mean = mean(res[2] / n_steps)
 
