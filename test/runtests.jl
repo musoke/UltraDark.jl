@@ -41,11 +41,11 @@ end
 # Put notebook in module to emulate SafeTestsets
 # https://github.com/YingboMa/SafeTestsets.jl/issues/3
 module GrowthNotebook
-    using NBInclude
-    @nbinclude("../examples/growth.ipynb")
+using NBInclude
+@nbinclude("../examples/growth.ipynb")
 end
 
 module TwoDNotebook
-    using NBInclude
-    @nbinclude("../examples/2d.ipynb")
+using NBInclude
+@nbinclude("../examples/2d.ipynb")
 end

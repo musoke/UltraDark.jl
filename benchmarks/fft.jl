@@ -43,7 +43,8 @@ for (label, grids) in [("Grids", Grids(1.0, n)), ("PencilGrids", PencilGrids(1.0
     suite[label]["fft_inv_broadcast!"] = @benchmarkable fft_inv_broadcast!($grids)
     suite[label]["fft_inv_inplace!"] = @benchmarkable fft_inv_inplace!($grids)
 
-    suite[label]["fft_inplace_sep!"] = @benchmarkable fft_inplace_sep!($(grids.ψk), $(grids.ψx), $(grids.fft_plan))
+    suite[label]["fft_inplace_sep!"] =
+        @benchmarkable fft_inplace_sep!($(grids.ψk), $(grids.ψx), $(grids.fft_plan))
 end
 
 @show tune!(suite)

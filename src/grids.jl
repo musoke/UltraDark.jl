@@ -11,13 +11,15 @@ struct containing grids used in a simulation
 
 # Examples
 
-
 ```jldoctest
 julia> using UltraDark
 
+
 julia> len = 1;
 
+
 julia> resol = 16;
+
 
 julia> Grids(len, resol);
 
@@ -60,14 +62,14 @@ struct Grids <: AbstractGrids
     Φk::Array{Complex{Float64},3}
 
     "FFT plan for complex-to-complex transforms"
-    fft_plan
+    fft_plan::Any
     "FFT plan for real-to-complex transforms"
-    rfft_plan
+    rfft_plan::Any
 
     "Indices at which k==0.0"
     k_vanish_indices::Vector{CartesianIndex{3}}
     "Indices at which rk==0.0"
-    rk_vanish_indices#::Vector{CartesianIndex{3}}
+    rk_vanish_indices::Any#::Vector{CartesianIndex{3}}
 
     function Grids(x, y, z, kx, ky, kz, k, rkx, rky, rkz, rk, ψx, ψk, ρx, ρk, Φx, Φk)
         n_dims = 3
@@ -88,22 +90,38 @@ struct Grids <: AbstractGrids
         @assert(size(z) == (1, 1, resol_tuple[3]))
 
         FFTW.set_num_threads(Threads.nthreads())
-        fft_plan = plan_fft(
-            zeros(Complex{Float64}, resol_tuple),
-            flags=FFTW.MEASURE
-        )
+        fft_plan = plan_fft(zeros(Complex{Float64}, resol_tuple), flags = FFTW.MEASURE)
         inv(fft_plan)
 
-        rfft_plan = plan_rfft(
-            zeros(Float64, resol_tuple),
-            flags=FFTW.MEASURE
-        )
+        rfft_plan = plan_rfft(zeros(Float64, resol_tuple), flags = FFTW.MEASURE)
         inv(rfft_plan)
 
-        k_vanish_indices = findall(x -> x==0.0, k)
-        rk_vanish_indices = findall(x -> x==0.0, rk)
+        k_vanish_indices = findall(x -> x == 0.0, k)
+        rk_vanish_indices = findall(x -> x == 0.0, rk)
 
-        new(x, y, z, kx, ky, kz, k, rkx, rky, rkz, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, k_vanish_indices, rk_vanish_indices)
+        new(
+            x,
+            y,
+            z,
+            kx,
+            ky,
+            kz,
+            k,
+            rkx,
+            rky,
+            rkz,
+            rk,
+            ψx,
+            ψk,
+            ρx,
+            ρk,
+            Φx,
+            Φk,
+            fft_plan,
+            rfft_plan,
+            k_vanish_indices,
+            rk_vanish_indices,
+        )
     end
 end
 
@@ -118,6 +136,7 @@ Create an empty grid with length `length` and resolution `resol`
 
 ```jldoctest
 julia> using UltraDark
+
 
 julia> Grids(1.0, 64);
 
@@ -142,11 +161,12 @@ Create an empty `length[1]`x`length[2]`x`length[3]` grid with resolution
 ```jldoctest
 julia> using UltraDark
 
+
 julia> Grids((1.0, 1.0, 0.5), (64, 64, 32));
 
 ```
 """
-function Grids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::Grids
+function Grids(length_tuple, resol_tuple::Tuple{Int,Int,Int})::Grids
 
     resol_tuple_realfft = (resol_tuple[1] ÷ 2 + 1, resol_tuple[2], resol_tuple[3])
 
@@ -164,30 +184,36 @@ function Grids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::Grids
     Φk = zeros(Complex{Float64}, resol_tuple_realfft)
 
     x = reshape(
-                range(
-                      -length_tuple[1] / 2 + length_tuple[1] / 2resol_tuple[1],
-                      +length_tuple[1] / 2 - length_tuple[1] / 2resol_tuple[1],
-                      length=resol_tuple[1]
-                     ),
-                :, 1, 1
+        range(
+            -length_tuple[1] / 2 + length_tuple[1] / 2resol_tuple[1],
+            +length_tuple[1] / 2 - length_tuple[1] / 2resol_tuple[1],
+            length = resol_tuple[1],
+        ),
+        :,
+        1,
+        1,
     )
 
     y = reshape(
-                range(
-                      -length_tuple[2] / 2 + length_tuple[2] / 2resol_tuple[2],
-                      +length_tuple[2] / 2 - length_tuple[2] / 2resol_tuple[2],
-                      length=resol_tuple[2]
-                     ),
-                1, :, 1
+        range(
+            -length_tuple[2] / 2 + length_tuple[2] / 2resol_tuple[2],
+            +length_tuple[2] / 2 - length_tuple[2] / 2resol_tuple[2],
+            length = resol_tuple[2],
+        ),
+        1,
+        :,
+        1,
     )
 
     z = reshape(
-                range(
-                      -length_tuple[3] / 2 + length_tuple[3] / 2resol_tuple[3],
-                      +length_tuple[3] / 2 - length_tuple[3] / 2resol_tuple[3],
-                      length=resol_tuple[3]
-                     ),
-                1, 1, :
+        range(
+            -length_tuple[3] / 2 + length_tuple[3] / 2resol_tuple[3],
+            +length_tuple[3] / 2 - length_tuple[3] / 2resol_tuple[3],
+            length = resol_tuple[3],
+        ),
+        1,
+        1,
+        :,
     )
 
     kvec = k_vec(length_tuple, resol_tuple)
@@ -195,26 +221,16 @@ function Grids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::Grids
     kx = reshape(kvec[1], :, 1, 1)
     ky = reshape(kvec[2], 1, :, 1)
     kz = reshape(kvec[3], 1, 1, :)
-    k_norm = (kx.^2 .+ ky.^2 .+ kz.^2).^0.5
+    k_norm = (kx .^ 2 .+ ky .^ 2 .+ kz .^ 2) .^ 0.5
 
     rkvec = rk_vec(length_tuple, resol_tuple)
 
     rkx = reshape(rkvec[1], :, 1, 1)
     rky = reshape(rkvec[2], 1, :, 1)
     rkz = reshape(rkvec[3], 1, 1, :)
-    rk_norm = (rkx.^2 .+ rky.^2 .+ rkz.^2).^0.5
+    rk_norm = (rkx .^ 2 .+ rky .^ 2 .+ rkz .^ 2) .^ 0.5
 
-    Grids(
-        x, y, z,
-        kx, ky, kz, k_norm,
-        rkx, rky, rkz, rk_norm,
-        ψx,
-        ψk,
-        ρx,
-        ρk,
-        Φx,
-        Φk,
-    )
+    Grids(x, y, z, kx, ky, kz, k_norm, rkx, rky, rkz, rk_norm, ψx, ψk, ρx, ρk, Φx, Φk)
 end
 
 """
@@ -227,7 +243,9 @@ Calculate the Fourier frequencies of a box with side lengths `lengths` and resol
 ```jldoctest
 julia> using UltraDark: k_vec
 
+
 julia> kvec = k_vec((2π, 2π, 2π), (4, 4, 4));
+
 
 julia> kvec[1]
 4-element AbstractFFTs.Frequencies{Float64}:
@@ -235,7 +253,6 @@ julia> kvec[1]
   1.0
  -2.0
  -1.0
-
 ```
 """
 function k_vec(lengths, resols)
@@ -267,7 +284,7 @@ function k_norm(lengths, resols)
     ky = reshape(kvec[2], 1, :, 1)
     kz = reshape(kvec[3], 1, 1, :)
 
-    (kx.^2 .+ ky.^2 .+ kz.^2).^0.5
+    (kx .^ 2 .+ ky .^ 2 .+ kz .^ 2) .^ 0.5
 end
 
 function rk_norm(lengths, resols)
@@ -277,7 +294,7 @@ function rk_norm(lengths, resols)
     ky = reshape(kvec[2], 1, :, 1)
     kz = reshape(kvec[3], 1, 1, :)
 
-    (kx.^2 .+ ky.^2 .+ kz.^2).^0.5
+    (kx .^ 2 .+ ky .^ 2 .+ kz .^ 2) .^ 0.5
 end
 
 """
@@ -290,20 +307,22 @@ Calculate the volume of each grid cell
 ```jldoctest
 julia> using UltraDark
 
+
 julia> box_length = 1.0;
+
 
 julia> resol = 16;
 
+
 julia> g = Grids(box_length, resol);
+
 
 julia> dV(g) * resol^3 == box_length^3
 true
-
 ```
-
 """
 function dV(grids)
-    diff(grids.x, dims=1)[1] * diff(grids.y, dims=2)[1] * diff(grids.z, dims=3)[1]
+    diff(grids.x, dims = 1)[1] * diff(grids.y, dims = 2)[1] * diff(grids.z, dims = 3)[1]
 end
 
 """
@@ -316,24 +335,31 @@ Calculate the radial coordinate in a spherical coordinate system
 ```jldoctest
 julia> using UltraDark
 
+
 julia> import UltraDark: radius_spherical, polar_angle, azimuthal_angle
+
 
 julia> box_length = 1.0;
 
+
 julia> resol = 16;
 
+
 julia> g = Grids(box_length, resol);
+
 
 julia> all(radius_spherical(g) .* sin.(polar_angle(g)) .* cos.(azimuthal_angle(g)) .≈ g.x)
 true
 
-julia> all(radius_spherical(g, (1., 0., 0.)) .* sin.(polar_angle(g, (1., 0., 0.))) .* cos.(azimuthal_angle(g, (1., 0., 0.))) .+ 1. .≈ g.x)
+julia> all(
+           radius_spherical(g, (1.0, 0.0, 0.0)) .* sin.(polar_angle(g, (1.0, 0.0, 0.0))) .*
+           cos.(azimuthal_angle(g, (1.0, 0.0, 0.0))) .+ 1.0 .≈ g.x,
+       )
 true
-
 ```
 """
 function radius_spherical(x, y, z)
-    rs = (x^2 + y^2 + z^2)^(1//2);
+    rs = (x^2 + y^2 + z^2)^(1 // 2)
 end
 
 function radius_spherical(grids)
@@ -341,7 +367,7 @@ function radius_spherical(grids)
 end
 
 function radius_spherical(grids, r0)
-    radius_spherical.(grids.x.-r0[1], grids.y.-r0[2], grids.z.-r0[3])
+    radius_spherical.(grids.x .- r0[1], grids.y .- r0[2], grids.z .- r0[3])
 end
 
 """
@@ -350,11 +376,10 @@ end
 Calculate the polar angle in spherical coordinates
 
 This is \\theta in conventional physics notation.
-
 """
 function polar_angle(x, y, z)
     rs = radius_spherical(x, y, z)
-    acos(z/rs);
+    acos(z / rs)
 end
 
 function polar_angle(grids)
@@ -362,7 +387,7 @@ function polar_angle(grids)
 end
 
 function polar_angle(grids, r0)
-    polar_angle.(grids.x.-r0[1], grids.y.-r0[2], grids.z.-r0[3])
+    polar_angle.(grids.x .- r0[1], grids.y .- r0[2], grids.z .- r0[3])
 end
 
 
@@ -372,10 +397,9 @@ end
 Calculate the azimuthal angle in spherical or cylindrical coordinates
 
 This is \\phi in conventional physics notation.
-
 """
 function azimuthal_angle(x, y, z)
-    atan(y, x);
+    atan(y, x)
 end
 
 function azimuthal_angle(grids)
@@ -383,7 +407,7 @@ function azimuthal_angle(grids)
 end
 
 function azimuthal_angle(grids, r0)
-    azimuthal_angle.(grids.x.-r0[1], grids.y.-r0[2], grids.z.-r0[3])
+    azimuthal_angle.(grids.x .- r0[1], grids.y .- r0[2], grids.z .- r0[3])
 end
 
 """
@@ -396,24 +420,31 @@ Calculate the radial coordinate in cylindrical coordinates
 ```jldoctest
 julia> using UltraDark
 
+
 julia> import UltraDark: radius_cylindrical, azimuthal_angle
+
 
 julia> box_length = 1.0;
 
+
 julia> resol = 16;
 
+
 julia> g = Grids(box_length, resol);
+
 
 julia> all(radius_cylindrical(g) .* cos.(azimuthal_angle(g)) .≈ g.x)
 true
 
-julia> all(radius_cylindrical(g, (0., 0., 1.)) .* cos.(azimuthal_angle(g, (0., 0., 1.))) .≈ g.x)
+julia> all(
+           radius_cylindrical(g, (0.0, 0.0, 1.0)) .* cos.(azimuthal_angle(g, (0.0, 0.0, 1.0))) .≈
+           g.x,
+       )
 true
-
 ```
 """
 function radius_cylindrical(x, y, z)
-    (x^2 + y^2)^(1//2);
+    (x^2 + y^2)^(1 // 2)
 end
 
 function radius_cylindrical(grids)
@@ -421,7 +452,7 @@ function radius_cylindrical(grids)
 end
 
 function radius_cylindrical(grids, r0)
-    radius_cylindrical.(grids.x.-r0[1], grids.y.-r0[2], grids.z.-r0[3])
+    radius_cylindrical.(grids.x .- r0[1], grids.y .- r0[2], grids.z .- r0[3])
 end
 
 """
@@ -435,15 +466,18 @@ Calculate total mass of a density field
 ```jldoctest
 julia> using UltraDark
 
+
 julia> g = Grids(1.0, 16);
 
-julia> g.ρx .= 0.;
 
-julia> g.ρx[1, 1, 1] = 1.;
+julia> g.ρx .= 0.0;
 
-julia> UltraDark.mass(g) == 1.0 * (1.0/16)^3
+
+julia> g.ρx[1, 1, 1] = 1.0;
+
+
+julia> UltraDark.mass(g) == 1.0 * (1.0 / 16)^3
 true
-
 ```
 """
 function mass(grids, rho)
@@ -461,7 +495,7 @@ end
 Gravitational potential energy
 """
 function E_grav(grids, psi)
-    sum(grids.Φx .* abs2.(psi) * dV(grids)) / 2.
+    sum(grids.Φx .* abs2.(psi) * dV(grids)) / 2.0
 end
 
 function E_grav(grids::AbstractGrids)

@@ -26,7 +26,7 @@ const output_dir = "output/vel"
 
 function run_sim()
 
-    output_config = OutputConfig(output_dir, output_times; box=true, slice=false)
+    output_config = OutputConfig(output_dir, output_times; box = true, slice = false)
     options = Config.SimulationConfig()
 
     grids = PencilGrids(10.0, resol)
@@ -47,7 +47,9 @@ end
 
 function plot_results()
     @info "Starting plots" MPI.Comm_rank(comm)
-    pos_the = reshape(position0, (1, :)) .+ (reshape(velocity, (1, :)) .* reshape(output_times, (:, 1)))
+    pos_the =
+        reshape(position0, (1, :)) .+
+        (reshape(velocity, (1, :)) .* reshape(output_times, (:, 1)))
 
     pos_sim = Array{Float64}(undef, (num_snapshots, 3))
     maxs = Array{Float64}(undef, num_snapshots)
@@ -66,39 +68,45 @@ function plot_results()
 
     end
 
-    yerr = abs(x[2]-x[1])/2
-    plot_pos = plot(legend=:bottomright)
-    scatter!(output_times, pos_sim[:, 1], yerr=yerr, markershape=:auto, label="simulation")
-    plot!(output_times, pos_the[:, 1], label="theory")
-    plot!(xlabel=raw"$t$", ylabel=raw"$x$")
+    yerr = abs(x[2] - x[1]) / 2
+    plot_pos = plot(legend = :bottomright)
+    scatter!(
+        output_times,
+        pos_sim[:, 1],
+        yerr = yerr,
+        markershape = :auto,
+        label = "simulation",
+    )
+    plot!(output_times, pos_the[:, 1], label = "theory")
+    plot!(xlabel = raw"$t$", ylabel = raw"$x$")
 
     savefig(plot_pos, "soliton_position.pdf")
 
-    plot_max = plot(legend=:bottomright)
-    plot!(output_times, maxs, label="theory")
+    plot_max = plot(legend = :bottomright)
+    plot!(output_times, maxs, label = "theory")
 
-    anim = @animate for i ∈ 1:num_snapshots
+    anim = @animate for i in 1:num_snapshots
         rho = npzread(joinpath(output_dir, "rho_$i.npy"))
         psi = npzread(joinpath(output_dir, "psi_$i.npy"))
 
         density_plot = contourf(
-                                rho[:, :, resol÷2],
-                                title=raw"$\rho$",
-                                clims=(0, maximum(maxs)),
-                                showaxis=false,
-                                ticks=false,
-                                aspect_ratio=:equal,
-                               )
+            rho[:, :, resol÷2],
+            title = raw"$\rho$",
+            clims = (0, maximum(maxs)),
+            showaxis = false,
+            ticks = false,
+            aspect_ratio = :equal,
+        )
         phase_plot = contourf(
-                              angle.(psi[:, :, resol÷2]),
-                              title="phase",
-                              clims=(-π, +π),
-                              showaxis=false,
-                              ticks=false,
-                              aspect_ratio=:equal,
-                             )
+            angle.(psi[:, :, resol÷2]),
+            title = "phase",
+            clims = (-π, +π),
+            showaxis = false,
+            ticks = false,
+            aspect_ratio = :equal,
+        )
 
-        plot(density_plot, phase_plot, )
+        plot(density_plot, phase_plot)
     end
 
     gif(anim, "soliton_velocity.gif", fps = 15)

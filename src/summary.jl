@@ -32,7 +32,8 @@ end
 Write a new row to the summary file
 """
 function output_summary_row(grids, output_config, t, a, Δt, constants)
-    summaries = map_summary_statistics(output_config.summary_statistics, t, a, Δt, grids, constants)
+    summaries =
+        map_summary_statistics(output_config.summary_statistics, t, a, Δt, grids, constants)
     line = generate_summary_row(summaries)
     open(joinpath(output_config.directory, "summary.csv"), "a") do file
         write(file, line)
@@ -49,18 +50,23 @@ summaries in each task and combine them.
 """
 
 function map_summary_statistics(summary_statistics, sim_time, a, Δt, grids, constants)
-    summaries = map(x->x(sim_time, a, Δt, grids, constants), summary_statistics)
+    summaries = map(x -> x(sim_time, a, Δt, grids, constants), summary_statistics)
 end
 
-function map_summary_statistics(summary_statistics, sim_time, a, Δt, grids::PencilGrids, constants)
+function map_summary_statistics(
+    summary_statistics,
+    sim_time,
+    a,
+    Δt,
+    grids::PencilGrids,
+    constants,
+)
     root = 0
 
     local_summaries = map(x -> x(sim_time, a, Δt, grids, constants), summary_statistics)
 
-    global_summaries = map(
-                           x -> MPI.Reduce(x, pool_summarystat, root, grids.MPI_COMM,),
-                           local_summaries
-                          )
+    global_summaries =
+        map(x -> MPI.Reduce(x, pool_summarystat, root, grids.MPI_COMM), local_summaries)
 
 end
 
@@ -70,7 +76,7 @@ end
 Generate column titles from an iterable of summaries
 """
 function column_titles(summaries)
-    mapreduce(column_title, (s1, s2)->s1 * "," * s2, summaries) * "\n"
+    mapreduce(column_title, (s1, s2) -> s1 * "," * s2, summaries) * "\n"
 end
 
 """
@@ -90,7 +96,7 @@ end
     generate_summary_row(summaries)
 """
 function generate_summary_row(summaries)::String
-    mapreduce(data, (s1, s2)-> "$s1,$s2", summaries) * "\n"
+    mapreduce(data, (s1, s2) -> "$s1,$s2", summaries) * "\n"
 end
 
 
@@ -112,7 +118,6 @@ end
 
 The current time in the real world.
 
-
 # Examples
 
 `WallTime` created after another contains a later time.
@@ -120,9 +125,12 @@ The current time in the real world.
 ```jldoctest
 julia> using UltraDark
 
+
 julia> t1 = Summary.WallTime();
 
-julia> t2 = Summary.WallTime(0., 1., 1e-1, Grids(1.0, 16), nothing);
+
+julia> t2 = Summary.WallTime(0.0, 1.0, 1e-1, Grids(1.0, 16), nothing);
+
 
 julia> t1.date < t2.date
 true
@@ -147,7 +155,6 @@ end
 MPI reduction operator for wall time
 
 Return the time of the first argument.
-
 """
 function pool_summarystat(S1::WallTime, S2::WallTime)::WallTime
 
@@ -241,11 +248,12 @@ which it was calculated.
 ```jldoctest
 julia> using UltraDark
 
+
 julia> g = Grids(1.0, 16);
+
 
 julia> Summary.MeanDensity(g)
 UltraDark.Summary.MeanDensity(0.0, 4096)
-
 ```
 """
 struct MeanDensity
@@ -322,7 +330,7 @@ end
 
 function RmsDensityContrast(sim_time, a, Δt, grids, constants)
     ρx_mean = mean(grids.ρx)
-    δx_rms = mean(((grids.ρx .- ρx_mean).^2))^0.5
+    δx_rms = mean(((grids.ρx .- ρx_mean) .^ 2))^0.5
     n = prod(size(grids.ρx))
 
     RmsDensityContrast(δx_rms, n)
@@ -333,7 +341,10 @@ end
 
 MPI reduction operator for summary statistics.
 """
-function pool_summarystat(S1::RmsDensityContrast, S2::RmsDensityContrast)::RmsDensityContrast
+function pool_summarystat(
+    S1::RmsDensityContrast,
+    S2::RmsDensityContrast,
+)::RmsDensityContrast
 
     n = S1.n + S2.n
     δx_rms = ((S1.n * S1.δx_rms^2 + S2.n * S2.δx_rms^2) / n)^0.5
@@ -351,11 +362,13 @@ Total mass on a grid
 ```jldoctest
 julia> using UltraDark
 
+
 julia> g = Grids(1.0, 16);
 
-julia> Summary.TotalMass(0., 1., 1e-1, g, nothing)
-UltraDark.Summary.TotalMass(0.0)
 
+julia> Summary.TotalMass(0.0, 1.0, 1e-1, g, nothing)
+UltraDark.Summary.TotalMass(0.0)
+```
 """
 struct TotalMass
     mass::Float64
@@ -399,7 +412,10 @@ function EnergyKineticQuantum(sim_time, a, Δt, grids, constants)::EnergyKinetic
     EnergyKineticQuantum(UltraDark.E_kq(grids))
 end
 
-function pool_summarystat(S1::EnergyKineticQuantum, S2::EnergyKineticQuantum)::EnergyKineticQuantum
+function pool_summarystat(
+    S1::EnergyKineticQuantum,
+    S2::EnergyKineticQuantum,
+)::EnergyKineticQuantum
     EnergyKineticQuantum(S1.E_kq + S2.E_kq)
 end
 

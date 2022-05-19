@@ -3,19 +3,21 @@ struct containing grids used in a simulation
 
 # Examples
 
-
 ```jldoctest
 julia> using UltraDark
 
+
 julia> len = 1;
 
+
 julia> resol = 16;
+
 
 julia> PencilGrids(len, resol);
 
 ```
 """
-struct PencilGrids{K, RX, RK, CX, CK, FFT, RFFT, M} <: AbstractGrids
+struct PencilGrids{K,RX,RK,CX,CK,FFT,RFFT,M} <: AbstractGrids
     "Array of x positions"
     x::Array{Float64,3}
     "Array of y positions"
@@ -59,12 +61,33 @@ struct PencilGrids{K, RX, RK, CX, CK, FFT, RFFT, M} <: AbstractGrids
     "Indices at which k==0.0"
     k_vanish_indices::Vector{CartesianIndex{3}}
     "Indices at which rk==0.0"
-    rk_vanish_indices#::Vector{CartesianIndex{3}}
+    rk_vanish_indices::Any#::Vector{CartesianIndex{3}}
 
     "MPI communicator"
     MPI_COMM::M
 
-    function PencilGrids(x, y, z, kx, ky, kz, k, rkx, rky, rkz, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, MPI_COMM)
+    function PencilGrids(
+        x,
+        y,
+        z,
+        kx,
+        ky,
+        kz,
+        k,
+        rkx,
+        rky,
+        rkz,
+        rk,
+        ψx,
+        ψk,
+        ρx,
+        ρk,
+        Φx,
+        Φk,
+        fft_plan,
+        rfft_plan,
+        MPI_COMM,
+    )
         n_dims = 3
         resol_tuple = (size(x)[1], size(y)[2], size(z)[3])
         resol_tuple_realfft = (size(x)[1] ÷ 2 + 1, size(y)[2], size(z)[3])
@@ -85,8 +108,8 @@ struct PencilGrids{K, RX, RK, CX, CK, FFT, RFFT, M} <: AbstractGrids
         @assert(size(y) == (1, resol_tuple[2], 1))
         @assert(size(z) == (1, 1, resol_tuple[3]))
 
-        k_vanish_indices = findall(x -> x==0.0, k)
-        rk_vanish_indices = findall(x -> x==0.0, rk)
+        k_vanish_indices = findall(x -> x == 0.0, k)
+        rk_vanish_indices = findall(x -> x == 0.0, rk)
 
         K = typeof(k)
         RX = typeof(Φx)
@@ -97,7 +120,30 @@ struct PencilGrids{K, RX, RK, CX, CK, FFT, RFFT, M} <: AbstractGrids
         RFFT = typeof(rfft_plan)
         M = typeof(MPI_COMM)
 
-        new{K, RX, RK, CX, CK, FFT, RFFT, M}(x, y, z, kx, ky, kz, k, rkx, rky, rkz, rk, ψx, ψk, ρx, ρk, Φx, Φk, fft_plan, rfft_plan, k_vanish_indices, rk_vanish_indices, MPI_COMM)
+        new{K,RX,RK,CX,CK,FFT,RFFT,M}(
+            x,
+            y,
+            z,
+            kx,
+            ky,
+            kz,
+            k,
+            rkx,
+            rky,
+            rkz,
+            rk,
+            ψx,
+            ψk,
+            ρx,
+            ρk,
+            Φx,
+            Φk,
+            fft_plan,
+            rfft_plan,
+            k_vanish_indices,
+            rk_vanish_indices,
+            MPI_COMM,
+        )
     end
 end
 
@@ -112,6 +158,7 @@ Create an empty grid with length `length` and resolution `resol`.  Uses `PencilF
 
 ```jldoctest
 julia> using UltraDark
+
 
 julia> PencilGrids(1.0, 64);
 
@@ -137,11 +184,12 @@ Each grid is a `PencilArray`, allowing multiprocess FFTs.
 ```jldoctest
 julia> using UltraDark
 
+
 julia> PencilGrids((1.0, 1.0, 0.5), (64, 64, 32));
 
 ```
 """
-function PencilGrids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::PencilGrids
+function PencilGrids(length_tuple, resol_tuple::Tuple{Int,Int,Int})::PencilGrids
 
     resol_tuple_realfft = (resol_tuple[1] ÷ 2 + 1, resol_tuple[2], resol_tuple[3])
 
@@ -183,30 +231,36 @@ function PencilGrids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::PencilGri
     Φk = allocate_output(rfft_plan)
 
     x = reshape(
-                range(
-                      -length_tuple[1] / 2 + length_tuple[1] / 2resol_tuple[1],
-                      +length_tuple[1] / 2 - length_tuple[1] / 2resol_tuple[1],
-                      length=resol_tuple[1]
-                     ),
-                resol_tuple[1], 1, 1
+        range(
+            -length_tuple[1] / 2 + length_tuple[1] / 2resol_tuple[1],
+            +length_tuple[1] / 2 - length_tuple[1] / 2resol_tuple[1],
+            length = resol_tuple[1],
+        ),
+        resol_tuple[1],
+        1,
+        1,
     )
 
     y = reshape(
-                range(
-                      -length_tuple[2] / 2 + length_tuple[2] / 2resol_tuple[2],
-                      +length_tuple[2] / 2 - length_tuple[2] / 2resol_tuple[2],
-                      length=resol_tuple[2]
-                     ),
-                1, resol_tuple[2], 1
+        range(
+            -length_tuple[2] / 2 + length_tuple[2] / 2resol_tuple[2],
+            +length_tuple[2] / 2 - length_tuple[2] / 2resol_tuple[2],
+            length = resol_tuple[2],
+        ),
+        1,
+        resol_tuple[2],
+        1,
     )
 
     z = reshape(
-                range(
-                      -length_tuple[3] / 2 + length_tuple[3] / 2resol_tuple[3],
-                      +length_tuple[3] / 2 - length_tuple[3] / 2resol_tuple[3],
-                      length=resol_tuple[3]
-                     ),
-                1, 1, resol_tuple[3]
+        range(
+            -length_tuple[3] / 2 + length_tuple[3] / 2resol_tuple[3],
+            +length_tuple[3] / 2 - length_tuple[3] / 2resol_tuple[3],
+            length = resol_tuple[3],
+        ),
+        1,
+        1,
+        resol_tuple[3],
     )
 
     kvec = k_vec(length_tuple, resol_tuple)
@@ -214,7 +268,7 @@ function PencilGrids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::PencilGri
     kx = reshape(kvec[1], :, 1, 1)
     ky = reshape(kvec[2], 1, :, 1)
     kz = reshape(kvec[3], 1, 1, :)
-    k_norm = (kx.^2 .+ ky.^2 .+ kz.^2).^0.5  #TODO: don't allocate full array on every node
+    k_norm = (kx .^ 2 .+ ky .^ 2 .+ kz .^ 2) .^ 0.5  #TODO: don't allocate full array on every node
 
     k = similar(ψk, Float64)
     k_glob = global_view(k)
@@ -228,7 +282,7 @@ function PencilGrids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::PencilGri
     rkx = reshape(rkvec[1], :, 1, 1)
     rky = reshape(rkvec[2], 1, :, 1)
     rkz = reshape(rkvec[3], 1, 1, :)
-    rk_norm = (rkx.^2 .+ rky.^2 .+ rkz.^2).^0.5
+    rk_norm = (rkx .^ 2 .+ rky .^ 2 .+ rkz .^ 2) .^ 0.5
 
     rk = similar(ρk, Float64)
     rk_glob = global_view(rk)
@@ -238,13 +292,25 @@ function PencilGrids(length_tuple, resol_tuple::Tuple{Int, Int, Int})::PencilGri
     end
 
     PencilGrids(
-        x, y, z,
-        kx, ky, kz, k,
-        rkx, rky, rkz, rk,
-        ψx, ψk,
-        ρx, ρk,
-        Φx, Φk,
-        fft_plan, rfft_plan,
-        comm
+        x,
+        y,
+        z,
+        kx,
+        ky,
+        kz,
+        k,
+        rkx,
+        rky,
+        rkz,
+        rk,
+        ψx,
+        ψk,
+        ρx,
+        ρk,
+        Φx,
+        Φk,
+        fft_plan,
+        rfft_plan,
+        comm,
     )
 end

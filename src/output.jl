@@ -40,9 +40,13 @@ struct OutputConfig
 end
 
 function OutputConfig(
-    directory, output_times;
-    box=true, slice=false, psi=true, rho=true,
-    summary_statistics=(Summary.WallTime, Summary.SimulationTime,)
+    directory,
+    output_times;
+    box = true,
+    slice = false,
+    psi = true,
+    rho = true,
+    summary_statistics = (Summary.WallTime, Summary.SimulationTime),
 )
 
     OutputConfig(directory, output_times, box, slice, psi, rho, summary_statistics)
@@ -57,16 +61,10 @@ function output_grids(grids, output_config, step)
 
     if output_config.box
         if output_config.psi
-            NPZ.npzwrite(
-                joinpath(output_config.directory, "psi_$step.npy"),
-                grids.ψx
-            )
+            NPZ.npzwrite(joinpath(output_config.directory, "psi_$step.npy"), grids.ψx)
         end
         if output_config.rho
-            NPZ.npzwrite(
-                joinpath(output_config.directory, "rho_$step.npy"),
-                grids.ρx
-            )
+            NPZ.npzwrite(joinpath(output_config.directory, "rho_$step.npy"), grids.ρx)
         end
     end
 
@@ -74,13 +72,13 @@ function output_grids(grids, output_config, step)
         if output_config.psi
             NPZ.npzwrite(
                 joinpath(output_config.directory, "psi_slice_$step.npy"),
-                grids.ψx[1, :, :]
+                grids.ψx[1, :, :],
             )
         end
         if output_config.rho
             NPZ.npzwrite(
                 joinpath(output_config.directory, "rho_slice_$step.npy"),
-                grids.ρx[1, :, :]
+                grids.ρx[1, :, :],
             )
         end
     end
@@ -93,20 +91,14 @@ function output_grids(grids::PencilGrids, output_config, step)
         if output_config.psi
             output = PencilFFTs.gather(grids.ψx)
             if MPI.Comm_rank(grids.MPI_COMM) == 0
-                NPZ.npzwrite(
-                    joinpath(output_config.directory, "psi_$step.npy"),
-                    output,
-                )
+                NPZ.npzwrite(joinpath(output_config.directory, "psi_$step.npy"), output)
             end
         end
 
         if output_config.rho
             output = PencilFFTs.gather(grids.ρx)
             if MPI.Comm_rank(grids.MPI_COMM) == 0
-                NPZ.npzwrite(
-                    joinpath(output_config.directory, "rho_$step.npy"),
-                    output,
-                )
+                NPZ.npzwrite(joinpath(output_config.directory, "rho_$step.npy"), output)
             end
         end
     end

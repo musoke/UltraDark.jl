@@ -1,5 +1,5 @@
 @safetestset "correct phase diff" begin
-    using UltraDark:phase_diff
+    using UltraDark: phase_diff
 
     n = 4
 
@@ -59,8 +59,8 @@
 
         diff = zeros(Real, size(a))
         diff .= 0
-        diff[:, :, 2] .= -π/2
-        diff[:, :, 3] .= +π/2
+        diff[:, :, 2] .= -π / 2
+        diff[:, :, 3] .= +π / 2
 
         @test all(phase_diff(a, [1, 0, 0]) .≈ 0)
         @test all(phase_diff(a, [0, 1, 0]) .≈ 0)
@@ -85,10 +85,20 @@ end
     options = UltraDark.Config.SimulationConfig()
     output_config = OutputConfig(mktempdir(), [1, 2])
 
-    @test_throws "Phase gradient is too large to start" simulate(grids, options, output_config)
+    @test_throws "Phase gradient is too large to start" simulate(
+        grids,
+        options,
+        output_config,
+    )
     @test grids.ψx == grids_orig.ψx
 
-    @test_throws "Phase gradient is too large to continue" evolve_to!(0, 1, grids, output_config, options)
+    @test_throws "Phase gradient is too large to continue" evolve_to!(
+        0,
+        1,
+        grids,
+        output_config,
+        options,
+    )
     @test grids.ψx == grids_orig.ψx
 
 end

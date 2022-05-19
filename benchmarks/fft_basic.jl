@@ -21,10 +21,10 @@ function runtests()
 
     suite["PencilFFTs"] = BenchmarkGroup()
     for (flag_name, flags) in [
-                           ("FFTW.ESTIMATE", FFTW.ESTIMATE),
-                           ("FFTW.MEASURE", FFTW.MEASURE),
-                           ("FFTW.PATIENT", FFTW.PATIENT),
-                          ]
+        ("FFTW.ESTIMATE", FFTW.ESTIMATE),
+        ("FFTW.MEASURE", FFTW.MEASURE),
+        ("FFTW.PATIENT", FFTW.PATIENT),
+    ]
 
         # Distribute 12 processes on a 1 × 1 grid.
         comm = MPI.COMM_WORLD
@@ -38,7 +38,7 @@ function runtests()
 
         transform = Transforms.FFT()
 
-        fft_plan = PencilFFTPlan(dims, transform, proc_dims, comm; fftw_flags=flags)
+        fft_plan = PencilFFTPlan(dims, transform, proc_dims, comm; fftw_flags = flags)
 
         # Allocate and initialise input data, and apply transform.
         a_pen = allocate_input(fft_plan)
@@ -46,21 +46,22 @@ function runtests()
         randn!(a_pen)
         randn!(b_pen)
 
-        suite["PencilFFTs"][flag_name] = @benchmarkable fft_inplace!($a_pen, $b_pen, $fft_plan)
+        suite["PencilFFTs"][flag_name] =
+            @benchmarkable fft_inplace!($a_pen, $b_pen, $fft_plan)
     end
 
     suite["FFTW"] = BenchmarkGroup()
     for (flag_name, flags) in [
-                           ("FFTW.ESTIMATE", FFTW.ESTIMATE),
-                           ("FFTW.MEASURE", FFTW.MEASURE),
-                           ("FFTW.PATIENT", FFTW.PATIENT),
-                          ]
+        ("FFTW.ESTIMATE", FFTW.ESTIMATE),
+        ("FFTW.MEASURE", FFTW.MEASURE),
+        ("FFTW.PATIENT", FFTW.PATIENT),
+    ]
         a_arr = Array{ComplexF64}(undef, dims)
         b_arr = Array{ComplexF64}(undef, dims)
         rand!(a_arr)
         rand!(b_arr)
 
-        fft_plan = plan_fft(a_arr; flags=flags)
+        fft_plan = plan_fft(a_arr; flags = flags)
 
         suite["FFTW"][flag_name] = @benchmarkable fft_inplace!($a_arr, $b_arr, $fft_plan)
     end

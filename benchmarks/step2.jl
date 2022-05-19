@@ -24,9 +24,7 @@ for (label, grids) in [("Grids", Grids(1.0, n)), ("PencilGrids", PencilGrids(1.0
 
     suite[label] = BenchmarkGroup()
 
-    for f in [
-              phi_whole_step!,
-             ]
+    for f in [phi_whole_step!]
         suite[label]["$f"] = @benchmarkable $f($Δt, $grids, $nothing)
     end
 
