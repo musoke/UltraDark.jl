@@ -466,4 +466,49 @@ function pool_summarystat(
     EnergyKineticQuantum(S1.E_kq + S2.E_kq)
 end
 
+"""
+    AngularMomentum
+
+Total angular momentum in each of 3 directions
+
+# Examples
+
+A stationary field has no angular momentum
+
+```jldoctest
+julia> using UltraDark
+
+julia> g = Grids(1.0, 16);
+
+julia> g.ψx .= 1;
+
+julia> Summary.AngularMomentum(0., 1., 1e-1, g, nothing)
+UltraDark.Summary.AngularMomentum(0.0, 0.0, 0.0)
+
+"""
+
+struct AngularMomentum
+    Lx::Float64
+    Ly::Float64
+    Lz::Float64
+end
+
+function AngularMomentum(sim_time, a, Δt, grids, constants)
+    Lx, Ly, Lz = UltraDark.angular_momentum(grids)
+
+    AngularMomentum(Lx, Ly, Lz)
+end
+
+function column_title(v::Val{T})::String where {T<:AngularMomentum}
+    mapreduce(x -> "$x", (s1, s2) -> "$s1,$s2", fieldnames(T))
+end
+
+function get_relevant_data(summary_data::AngularMomentum)::String
+    mapreduce(i -> getfield(summary_data, i), (s1, s2) -> "$s1,$s2", 1:3)
+end
+
+function pool_summarystat(S1::AngularMomentum, S2::AngularMomentum)::AngularMomentum
+    AngularMomentum(S1.Lx + S2.Lx, S1.Ly + S2.Ly, S1.Lz + S2.Lz)
+end
+
 end # module

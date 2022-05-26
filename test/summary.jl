@@ -14,6 +14,7 @@ stats_list = [
     Summary.TotalMass,
     Summary.EnergyGravity,
     Summary.EnergyKineticQuantum,
+    Summary.AngularMomentum,
 ]
 
 sim_time = 0.0
@@ -30,6 +31,7 @@ for g in [grids, pencilgrids]
 end
 
 for s in stats_list
+    @show s
     stat_grids = s(sim_time, a, Δt, grids, constants)
 
     local_stat_pencilgrids = s(sim_time, a, Δt, pencilgrids, constants)
@@ -41,14 +43,14 @@ for s in stats_list
     )
 
     if s !== Summary.WallTime
-        @assert stat_grids == global_stat_pencilgrids "inequal summaries for $s"
+        @test stat_grids == global_stat_pencilgrids
     end
 
     column_title = Summary.column_title(Val(s))
-    @show number_column_title = length(split(column_title, ","))
+    number_column_title = length(split(column_title, ","))
 
     entries = Summary.get_relevant_data(stat_grids)
-    @show number_entries = length(split(entries, ","))
+    number_entries = length(split(entries, ","))
 
-    @assert number_column_title == number_entries "same number of columns and entries"
+    @test number_column_title == number_entries
 end

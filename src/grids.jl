@@ -523,3 +523,65 @@ function E_kq(grids, psi)
 
     out = sum(@. real(-0.5 * conj(psi) * g)) * dV(grids)
 end
+
+"""
+    angular_momentum_density(grids)
+    angular_momentum_density(grids, ψx, ρx)
+
+Calculate angular momentum density at each grid point
+
+## Returns
+
+L: AbstractArray with dimensions 3 x resol_x x resol_y x resol_z
+"""
+function angular_momentum_density(grids)
+    angular_momentum(grids, grids.ψx, grids.ρx)
+end
+
+function angular_momentum_density(grids, ψx, ρx)
+
+    x = grids.x
+    y = grids.y
+    z = grids.z
+
+    momentum = zeros(3, size(ρx)...)
+    momentum[1, :, :, :] .= phase_diff(ψx, (1, 0, 0))
+    momentum[2, :, :, :] .= phase_diff(ψx, (0, 1, 0))
+    momentum[3, :, :, :] .= phase_diff(ψx, (0, 0, 1))
+
+    momentum .*= reshape(ρx, 1, size(ρx)...)
+
+    angular_momentum = similar(momentum)
+
+    @inbounds @threads for I in CartesianIndices(angular_momentum)
+        _, i, j, k = Tuple(I)
+        # angular_momentum[:, i, j, k] = cross([grids.x[i], grids.y[j], grids.z[k]], momentum[:, i, j, k])
+        angular_momentum[1, i, j, k] =
+            y[j] * momentum[3, i, j, k] - z[k] * momentum[2, i, j, k]
+        angular_momentum[2, i, j, k] =
+            z[k] * momentum[1, i, j, k] - x[i] * momentum[3, i, j, k]
+        angular_momentum[3, i, j, k] =
+            x[i] * momentum[2, i, j, k] - y[j] * momentum[1, i, j, k]
+    end
+
+    angular_momentum
+end
+
+"""
+    angular_momentum(grids)
+    angular_momentum(grids, ψx, ρx)
+
+Calculate total angular momentum
+
+## Returns
+
+L: AbstractArray with length 3
+"""
+function angular_momentum(grids)
+    angular_momentum(grids, grids.ψx, grids.ρx)
+end
+
+function angular_momentum(grids, ψx, ρx)
+    L = angular_momentum_density(grids, ψx, ρx)
+    reshape(sum(L, dims = [2, 3, 4]), 3)
+end
