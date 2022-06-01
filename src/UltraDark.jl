@@ -7,7 +7,7 @@ using PencilFFTs, MPI
 
 using FFTW
 
-export simulate
+export simulate!
 export Grids, PencilGrids
 export dV
 export Config, SimulationConfig, constant_scale_factor, TimeStepOptions
@@ -166,7 +166,7 @@ function evolve_to!(t_start, t_end, grids, output_config, sim_config; constants 
     t
 end
 
-function simulate(grids, sim_config, output_config::OutputConfig; constants = nothing)
+function simulate!(grids, sim_config, output_config::OutputConfig; constants = nothing)
 
     # Setup output
     mkpath(output_config.directory)

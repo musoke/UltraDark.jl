@@ -85,7 +85,7 @@ end
     options = UltraDark.Config.SimulationConfig()
     output_config = OutputConfig(mktempdir(), [1, 2])
 
-    @test_throws "Phase gradient is too large to start" simulate(
+    @test_throws "Phase gradient is too large to start" simulate!(
         grids,
         options,
         output_config,

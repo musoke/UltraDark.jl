@@ -14,5 +14,5 @@ options = Config.SimulationConfig()
 for grid_type in [Grids, PencilGrids]
     grids = grid_type(1.0, 16)
     grids.ψx .= (grids.x .^ 2 .+ grids.y .^ 2 .+ grids.z .^ 2) .^ 0.5 ./ 1e9 # Set ψx to something non-zero
-    @test simulate(grids, options, output_config) == nothing
+    @test simulate!(grids, options, output_config) == nothing
 end

@@ -28,7 +28,7 @@ for grid_type in [Grids, PencilGrids]
 
     add_soliton(grids, mass, position, velocity, phase, t0)
 
-    @test simulate(grids, options, output_config) == nothing
+    @test simulate!(grids, options, output_config) == nothing
 end
 
 # for grid_type in [Grids, PencilGrids]
