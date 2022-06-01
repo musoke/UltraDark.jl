@@ -36,28 +36,6 @@ This step only updates the phase of ψ applying accelerations due to gravity,
 the amplitude is not changed.
 """
 function outer_step!(Δt, grids, constants; a = 1.0)
-    psi_whole_step!(Δt, grids, constants)
-end
-
-"""
-    psi_half_step
-
-Deprecated.
-Use `outer_step` with Δt/2 instead.
-"""
-function psi_half_step!(Δt, grids, constants)
-    @inbounds @threads for i in eachindex(grids.ψx)
-        grids.ψx[i] *= exp(-im * Δt / 2 * grids.Φx[i])
-    end
-end
-
-"""
-    psi_half_step
-
-Deprecated.
-Use `outer_step` instead.
-"""
-function psi_whole_step!(Δt, grids, constants)
     @inbounds @threads for i in eachindex(grids.ψx)
         grids.ψx[i] *= exp(-im * Δt / 1 * grids.Φx[i])
     end
@@ -71,17 +49,6 @@ Perform the "inner" time step in the symmetrized split-step Fourier method.
 This step applies the diffusion terms and updates the gravitational potential.
 """
 function inner_step!(Δt, grids, constants; a = 1.0)
-    phi_whole_step!(Δt, grids, constants; a = 1.0)
-end
-
-"""
-    phi_whole_step
-
-Deprecated.
-Use `inner_step` instead.
-"""
-function phi_whole_step!(Δt, grids, constants; a = 1.0)
-    # TODO: not all part of Φ update
 
     mul!(grids.ψk, grids.fft_plan, grids.ψx)
     @inbounds @threads for i in eachindex(grids.ψk)
