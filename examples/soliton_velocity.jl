@@ -40,7 +40,7 @@ function run_sim()
     add_soliton(grids, mass, position0, velocity, phase, t0)
     @info "Initialized" MPI.Comm_rank(comm)
 
-    simulate(grids, options, output_config) == nothing
+    simulate!(grids, options, output_config) == nothing
     @info "Simulation complete" MPI.Comm_rank(comm)
 
 end
