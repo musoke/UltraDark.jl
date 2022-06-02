@@ -31,10 +31,11 @@ end
 
 """
     max_time_step(grids, a)
+    max_time_step(grids::PencilGrids, a)
 
 Calculate an upper bound on the time step
 """
-function max_time_step(grids, a, time_step_options)
+function max_time_step(grids, a)
     max_time_step_gravity = 2π / maximum(abs.(grids.Φx))
     max_time_step_pressure = 2π * 2 / maximum(grids.k)^2 * a^2  # TODO: cache k_max
 
@@ -46,12 +47,7 @@ function max_time_step(grids, a, time_step_options)
     time_step
 end
 
-"""
-    max_time_step(grids, a)
-
-Calculate an upper bound on the time step for `PencilGrids`
-"""
-function max_time_step(grids::PencilGrids, a, time_step_options)
+function max_time_step(grids::PencilGrids, a)
     # Find maximum on local grid
     local_max_time_step_gravity = 2π / maximum(abs.(grids.Φx))
     local_max_time_step_pressure = 2π * 2 / maximum(grids.k)^2 * a^2  # TODO: cache k_max
