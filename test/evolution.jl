@@ -41,6 +41,7 @@ for grid_type in [Grids, PencilGrids]
             output_config,
             Config.constant_scale_factor,
             nothing,
+            (),
         ) == 10.0
     end
 end

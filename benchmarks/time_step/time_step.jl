@@ -39,7 +39,16 @@ grids = grids_type(1.0, resol)
 output_config = OutputConfig(mktempdir(), 1:2)
 
 # Run once to ensure functions are precompiled
-take_steps!(grids, 1.0, Δt, n_steps, output_config, Config.constant_scale_factor, nothing)
+take_steps!(
+    grids,
+    1.0,
+    Δt,
+    n_steps,
+    output_config,
+    Config.constant_scale_factor,
+    nothing,
+    (),
+)
 
 # Collect data
 res = @timed take_steps!(
@@ -50,6 +59,7 @@ res = @timed take_steps!(
     output_config,
     Config.constant_scale_factor,
     nothing,
+    (),
 )
 
 time_mean = mean(res[2] / n_steps)
