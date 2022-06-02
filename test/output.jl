@@ -1,5 +1,6 @@
 using Test
-using UltraDark: Grids, PencilGrids, output_grids, OutputConfig
+using UltraDark: Grids, PencilGrids, OutputConfig
+using UltraDark: Output.output_grids
 
 for grid_type in [Grids]
     grids = grid_type(1.0, 16)

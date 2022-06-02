@@ -23,12 +23,13 @@ include("output.jl")
 include("config.jl")
 
 import .Output: OutputConfig
-import .Output: output_grids, output_xyz
+import .Output: output_state, output_xyz, output_external_states_headers
 import .Output: output_summary_row, output_summary_header
 import .Config: SimulationConfig, constant_scale_factor, TimeStepOptions
 
 """
     outer_step!(Δt, grids, constants; a=1.0)
+    outer_step!(Δt, grids, constants, s; a=1.0)
 
 Perform the "outer" time step in the symmetrized split-step Fourier method.
 
@@ -41,8 +42,11 @@ function outer_step!(Δt, grids, constants; a = 1.0)
     end
 end
 
+function outer_step!(Δt, grids, constants, s; a = 1.0) end
+
 """
     inner_step!(Δt, grids, constants; a=1.0)
+    inner_step!(Δt, grids, constants, s; a=1.0)
 
 Perform the "inner" time step in the symmetrized split-step Fourier method.
 
@@ -57,6 +61,8 @@ function inner_step!(Δt, grids, constants; a = 1.0)
     ldiv!(grids.ψx, grids.fft_plan, grids.ψk)
 
 end
+
+function inner_step!(Δt, grids, constants, s; a = 1.0) end
 
 function update_gravitational_potential!(grids, constants; a = 1.0)
     @inbounds @threads for i in eachindex(grids.ρx)
@@ -85,7 +91,13 @@ function auxiliary_step!(Δt, grids, t, constants) end
 Add a gravitational potential to the grid.
 By default this does nothing, but can be overridden in multiple dispatch.
 """
-function add_external_potential!(t, grids, constants) end
+function add_external_potential!(t, grids, s; a = 1.0)
+    grids.Φx .+= gravitational_potential(s, grids; a = a)
+end
+
+function gravitational_potential(s, grids; a = 1.0)
+    0.0
+end
 
 """
 Take `n` steps with time step `Δt`
@@ -104,11 +116,12 @@ julia> take_steps!(
            OutputConfig(mktempdir(), []),
            Config.constant_scale_factor,
            nothing,
+           (),
        )
 5.0
 ```
 """
-function take_steps!(grids, t_start, Δt, n, output_config, a, constants)
+function take_steps!(grids, t_start, Δt, n, output_config, a, constants, external_states)
 
     t::Float64 = t_start
 
@@ -117,16 +130,31 @@ function take_steps!(grids, t_start, Δt, n, output_config, a, constants)
     for step in 1:n
         if half_step
             outer_step!(Δt / 2, grids, constants; a = a(t))
+            for s in external_states
+                outer_step!(Δt / 2, grids, constants, s; a = a(t))
+            end
+
             t += Δt / 2
             half_step = false
         else
             outer_step!(Δt, grids, constants; a = a(t))
+            for s in external_states
+                outer_step!(Δt, grids, constants, s; a = a(t))
+            end
+
             t += Δt
         end
 
         inner_step!(Δt, grids, constants; a = a(t))
+        for s in external_states
+            inner_step!(Δt, grids, constants, s; a = a(t))
+        end
+
         update_gravitational_potential!(grids, constants; a = a(t))
-        add_external_potential!(t, grids, constants)
+        for s in external_states
+            add_external_potential!(t, grids, s; a = a(t))
+        end
+
         auxiliary_step!(Δt, grids, t, constants)
 
         output_summary_row(grids, output_config, t, a(t), Δt, constants)
@@ -141,7 +169,15 @@ end
 """
 Evolve `grids` forward from `t_start` to `t_end`
 """
-function evolve_to!(t_start, t_end, grids, output_config, sim_config; constants = nothing)
+function evolve_to!(
+    t_start,
+    t_end,
+    grids,
+    output_config,
+    sim_config;
+    constants = nothing,
+    external_states = (),
+)
 
     @assert t_start < t_end
 
@@ -150,7 +186,7 @@ function evolve_to!(t_start, t_end, grids, output_config, sim_config; constants 
     while (t < t_end) && ~(t ≈ t_end)
 
         if ~good_phase_diff(grids, sim_config)
-            output_grids(grids, output_config, -1)
+            output_state(grids, external_states, output_config, -1)
             throw("Phase gradient is too large to continue")
         end
 
@@ -160,29 +196,48 @@ function evolve_to!(t_start, t_end, grids, output_config, sim_config; constants 
             sim_config.time_step_options,
         )
 
-        t = take_steps!(grids, t, Δt, n_steps, output_config, sim_config.a, constants)
+        t = take_steps!(
+            grids,
+            t,
+            Δt,
+            n_steps,
+            output_config,
+            sim_config.a,
+            constants,
+            external_states,
+        )
     end
 
     t
 end
 
-function simulate!(grids, sim_config, output_config::OutputConfig; constants = nothing)
+function simulate!(
+    grids,
+    sim_config,
+    output_config::OutputConfig;
+    constants = nothing,
+    external_states = (),
+)
 
     # Setup output
     mkpath(output_config.directory)
     output_summary_header(output_config)
     output_xyz(grids, output_config)
+    Output.output_external_states_headers(external_states, output_config)
 
     t_begin = output_config.output_times[1]
 
     # Initialise vars other than ψx
     # This is required so the initial time step can be calculated
     t_initial = output_config.output_times[1]
+
     update_gravitational_potential!(grids, constants; a = sim_config.a(t_initial))
-    add_external_potential!(t_initial, grids, constants)
+    for s in external_states
+        add_external_potential!(t_initial, grids, s, a = sim_config.a(t_initial))
+    end
 
     # Output initial conditions
-    output_grids(grids, output_config, 1)
+    output_state(grids, external_states, output_config, 1)
     if ~good_phase_diff(grids, sim_config)
         throw("Initial phase gradient is already in untrusted regime")
     end
@@ -195,9 +250,10 @@ function simulate!(grids, sim_config, output_config::OutputConfig; constants = n
             output_config,
             sim_config;
             constants = constants,
+            external_states = external_states,
         )
         @info "Reached time $t_begin"
-        output_grids(grids, output_config, index + 1)
+        output_state(grids, external_states, output_config, index + 1)
     end
 
     if ~good_phase_diff(grids, sim_config)

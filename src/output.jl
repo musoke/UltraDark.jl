@@ -53,6 +53,19 @@ function OutputConfig(
 end
 
 """
+    output_state(grids, external_states, output_config, step)
+
+Write out the grids and possible external states
+"""
+function output_state(grids, external_states, output_config, step)
+    output_grids(grids, output_config, step)
+
+    for (index, s) in enumerate(external_states)
+        output_external_state(s, output_config, step, index)
+    end
+end
+
+"""
     output_grids(grids, output_config, step)
 
 Write output from `grids` as specified in `output_config`
@@ -83,6 +96,19 @@ function output_grids(grids, output_config, step)
         end
     end
 end
+
+"""
+    output_external_state(external_state, output_config, step, index)
+
+Output states other than the ψ field.
+
+By default this does nothing, but can be overloaded.
+
+# Arguments
+
+index::Integer index of state in external states
+"""
+function output_external_state(external_state, output_config, step, index) end
 
 function output_grids(grids::PencilGrids, output_config, step)
 
@@ -136,5 +162,19 @@ function output_xyz(grids, output_config)
     NPZ.npzwrite(joinpath(output_config.directory, "y.npy"), grids.y)
     NPZ.npzwrite(joinpath(output_config.directory, "z.npy"), grids.z)
 end
+
+"""
+    output_external_states_headers(external_states, output_config)
+"""
+function output_external_states_headers(external_states, output_config)
+    for (index, s) in enumerate(external_states)
+        output_external_state_header(s, output_config, index)
+    end
+end
+
+"""
+    output_external_state_header(state, output_config)
+"""
+function output_external_state_header(state, output_config, index) end
 
 end # module
