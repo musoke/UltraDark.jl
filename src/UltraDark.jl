@@ -191,7 +191,7 @@ function evolve_to!(
         end
 
         Δt, n_steps = actual_time_step(
-            max_time_step(grids, sim_config.a(t)),
+            max_time_step(grids, sim_config.a(t), external_states),
             t_end - t,
             sim_config.time_step_options,
         )
