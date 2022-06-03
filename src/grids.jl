@@ -519,7 +519,7 @@ Calculate angular momentum density at each grid point
 L: AbstractArray with dimensions 3 x resol_x x resol_y x resol_z
 """
 function angular_momentum_density(grids)
-    angular_momentum(grids, grids.ψx, grids.ρx)
+    angular_momentum_density(grids, grids.ψx, grids.ρx)
 end
 
 function angular_momentum_density(grids, ψx, ρx)

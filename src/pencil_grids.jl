@@ -309,3 +309,12 @@ function PencilGrids(length_tuple, resol_tuple::Tuple{Int,Int,Int})::PencilGrids
         comm,
     )
 end
+
+function angular_momentum_density(grids, ψx, ρx)
+
+    angular_momentum = zeros(3, size(ρx)...)
+
+    @warn("Angular momentum not implemented for PencilGrids")
+
+    angular_momentum
+end
