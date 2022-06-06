@@ -31,9 +31,16 @@ end
 
 Write a new row to the summary file
 """
-function output_summary_row(grids, output_config, t, a, Δt, constants)
-    summaries =
-        map_summary_statistics(output_config.summary_statistics, t, a, Δt, grids, constants)
+function output_summary_row(grids, output_config, t, a, Δt, constants, external_states)
+    summaries = map_summary_statistics(
+        output_config.summary_statistics,
+        t,
+        a,
+        Δt,
+        grids,
+        constants,
+        external_states,
+    )
     line = generate_summary_row(summaries)
     open(joinpath(output_config.directory, "summary.csv"), "a") do file
         write(file, line)
@@ -49,8 +56,17 @@ If the grids is a PencilGrids, this uses `MPI.Reduce` to compute partial
 summaries in each task and combine them.
 """
 
-function map_summary_statistics(summary_statistics, sim_time, a, Δt, grids, constants)
-    summaries = map(x -> x(sim_time, a, Δt, grids, constants), summary_statistics)
+function map_summary_statistics(
+    summary_statistics,
+    sim_time,
+    a,
+    Δt,
+    grids,
+    constants,
+    external_states,
+)
+    summaries =
+        map(x -> x(sim_time, a, Δt, grids, constants, external_states), summary_statistics)
 end
 
 function map_summary_statistics(
@@ -60,10 +76,12 @@ function map_summary_statistics(
     Δt,
     grids::PencilGrids,
     constants,
+    external_states,
 )
     root = 0
 
-    local_summaries = map(x -> x(sim_time, a, Δt, grids, constants), summary_statistics)
+    local_summaries =
+        map(x -> x(sim_time, a, Δt, grids, constants, external_states), summary_statistics)
 
     global_summaries =
         map(x -> MPI.Reduce(x, pool_summarystat, root, grids.MPI_COMM), local_summaries)
@@ -132,7 +150,7 @@ julia> using UltraDark
 julia> t1 = Summary.WallTime();
 
 
-julia> t2 = Summary.WallTime(0.0, 1.0, 1e-1, Grids(1.0, 16), nothing);
+julia> t2 = Summary.WallTime(0.0, 1.0, 1e-1, Grids(1.0, 16), nothing, ());
 
 
 julia> t1.date < t2.date
@@ -148,7 +166,7 @@ function WallTime()
     WallTime(Dates.now())
 end
 
-function WallTime(sim_time, a, Δt, grids, constants)
+function WallTime(sim_time, a, Δt, grids, constants, external_states)
     WallTime()
 end
 
@@ -168,7 +186,7 @@ struct SimulationTime
     t::Float64
 end
 
-function SimulationTime(sim_time, a, Δt, grids, constants)
+function SimulationTime(sim_time, a, Δt, grids, constants, external_states)
     SimulationTime(sim_time)
 end
 
@@ -193,7 +211,7 @@ struct ScaleFactor
     a::Float64
 end
 
-function ScaleFactor(sim_time, a, Δt, grids, constants)
+function ScaleFactor(sim_time, a, Δt, grids, constants, external_states)
     ScaleFactor(a)
 end
 
@@ -218,7 +236,7 @@ struct TimeStep
     Δt::Float64
 end
 
-function TimeStep(sim_time, a, Δt, grids, constants)
+function TimeStep(sim_time, a, Δt, grids, constants, external_states)
     TimeStep(Δt)
 end
 
@@ -271,7 +289,7 @@ function MeanDensity(grids)
     MeanDensity(ρx_mean, n)
 end
 
-function MeanDensity(sim_time, a, Δt, grids, constants)
+function MeanDensity(sim_time, a, Δt, grids, constants, external_states)
     ρx_mean = mean(grids.ρx)
     n = prod(size(grids.ρx))
 
@@ -300,7 +318,7 @@ struct MaxDensity
     ρx_max::Float64
 end
 
-function MaxDensity(sim_time, a, Δt, grids, constants)
+function MaxDensity(sim_time, a, Δt, grids, constants, external_states)
     ρx_max = maximum(grids.ρx)
 
     MaxDensity(ρx_max)
@@ -336,7 +354,7 @@ struct MaxDensityIndex
     max_index_z::Int32
 end
 
-function MaxDensityIndex(sim_time, a, Δt, grids, constants)
+function MaxDensityIndex(sim_time, a, Δt, grids, constants, external_states)
     I = argmax(grids.ρx)
 
     ρx_max = grids.ρx[I]
@@ -375,7 +393,7 @@ struct RmsDensityContrast
     n::Int64
 end
 
-function RmsDensityContrast(sim_time, a, Δt, grids, constants)
+function RmsDensityContrast(sim_time, a, Δt, grids, constants, external_states)
     ρx_mean = mean(grids.ρx)
     δx_rms = mean(((grids.ρx .- ρx_mean) .^ 2))^0.5
     n = prod(size(grids.ρx))
@@ -413,7 +431,7 @@ julia> using UltraDark
 julia> g = Grids(1.0, 16);
 
 
-julia> Summary.TotalMass(0.0, 1.0, 1e-1, g, nothing)
+julia> Summary.TotalMass(0.0, 1.0, 1e-1, g, nothing, ())
 UltraDark.Summary.TotalMass(0.0)
 ```
 """
@@ -421,7 +439,7 @@ struct TotalMass
     mass::Float64
 end
 
-function TotalMass(sim_time, a, Δt, grids, constants)::TotalMass
+function TotalMass(sim_time, a, Δt, grids, constants, external_states)::TotalMass
     TotalMass(UltraDark.mass(grids))
 end
 
@@ -438,12 +456,12 @@ struct EnergyGravity
     E_grav::Float64
 end
 
-function EnergyGravity(sim_time, a, Δt, grids, constants)::EnergyGravity
+function EnergyGravity(sim_time, a, Δt, grids, constants, external_states)::EnergyGravity
     EnergyGravity(UltraDark.E_grav(grids))
 end
 
 function pool_summarystat(S1::EnergyGravity, S2::EnergyGravity)::EnergyGravity
-    TotalMass(S1.E_grav + S2.E_grav)
+    EnergyGravity(S1.E_grav + S2.E_grav)
 end
 
 """
@@ -455,7 +473,14 @@ struct EnergyKineticQuantum
     E_kq::Float64
 end
 
-function EnergyKineticQuantum(sim_time, a, Δt, grids, constants)::EnergyKineticQuantum
+function EnergyKineticQuantum(
+    sim_time,
+    a,
+    Δt,
+    grids,
+    constants,
+    external_states,
+)::EnergyKineticQuantum
     EnergyKineticQuantum(UltraDark.E_kq(grids))
 end
 
@@ -493,7 +518,7 @@ struct AngularMomentum
     Lz::Float64
 end
 
-function AngularMomentum(sim_time, a, Δt, grids, constants)
+function AngularMomentum(sim_time, a, Δt, grids, constants, external_states)
     Lx, Ly, Lz = UltraDark.angular_momentum(grids)
 
     AngularMomentum(Lx, Ly, Lz)
