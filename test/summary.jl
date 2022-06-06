@@ -25,6 +25,8 @@ constants = nothing
 grids = Grids(1.0, 8)
 pencilgrids = PencilGrids(1.0, 8)
 
+external_states = ()
+
 for g in [grids, pencilgrids]
     g.ψx .= 1.0
     @. g.ρx = abs2(g.ψx)
@@ -32,9 +34,9 @@ end
 
 for s in stats_list
     @show s
-    stat_grids = s(sim_time, a, Δt, grids, constants)
+    stat_grids = s(sim_time, a, Δt, grids, constants, external_states)
 
-    local_stat_pencilgrids = s(sim_time, a, Δt, pencilgrids, constants)
+    local_stat_pencilgrids = s(sim_time, a, Δt, pencilgrids, constants, external_states)
     global_stat_pencilgrids = MPI.Reduce(
         local_stat_pencilgrids,
         Summary.pool_summarystat,
