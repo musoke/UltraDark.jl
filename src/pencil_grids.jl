@@ -201,7 +201,7 @@ function PencilGrids(length_tuple, resol_tuple::Tuple{Int,Int,Int})::PencilGrids
 
     # Let MPI_Dims_create choose the decomposition.
     proc_dims = let pdims = zeros(Int, 2)
-        MPI.Dims_create!(Nproc, pdims)
+        pdims .= MPI.Dims_create(Nproc, pdims)
         pdims[1], pdims[2]
     end
 
