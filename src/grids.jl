@@ -525,6 +525,15 @@ function E_kq(grids, psi)
 end
 
 """
+    E_total(grids; constants=nothing)
+
+Total energy of the scalar field: the sum of the kinetic and quantum energies.
+"""
+function E_total(grids; constants = nothing)
+    E_grav(grids) + E_kq(grids)
+end
+
+"""
     angular_momentum_density(grids)
     angular_momentum_density(grids, ψx, ρx)
 
