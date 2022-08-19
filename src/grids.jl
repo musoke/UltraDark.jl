@@ -456,8 +456,8 @@ function radius_cylindrical(grids, r0)
 end
 
 """
-    total_mass(grids)
-    total_mass(grids, rho)
+    mass(grids)
+    mass(grids, rho)
 
 Calculate total mass of a density field
 
