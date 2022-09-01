@@ -79,11 +79,14 @@ end
 
 """
     auxiliary_step!(Δt, grids, t, constants)
+    auxiliary_step!(Δt, grids, t, constants, s; a = 1.0)
 
 Do an auxiliary inner step.
 By default this does nothing, but can be overridden in multiple dispatch.
 """
 function auxiliary_step!(Δt, grids, t, constants) end
+
+function auxiliary_step!(Δt, grids, t, constants, s; a = 1.0) end
 
 """
     add_external_potential!(t, grids, constants)
@@ -156,6 +159,9 @@ function take_steps!(grids, t_start, Δt, n, output_config, a, constants, extern
         end
 
         auxiliary_step!(Δt, grids, t, constants)
+        for s in external_states
+            auxiliary_step!(Δt, grids, t, constants, s; a = a(t))
+        end
 
         output_summary_row(grids, output_config, t, a(t), Δt, constants, external_states)
     end
