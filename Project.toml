@@ -1,7 +1,7 @@
 name = "UltraDark"
 uuid = "1c8d022d-dfc0-4b41-80ab-3fc7e88cdfea"
 authors = ["Nathan Musoke <n.musoke@auckland.ac.nz>"]
-version = "0.7.0"
+version = "0.8.0"
 
 [deps]
 AbstractFFTs = "621f4979-c628-5d54-868e-fcf4e3e8185c"
