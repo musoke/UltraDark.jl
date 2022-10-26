@@ -14,12 +14,9 @@ struct containing grids used in a simulation
 ```jldoctest
 julia> using UltraDark
 
-
 julia> len = 1;
 
-
 julia> resol = 16;
-
 
 julia> Grids(len, resol);
 
@@ -137,7 +134,6 @@ Create an empty grid with length `length` and resolution `resol`
 ```jldoctest
 julia> using UltraDark
 
-
 julia> Grids(1.0, 64);
 
 ```
@@ -160,7 +156,6 @@ Create an empty `length[1]`x`length[2]`x`length[3]` grid with resolution
 
 ```jldoctest
 julia> using UltraDark
-
 
 julia> Grids((1.0, 1.0, 0.5), (64, 64, 32));
 
@@ -243,9 +238,7 @@ Calculate the Fourier frequencies of a box with side lengths `lengths` and resol
 ```jldoctest
 julia> using UltraDark: k_vec
 
-
 julia> kvec = k_vec((2π, 2π, 2π), (4, 4, 4));
-
 
 julia> kvec[1]
 4-element AbstractFFTs.Frequencies{Float64}:
@@ -307,15 +300,11 @@ Calculate the volume of each grid cell
 ```jldoctest
 julia> using UltraDark
 
-
 julia> box_length = 1.0;
-
 
 julia> resol = 16;
 
-
 julia> g = Grids(box_length, resol);
-
 
 julia> dV(g) * resol^3 == box_length^3
 true
@@ -335,18 +324,13 @@ Calculate the radial coordinate in a spherical coordinate system
 ```jldoctest
 julia> using UltraDark
 
-
 julia> import UltraDark: radius_spherical, polar_angle, azimuthal_angle
-
 
 julia> box_length = 1.0;
 
-
 julia> resol = 16;
 
-
 julia> g = Grids(box_length, resol);
-
 
 julia> all(radius_spherical(g) .* sin.(polar_angle(g)) .* cos.(azimuthal_angle(g)) .≈ g.x)
 true
@@ -420,18 +404,13 @@ Calculate the radial coordinate in cylindrical coordinates
 ```jldoctest
 julia> using UltraDark
 
-
 julia> import UltraDark: radius_cylindrical, azimuthal_angle
-
 
 julia> box_length = 1.0;
 
-
 julia> resol = 16;
 
-
 julia> g = Grids(box_length, resol);
-
 
 julia> all(radius_cylindrical(g) .* cos.(azimuthal_angle(g)) .≈ g.x)
 true
@@ -466,15 +445,11 @@ Calculate total mass of a density field
 ```jldoctest
 julia> using UltraDark
 
-
 julia> g = Grids(1.0, 16);
-
 
 julia> g.ρx .= 0.0;
 
-
 julia> g.ρx[1, 1, 1] = 1.0;
-
 
 julia> UltraDark.mass(g) == 1.0 * (1.0 / 16)^3
 true

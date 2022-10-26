@@ -10,7 +10,6 @@ be taken, and they should fit in `time_interval`.
 ```jldoctest
 julia> using UltraDark: actual_time_step, TimeStepOptions
 
-
 julia> actual_time_step(0.11, 1, TimeStepOptions())
 (0.1, 10)
 ```

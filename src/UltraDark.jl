@@ -110,7 +110,6 @@ Take `n` steps with time step `Δt`
 ```jldoctest
 julia> using UltraDark: take_steps!, Grids, OutputConfig, Config
 
-
 julia> take_steps!(
            Grids(1.0, 16),
            0,

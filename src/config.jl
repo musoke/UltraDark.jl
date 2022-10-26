@@ -46,7 +46,6 @@ See also: [`SimulationConfig`](@
 ```jldoctest
 julia> using UltraDark
 
-
 julia> TimeStepOptions()
 TimeStepOptions(10, 1.0)
 ```
