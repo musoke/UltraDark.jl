@@ -146,12 +146,9 @@ The current time in the real world.
 ```jldoctest
 julia> using UltraDark
 
-
 julia> t1 = Summary.WallTime();
 
-
 julia> t2 = Summary.WallTime(0.0, 1.0, 1e-1, Grids(1.0, 16), nothing, ());
-
 
 julia> t1.date < t2.date
 true
@@ -267,9 +264,7 @@ which it was calculated.
 ```jldoctest
 julia> using UltraDark
 
-
 julia> g = Grids(1.0, 16);
-
 
 julia> Summary.MeanDensity(g)
 UltraDark.Summary.MeanDensity(0.0, 4096)
@@ -427,9 +422,7 @@ Total mass on a grid
 ```jldoctest
 julia> using UltraDark
 
-
 julia> g = Grids(1.0, 16);
-
 
 julia> Summary.TotalMass(0.0, 1.0, 1e-1, g, nothing, ())
 UltraDark.Summary.TotalMass(0.0)
