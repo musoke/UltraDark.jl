@@ -310,7 +310,7 @@ function PencilGrids(length_tuple, resol_tuple::Tuple{Int,Int,Int})::PencilGrids
     )
 end
 
-function angular_momentum_density(grids, ψx, ρx)
+function angular_momentum_density(grids::PencilGrids, ψx, ρx)
 
     angular_momentum = zeros(3, size(ρx)...)
 
