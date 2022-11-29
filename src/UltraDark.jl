@@ -228,6 +228,7 @@ function simulate!(
     mkpath(output_config.directory)
     output_summary_header(output_config)
     output_xyz(grids, output_config)
+    Output.output_output_times(output_config.output_times, output_config)
     Output.output_external_states_headers(external_states, output_config)
 
     t_begin = output_config.output_times[1]

@@ -164,6 +164,15 @@ function output_xyz(grids, output_config)
 end
 
 """
+    output_output_times(output_times, output_config)
+
+Output the times corresponding to slices
+"""
+function output_output_times(output_times, output_config)
+    NPZ.npzwrite(joinpath(output_config.directory, "output_times.npy"), output_times)
+end
+
+"""
     output_external_states_headers(external_states, output_config)
 """
 function output_external_states_headers(external_states, output_config)
