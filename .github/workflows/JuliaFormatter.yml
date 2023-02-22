@@ -13,11 +13,6 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@master
-    - name: Check if git repo
-      run: |
-        git status
-        git diff --name-only
-        ls -a
-    - uses: julia-actions/julia-format@master
+    - uses: musoke/julia-format@git-safe
       with:
         args: -v .
