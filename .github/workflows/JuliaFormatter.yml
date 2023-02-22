@@ -12,10 +12,11 @@ jobs:
   format:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@v3
+    - uses: actions/checkout@master
     - name: Check if git repo
       run: |
         git status
+        git diff --name-only
         ls -a
     - uses: julia-actions/julia-format@master
       with:
