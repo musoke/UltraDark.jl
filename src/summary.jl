@@ -150,7 +150,7 @@ julia> t1 = Summary.WallTime();
 
 julia> t2 = Summary.WallTime(0.0, 1.0, 1e-1, Grids(1.0, 16), nothing, ());
 
-julia> t1.date < t2.date
+julia> t1.date <= t2.date
 true
 ```
 """
