@@ -165,7 +165,7 @@ function take_steps!(grids, t_start, Δt, n, output_config, a, constants, extern
         output_summary_row(grids, output_config, t, a(t), Δt, constants, external_states)
     end
 
-    outer_step!(Δt / 2, grids, constants)
+    outer_step!(Δt / 2, grids, constants; a = a(t))
     for s in external_states
         outer_step!(Δt / 2, grids, constants, s; a = a(t))
     end
