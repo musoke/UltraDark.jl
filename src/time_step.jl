@@ -53,8 +53,8 @@ Calculate an upper bound on the time step from grid properties
 This time step depends on the gravitational potential and the resolution.
 """
 function max_time_step_grids(grids, a)
-    max_time_step_gravity = 2π / maximum(abs.(grids.Φx))
-    max_time_step_pressure = 2π * 2 / maximum(grids.k)^2 * a^2  # TODO: cache k_max
+    max_time_step_gravity = 2π / Folds.maximum(abs.(grids.Φx))
+    max_time_step_pressure = 2π * 2 / Folds.maximum(grids.k)^2 * a^2  # TODO: cache k_max
 
     @assert isfinite(max_time_step_gravity)
     @assert isfinite(max_time_step_pressure)
@@ -66,8 +66,8 @@ end
 
 function max_time_step_grids(grids::PencilGrids, a)
     # Find maximum on local grid
-    local_max_time_step_gravity = 2π / maximum(abs.(grids.Φx))
-    local_max_time_step_pressure = 2π * 2 / maximum(grids.k)^2 * a^2  # TODO: cache k_max
+    local_max_time_step_gravity = 2π / Folds.maximum(abs.(grids.Φx))
+    local_max_time_step_pressure = 2π * 2 / Folds.maximum(grids.k)^2 * a^2  # TODO: cache k_max
 
     # Maximize over other grids
     max_time_step_gravity =

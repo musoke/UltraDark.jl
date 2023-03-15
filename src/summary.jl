@@ -3,6 +3,7 @@ module Summary
 using ..UltraDark
 using ..UltraDark: AbstractGrids
 import Dates
+import Folds
 import MPI
 using Statistics
 
@@ -300,7 +301,6 @@ function pool_summarystat(S1::MeanDensity, S2::MeanDensity)::MeanDensity
 
     n = S1.n + S2.n
     ρx_mean = (S1.ρx_mean * S1.n + S2.ρx_mean * S2.n) / n
-    ρx_max = maximum(S1.ρx_max, S2.ρx_max)
 
     MeanDensity(ρx_mean, n)
 end
@@ -314,7 +314,7 @@ struct MaxDensity
 end
 
 function MaxDensity(sim_time, a, Δt, grids, constants, external_states)
-    ρx_max = maximum(grids.ρx)
+    ρx_max = Folds.maximum(grids.ρx)
 
     MaxDensity(ρx_max)
 end
