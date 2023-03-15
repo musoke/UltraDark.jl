@@ -456,7 +456,7 @@ true
 ```
 """
 function mass(grids, rho)
-    sum(rho * dV(grids))
+    Folds.sum(rho) * dV(grids)
 end
 
 function mass(grids)
@@ -470,7 +470,7 @@ end
 Gravitational potential energy
 """
 function E_grav(grids, psi)
-    sum(grids.Φx .* abs2.(psi) * dV(grids)) / 2.0
+    Folds.sum(grids.Φx .* abs2.(psi)) * dV(grids) / 2.0
 end
 
 function E_grav(grids::AbstractGrids)
@@ -496,7 +496,7 @@ function E_kq(grids, psi)
     g = grids.fft_plan \ f
     f = nothing
 
-    out = sum(@. real(-0.5 * conj(psi) * g)) * dV(grids)
+    out = Folds.sum(@. real(-0.5 * conj(psi) * g)) * dV(grids)
 end
 
 """

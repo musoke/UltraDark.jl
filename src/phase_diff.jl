@@ -56,8 +56,8 @@ function max_normed_phase_diff(psi, rho, density_threshold)
     for i in 1:n
         dir = circshift(shift, i)
         tmp .= abs.(phase_diff(psi, dir))
-        tmp[rho/maximum(rho).<density_threshold] .= NaN
-        max_grads[i] = maximum(tmp)
+        tmp[rho/Folds.maximum(rho).<density_threshold] .= NaN
+        max_grads[i] = Folds.maximum(tmp)
     end
 
     maximum(max_grads)

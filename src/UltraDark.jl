@@ -1,8 +1,9 @@
 module UltraDark
 
 using Base.Threads: @threads
-using LinearAlgebra
 using AbstractFFTs: fftfreq, rfftfreq
+import Folds
+using LinearAlgebra
 using PencilFFTs, MPI
 
 using FFTW
