@@ -184,7 +184,7 @@ function output_grids(grids::PencilGrids, output_config, step)
     if output_config.slice
         if output_config.psi
             if output_config.npy
-                output = PencilFFTs.gather(grids.ψx[1, :, :])
+                output = PencilFFTs.gather(grids.ψx)
                 if MPI.Comm_rank(grids.MPI_COMM) == 0
                     NPZ.npzwrite(
                         joinpath(output_config.directory, "psi_slice_$step.npy"),
