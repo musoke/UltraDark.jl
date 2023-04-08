@@ -37,6 +37,19 @@ for grid_type in [Grids]
             "box & slice",
             OutputConfig(mktempdir(), []; box = true, slice = true, psi = true, rho = true),
         ),
+        (
+            "box & slice, npy & h5",
+            OutputConfig(
+                mktempdir(),
+                [];
+                box = true,
+                slice = true,
+                psi = true,
+                rho = true,
+                npy = true,
+                h5 = true,
+            ),
+        ),
     ]
         mkpath(output_config.directory)
         @test output_grids(grids, output_config, 0) == nothing
@@ -83,6 +96,10 @@ for grid_type in [PencilGrids]
         (
             "box & slice",
             OutputConfig(mktempdir(), []; box = true, slice = true, psi = true, rho = true),
+        ),
+        (
+            "box & h5",
+            OutputConfig(mktempdir(), []; box = true, psi = true, npy = false, h5 = true),
         ),
     ]
         mkpath(output_config.directory)

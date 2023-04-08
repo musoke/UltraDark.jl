@@ -1,8 +1,9 @@
 module Output
 
 using ..UltraDark
-import PencilFFTs, MPI
+import HDF5
 import NPZ
+import PencilFFTs, MPI
 using Statistics
 
 import ..Summary: output_summary_header, output_summary_row
@@ -35,6 +36,11 @@ struct OutputConfig
     "whether to output ρ"
     rho::Bool
 
+    "write .npy files"
+    npy::Bool
+    "write HDF5 files"
+    h5::Bool
+
     "Type of summary statistics to collect"
     summary_statistics::Tuple
 end
@@ -46,10 +52,12 @@ function OutputConfig(
     slice = false,
     psi = true,
     rho = true,
+    npy = true,
+    h5 = false,
     summary_statistics = (Summary.WallTime, Summary.SimulationTime),
 )
 
-    OutputConfig(directory, output_times, box, slice, psi, rho, summary_statistics)
+    OutputConfig(directory, output_times, box, slice, psi, rho, npy, h5, summary_statistics)
 end
 
 """
@@ -74,25 +82,59 @@ function output_grids(grids, output_config, step)
 
     if output_config.box
         if output_config.psi
-            NPZ.npzwrite(joinpath(output_config.directory, "psi_$step.npy"), grids.ψx)
+            if output_config.npy
+                NPZ.npzwrite(joinpath(output_config.directory, "psi_$step.npy"), grids.ψx)
+            end
+            if output_config.h5
+                HDF5.h5open(joinpath(output_config.directory, "psi_$step.h5"), "w") do file
+                    write(file, "psi", grids.ψx)
+                end
+            end
         end
         if output_config.rho
-            NPZ.npzwrite(joinpath(output_config.directory, "rho_$step.npy"), grids.ρx)
+            if output_config.npy
+                NPZ.npzwrite(joinpath(output_config.directory, "rho_$step.npy"), grids.ρx)
+            end
+            if output_config.h5
+                HDF5.h5open(joinpath(output_config.directory, "rho_$step.h5"), "w") do file
+                    write(file, "rho", grids.ρx)
+                end
+            end
         end
     end
 
     if output_config.slice
         if output_config.psi
-            NPZ.npzwrite(
-                joinpath(output_config.directory, "psi_slice_$step.npy"),
-                grids.ψx[1, :, :],
-            )
+            if output_config.npy
+                NPZ.npzwrite(
+                    joinpath(output_config.directory, "psi_slice_$step.npy"),
+                    grids.ψx[1, :, :],
+                )
+            end
+            if output_config.h5
+                HDF5.h5open(
+                    joinpath(output_config.directory, "rho_slice_$step.h5"),
+                    "w",
+                ) do file
+                    write(file, "psi", grids.ψx[1, :, :])
+                end
+            end
         end
         if output_config.rho
-            NPZ.npzwrite(
-                joinpath(output_config.directory, "rho_slice_$step.npy"),
-                grids.ρx[1, :, :],
-            )
+            if output_config.npy
+                NPZ.npzwrite(
+                    joinpath(output_config.directory, "rho_slice_$step.npy"),
+                    grids.ρx[1, :, :],
+                )
+            end
+            if output_config.h5
+                HDF5.h5open(
+                    joinpath(output_config.directory, "rho_slice_$step.h5"),
+                    "w",
+                ) do file
+                    write(file, "rho", grids.ρx[1, :, :])
+                end
+            end
         end
     end
 end
@@ -115,38 +157,58 @@ function output_grids(grids::PencilGrids, output_config, step)
     #TODO: don't use gather.  This sends all data to one node.  Should instead use multithreaded HDF5 output
     if output_config.box
         if output_config.psi
-            output = PencilFFTs.gather(grids.ψx)
-            if MPI.Comm_rank(grids.MPI_COMM) == 0
-                NPZ.npzwrite(joinpath(output_config.directory, "psi_$step.npy"), output)
+            if output_config.npy
+                output = PencilFFTs.gather(grids.ψx)
+                if MPI.Comm_rank(grids.MPI_COMM) == 0
+                    NPZ.npzwrite(joinpath(output_config.directory, "psi_$step.npy"), output)
+                end
+            end
+            if output_config.h5
+                throw(Core.ArgumentError("h5 output unimplemented for PencilGrids"))
             end
         end
 
         if output_config.rho
-            output = PencilFFTs.gather(grids.ρx)
-            if MPI.Comm_rank(grids.MPI_COMM) == 0
-                NPZ.npzwrite(joinpath(output_config.directory, "rho_$step.npy"), output)
+            if output_config.npy
+                output = PencilFFTs.gather(grids.ρx)
+                if MPI.Comm_rank(grids.MPI_COMM) == 0
+                    NPZ.npzwrite(joinpath(output_config.directory, "rho_$step.npy"), output)
+                end
+            end
+            if output_config.h5
+                throw(Core.ArgumentError("h5 output unimplemented for PencilGrids"))
             end
         end
     end
 
     if output_config.slice
         if output_config.psi
-            output = PencilFFTs.gather(grids.ψx[1, :, :])
-            if MPI.Comm_rank(grids.MPI_COMM) == 0
-                NPZ.npzwrite(
-                    joinpath(output_config.directory, "psi_slice_$step.npy"),
-                    output[1, :, :],
-                )
+            if output_config.npy
+                output = PencilFFTs.gather(grids.ψx[1, :, :])
+                if MPI.Comm_rank(grids.MPI_COMM) == 0
+                    NPZ.npzwrite(
+                        joinpath(output_config.directory, "psi_slice_$step.npy"),
+                        output[1, :, :],
+                    )
+                end
+            end
+            if output_config.h5
+                throw(Core.ArgumentError("h5 output unimplemented for PencilGrids"))
             end
         end
 
         if output_config.rho
-            output = PencilFFTs.gather(grids.ρx)
-            if MPI.Comm_rank(grids.MPI_COMM) == 0
-                NPZ.npzwrite(
-                    joinpath(output_config.directory, "rho_slice_$step.npy"),
-                    output[1, :, :],
-                )
+            if output_config.npy
+                output = PencilFFTs.gather(grids.ρx)
+                if MPI.Comm_rank(grids.MPI_COMM) == 0
+                    NPZ.npzwrite(
+                        joinpath(output_config.directory, "rho_slice_$step.npy"),
+                        output[1, :, :],
+                    )
+                end
+            end
+            if output_config.h5
+                throw(Core.ArgumentError("h5 output unimplemented for PencilGrids"))
             end
         end
     end
@@ -158,9 +220,22 @@ end
 Output the spatial coordinates defining the grid
 """
 function output_xyz(grids, output_config)
-    NPZ.npzwrite(joinpath(output_config.directory, "x.npy"), grids.x)
-    NPZ.npzwrite(joinpath(output_config.directory, "y.npy"), grids.y)
-    NPZ.npzwrite(joinpath(output_config.directory, "z.npy"), grids.z)
+    if output_config.npy
+        NPZ.npzwrite(joinpath(output_config.directory, "x.npy"), grids.x)
+        NPZ.npzwrite(joinpath(output_config.directory, "y.npy"), grids.y)
+        NPZ.npzwrite(joinpath(output_config.directory, "z.npy"), grids.z)
+    end
+    if output_config.h5
+        HDF5.h5open(joinpath(output_config.directory, "x.h5"), "w") do file
+            write(file, "x", grids.x)
+        end
+        HDF5.h5open(joinpath(output_config.directory, "y.h5"), "w") do file
+            write(file, "y", grids.y)
+        end
+        HDF5.h5open(joinpath(output_config.directory, "z.h5"), "w") do file
+            write(file, "z", grids.z)
+        end
+    end
 end
 
 """
@@ -169,7 +244,14 @@ end
 Output the times corresponding to slices
 """
 function output_output_times(output_times, output_config)
-    NPZ.npzwrite(joinpath(output_config.directory, "output_times.npy"), output_times)
+    if output_config.npy
+        NPZ.npzwrite(joinpath(output_config.directory, "output_times.npy"), output_times)
+    end
+    if output_config.h5
+        HDF5.h5open(joinpath(output_config.directory, "output_times.h5"), "w") do file
+            write(file, "output_times", output_times)
+        end
+    end
 end
 
 """
