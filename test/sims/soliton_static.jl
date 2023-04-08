@@ -1,5 +1,6 @@
 using UltraDark
 using Test
+using HDF5
 using MPI
 using NPZ
 using PencilFFTs
@@ -15,7 +16,14 @@ for grid_type in [Grids, PencilGrids]
     this_output_dir = joinpath(output_dir, "$grid_type")
     output_times = [0, 1]
 
-    output_config = OutputConfig(this_output_dir, output_times; box = true, slice = false)
+    output_config = OutputConfig(
+        this_output_dir,
+        output_times;
+        box = true,
+        slice = false,
+        npy = true,
+        h5 = grid_type == Grids,
+    )
     options = Config.SimulationConfig()
 
     grids = grid_type(10.0, resol)
@@ -39,9 +47,17 @@ end
 # end
 
 for i in [1, 2]
-    grids_output = npzread(joinpath(output_dir, "Grids", "psi_$i.npy"))
-    pencil_grids_output = npzread(joinpath(output_dir, "PencilGrids", "psi_$i.npy"))
+    grids_output_npy = npzread(joinpath(output_dir, "Grids", "psi_$i.npy"))
+    grids_output_h5 = h5read(joinpath(output_dir, "Grids", "psi_$i.h5"), "psi")
+
+    @test all(grids_output_npy .≈ grids_output_h5)
+
+    pencil_grids_output_npy = npzread(joinpath(output_dir, "PencilGrids", "psi_$i.npy"))
+    @test_throws ErrorException pencil_grids_output_h5 =
+        h5read(joinpath(output_dir, "PencilGrids", "psi_$i.h5"), "psi")
+
+    # @test all(pencil_grids_output_npy .≈ pencil_grids_output_h5)
 
     # Fail for multiprocess - there are order 1e-12 differences
-    @test all(grids_output .≈ pencil_grids_output)
+    @test all(grids_output_npy .≈ pencil_grids_output_npy)
 end
