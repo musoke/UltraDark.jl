@@ -20,7 +20,7 @@ for grid_type in [Grids, PencilGrids]
         this_output_dir,
         output_times;
         box = true,
-        slice = false,
+        slice = true,
         npy = true,
         h5 = grid_type == Grids,
     )
@@ -47,17 +47,34 @@ end
 # end
 
 for i in [1, 2]
+    ## Boxes
     grids_output_npy = npzread(joinpath(output_dir, "Grids", "psi_$i.npy"))
     grids_output_h5 = h5read(joinpath(output_dir, "Grids", "psi_$i.h5"), "psi")
 
-    @test all(grids_output_npy .≈ grids_output_h5)
+    @test grids_output_npy == grids_output_h5
 
     pencil_grids_output_npy = npzread(joinpath(output_dir, "PencilGrids", "psi_$i.npy"))
     @test_throws ErrorException pencil_grids_output_h5 =
         h5read(joinpath(output_dir, "PencilGrids", "psi_$i.h5"), "psi")
 
-    # @test all(pencil_grids_output_npy .≈ pencil_grids_output_h5)
+    @test_broken all(pencil_grids_output_npy .≈ pencil_grids_output_h5)
 
     # Fail for multiprocess - there are order 1e-12 differences
     @test all(grids_output_npy .≈ pencil_grids_output_npy)
+
+    ## Slices
+    grids_slice_npy = npzread(joinpath(output_dir, "Grids", "psi_$i.npy"))
+    grids_slice_h5 = h5read(joinpath(output_dir, "Grids", "psi_$i.h5"), "psi")
+
+    @test grids_slice_npy == grids_slice_h5
+
+    pencil_grids_slice_npy = npzread(joinpath(output_dir, "PencilGrids", "psi_$i.npy"))
+    @test_throws ErrorException pencil_slice_output_h5 =
+        h5read(joinpath(output_dir, "PencilGrids", "psi_$i.h5"), "psi")
+
+    @test_broken all(pencil_grids_output_npy .≈ pencil_grids_output_h5)
+
+    # Fail for multiprocess - there are order 1e-12 differences
+    @test all(grids_slice_npy .≈ pencil_grids_slice_npy)
+
 end
