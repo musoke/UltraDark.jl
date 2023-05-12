@@ -49,3 +49,9 @@ module TwoDNotebook
 using NBInclude
 @nbinclude("../examples/2d.ipynb")
 end
+
+@testset "Aqua.jl" begin
+    using Aqua
+
+    Aqua.test_all(UltraDark; ambiguities = false)
+end
