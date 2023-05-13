@@ -1,10 +1,11 @@
 *.jl.*.cov
 *.jl.cov
 *.jl.mem
-.DS_Store
-/dev/
+/Manifest.toml
+
 /docs/build/
-/docs/site/
-Manifest.toml
+/docs/Manifest.toml
+
+/test/Manifest.toml
 
 output
