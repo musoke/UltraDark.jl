@@ -74,16 +74,16 @@ function plot_cpus(df)
         data(df) *
         mapping(:total_cpus => "number of CPUs", :time => "time (s)") *
         visual(Scatter) *
-        mapping(marker = :grids_type)
+        mapping(marker = :grids_type => "")
     time_theory =
         data(df) *
         mapping(:total_cpus => "number of CPUs", :theory_time => "time (s)") *
         visual(Lines) *
-        mapping(linestyle = :grids_type)
+        mapping(linestyle = :grids_type => "")
 
-    plt = (time_data + time_theory) * mapping(color = :grids_type)
+    plt = (time_data + time_theory) * mapping(color = :grids_type => "")
 
-    fg = draw(plt, axis = (yscale = log10,))
+    fg = draw(plt, axis = (xscale = log2, yscale = log10,))
     save("cpus.pdf", fg)
 end
 
@@ -117,15 +117,18 @@ function plot_resol(df)
         data(df) *
         mapping(:resol => "resolution", :time => "time (s)") *
         visual(Scatter) *
-        mapping(marker = :grids_type)
+        mapping(marker = :grids_type => "")
     time_theory =
         data(df) *
         mapping(:resol => "resolution", :theoretical_time => "time (s)") *
         visual(Lines) *
-        mapping(linestyle = :grids_type)
+        mapping(linestyle = :grids_type => "")
 
-    plt = (time_data + time_theory) * mapping(color = :grids_type)
+    plt = (time_data + time_theory) * mapping(color = :grids_type => "")
 
     fg = draw(plt, axis = (yscale = log10,))
     save("resol.pdf", fg)
 end
+
+load_generate_data() |> generate_data_cpus |> plot_cpus
+load_generate_data() |> generate_data_resol |> plot_resol
