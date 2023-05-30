@@ -9,3 +9,7 @@
 /test/Manifest.toml
 
 output
+*.pdf
+*.png
+*.mp4
+*.gif
