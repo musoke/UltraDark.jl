@@ -23,6 +23,14 @@ suite["Base"]["sum"] = @benchmarkable sum($(grids.ρx))
 suite["Folds.jl"]["sum"] = @benchmarkable Folds.sum($(grids.ρx))
 
 
+function product_density(ρx)
+    ρx .* ρx^0.5 / 2
+end
+
+suite["Base"]["sum_product"] = @benchmarkable sum(product_density.($(grids.ρx)))
+suite["Folds.jl"]["sum_product"] =
+    @benchmarkable Folds.mapreduce(product_density, +, $(grids.ρx))
+
 tune!(suite)
 
 results = run(suite)
@@ -30,4 +38,4 @@ results = run(suite)
 @show res_min = minimum(results)
 @show res_med = median(results)
 
-judge(res_med["Folds.jl"], res_med["Base"])
+display(judge(res_med["Folds.jl"], res_med["Base"]))

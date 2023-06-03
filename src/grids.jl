@@ -464,13 +464,22 @@ function mass(grids)
 end
 
 """
+    E_gravity_density(psi, Phi)
+
+Gravitational energy density of field `psi` in gravitational potential `Phi`
+"""
+function E_gravity_density(psi::Number, Phi::Number)
+    Phi .* abs2.(psi) / 2.0
+end
+
+"""
     E_grav(grids)
     E_grav(grids, psi)
 
 Gravitational potential energy
 """
 function E_grav(grids, psi)
-    Folds.sum(grids.Φx .* abs2.(psi)) * dV(grids) / 2.0
+    Folds.mapreduce(E_gravity_density, +, grids.Φx, psi) * dV(grids)
 end
 
 function E_grav(grids::AbstractGrids)
@@ -535,20 +544,20 @@ function angular_momentum_density(grids, ψx, ρx)
 
     momentum .*= reshape(ρx, 1, size(ρx)...)
 
-    angular_momentum = similar(momentum)
+    angular_momentum_density = similar(momentum)
 
-    @inbounds @threads for I in CartesianIndices(angular_momentum)
+    @inbounds @threads for I in CartesianIndices(angular_momentum_density)
         _, i, j, k = Tuple(I)
-        # angular_momentum[:, i, j, k] = cross([grids.x[i], grids.y[j], grids.z[k]], momentum[:, i, j, k])
-        angular_momentum[1, i, j, k] =
+        # angular_momentum_density[:, i, j, k] = cross([grids.x[i], grids.y[j], grids.z[k]], momentum[:, i, j, k])
+        angular_momentum_density[1, i, j, k] =
             y[j] * momentum[3, i, j, k] - z[k] * momentum[2, i, j, k]
-        angular_momentum[2, i, j, k] =
+        angular_momentum_density[2, i, j, k] =
             z[k] * momentum[1, i, j, k] - x[i] * momentum[3, i, j, k]
-        angular_momentum[3, i, j, k] =
+        angular_momentum_density[3, i, j, k] =
             x[i] * momentum[2, i, j, k] - y[j] * momentum[1, i, j, k]
     end
 
-    angular_momentum
+    angular_momentum_density
 end
 
 """
