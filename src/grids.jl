@@ -3,7 +3,6 @@
 
 Abstract type for grids containing simulation data
 """
-
 abstract type AbstractGrids end
 
 """
