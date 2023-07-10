@@ -15,7 +15,7 @@ UltraDark uses [PencilFFTs](https://jipolanco.github.io/PencilFFTs.jl/stable/) t
 
 You will need [Julia](https://julialang.org/).
 
-To install and runs tests, open the Julia REPL and enter `pkg` mode by pressing
+To install and run tests, open the Julia REPL and enter `pkg` mode by pressing
 `]`.
 ```julia
 pkg> dev https://github.com/musoke/UltraDark.jl
@@ -23,7 +23,7 @@ pkg> dev https://github.com/musoke/UltraDark.jl
 pkg> test UltraDark
 ```
 
-Run a IJulia/Jupyter notebook with
+Run a Jupyter notebook with
 ```julia
 pkg> add IJulia
 
@@ -31,3 +31,5 @@ julia> using IJulia
 
 julia> notebook()
 ```
+
+The [documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://musoke.github.io/UltraDark.jl/stable) has details of how to do more.
