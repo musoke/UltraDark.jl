@@ -32,4 +32,4 @@ julia> using IJulia
 julia> notebook()
 ```
 
-The [documentation](https://img.shields.io/badge/docs-stable-blue.svg)](https://musoke.github.io/UltraDark.jl/stable) has details of how to do more.
+The [documentation](https://musoke.github.io/UltraDark.jl/stable) has details of how to do more.
