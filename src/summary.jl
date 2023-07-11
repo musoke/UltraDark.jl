@@ -1,3 +1,8 @@
+"""
+    Summary
+
+Module containing utilities for computing and outputing summary statistics at each time step.
+"""
 module Summary
 
 using ..UltraDark
