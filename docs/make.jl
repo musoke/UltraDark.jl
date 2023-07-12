@@ -21,4 +21,4 @@ makedocs(;
     authors = "Nathan Musoke <n.musoke@auckland.ac.nz>",
 )
 
-deploydocs(; repo = "github.com/musoke/UltraDark.jl")
+deploydocs(; repo = "github.com/musoke/UltraDark.jl", devbranch = "main")
