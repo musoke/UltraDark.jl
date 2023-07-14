@@ -15,15 +15,24 @@ jobs:
       fail-fast: false
       matrix:
         version:
-          - '1.8'
           - '1.9'
-          # - 'nightly'
+          - '1.8'
         os:
           - ubuntu-latest
           - macOS-latest
           - windows-latest
         arch:
           - x64
+        include:
+          - os: ubuntu-latest
+            version: 'nightly'
+            arch: x64
+            allow_failure: true # separate test for nightly allowed to fail
+          - os: ubuntu-latest
+            version: '1' # automatically expands to the latest tagged 1.x release of Julia
+            arch: x64
+            allow_failure: false
+            include-all-prereleases: true # latest tagged version should include prereleases
     steps:
       - uses: actions/checkout@v3
       - uses: julia-actions/setup-julia@v1
