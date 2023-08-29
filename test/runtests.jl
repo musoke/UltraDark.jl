@@ -38,6 +38,10 @@ end
     include("../examples/soliton_velocity.jl")
 end
 
+@safetestset "scale factor" begin
+    include("sims/scale_factor.jl")
+end
+
 # Put notebook in module to emulate SafeTestsets
 # https://github.com/YingboMa/SafeTestsets.jl/issues/3
 module GrowthNotebook
