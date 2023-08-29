@@ -21,12 +21,7 @@ function SimulationConfig(;
     density_threshold = 1e-6,
     time_step_options = TimeStepOptions(),
 )
-    SimulationConfig(
-        constant_scale_factor,
-        phase_grad_limit,
-        density_threshold,
-        time_step_options,
-    )
+    SimulationConfig(a, phase_grad_limit, density_threshold, time_step_options)
 end
 
 """
