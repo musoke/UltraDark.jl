@@ -3,6 +3,13 @@ using Test, Documenter
 using SafeTestsets
 using MPI
 
+# Initialise MPI before running any tests.
+# This prevents spurious warnings from breaking doc tests by changing stderr.
+if ~MPI.Initialized()
+    MPI.Init()
+end
+@test MPI.Initialized()
+
 doctest(UltraDark)
 
 @safetestset "grids.jl" begin
