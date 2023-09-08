@@ -28,7 +28,7 @@ pencilgrids = PencilGrids(1.0, 8)
 external_states = ()
 
 for g in [grids, pencilgrids]
-    g.ψx .= 1.0
+    g.ψx .= 1.0 + im
     @. g.ρx = abs2(g.ψx)
 end
 
