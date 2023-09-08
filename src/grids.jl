@@ -467,7 +467,7 @@ end
 
 Gravitational energy density of field `psi` in gravitational potential `Phi`
 """
-function E_gravity_density(psi::Number, Phi::Number)
+function E_gravity_density(psi::Number, Phi::Real)::Real
     Phi .* abs2.(psi) / 2.0
 end
 
@@ -478,7 +478,7 @@ end
 Gravitational potential energy
 """
 function E_grav(grids, psi)
-    Folds.mapreduce(E_gravity_density, +, grids.Φx, psi) * dV(grids)
+    Folds.mapreduce(E_gravity_density, +, psi, grids.Φx) * dV(grids)
 end
 
 function E_grav(grids::AbstractGrids)
