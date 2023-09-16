@@ -16,7 +16,6 @@ affiliations:
    index: 1
 date: 15 September 2023
 bibliography: paper.bib
-
 ---
 
 # Summary
