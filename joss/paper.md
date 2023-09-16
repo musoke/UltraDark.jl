@@ -12,7 +12,7 @@ authors:
     orcid:  0000-0001-9839-9256
     affiliation: "1" # (Multiple affiliations must be quoted)
 affiliations:
- - name: Department of Physics & Astronomy, University of New Hampshire, USA
+ - name: "Department of Physics & Astronomy, University of New Hampshire, USA"
    index: 1
 date: 1 June 2023
 bibliography: paper.bib
