@@ -1,5 +1,5 @@
 ---
-title: '`UltraDark.jl`: A Julia package for simulation of cosmological scalar fields'
+title: 'UltraDark.jl: A Julia package for simulation of cosmological scalar fields'
 tags:
   - Julia
   - cosmology
