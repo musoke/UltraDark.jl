@@ -1,3 +1,5 @@
+using Strided
+
 """
     AbstractGrids
 
@@ -342,15 +344,15 @@ true
 ```
 """
 function radius_spherical(x, y, z)
-    rs = (x^2 + y^2 + z^2)^(1 // 2)
+    sqrt(x^2 + y^2 + z^2)
 end
 
 function radius_spherical(grids)
-    radius_spherical.(grids.x, grids.y, grids.z)
+    @strided radius_spherical.(grids.x, grids.y, grids.z)
 end
 
 function radius_spherical(grids, r0)
-    radius_spherical.(grids.x .- r0[1], grids.y .- r0[2], grids.z .- r0[3])
+    @strided radius_spherical.(grids.x .- r0[1], grids.y .- r0[2], grids.z .- r0[3])
 end
 
 """
@@ -366,11 +368,11 @@ function polar_angle(x, y, z)
 end
 
 function polar_angle(grids)
-    polar_angle.(grids.x, grids.y, grids.z)
+    @strided polar_angle.(grids.x, grids.y, grids.z)
 end
 
 function polar_angle(grids, r0)
-    polar_angle.(grids.x .- r0[1], grids.y .- r0[2], grids.z .- r0[3])
+    @strided polar_angle.(grids.x .- r0[1], grids.y .- r0[2], grids.z .- r0[3])
 end
 
 
@@ -386,11 +388,11 @@ function azimuthal_angle(x, y, z)
 end
 
 function azimuthal_angle(grids)
-    azimuthal_angle.(grids.x, grids.y, grids.z)
+    @strided azimuthal_angle.(grids.x, grids.y, grids.z)
 end
 
 function azimuthal_angle(grids, r0)
-    azimuthal_angle.(grids.x .- r0[1], grids.y .- r0[2], grids.z .- r0[3])
+    @strided azimuthal_angle.(grids.x .- r0[1], grids.y .- r0[2], grids.z .- r0[3])
 end
 
 """
@@ -426,11 +428,11 @@ function radius_cylindrical(x, y, z)
 end
 
 function radius_cylindrical(grids)
-    radius_cylindrical.(grids.x, grids.y, grids.z)
+    @strided radius_cylindrical.(grids.x, grids.y, grids.z)
 end
 
 function radius_cylindrical(grids, r0)
-    radius_cylindrical.(grids.x .- r0[1], grids.y .- r0[2], grids.z .- r0[3])
+    @strided radius_cylindrical.(grids.x .- r0[1], grids.y .- r0[2], grids.z .- r0[3])
 end
 
 """
