@@ -1,18 +1,8 @@
-name: JuliaFormatter
-
+name: Format suggestions
 on:
-  push:
-    branches:
-      - 'main'
-      - 'release-'
-    tags: '*'
   pull_request:
-
 jobs:
-  format:
+  code-style:
     runs-on: ubuntu-latest
     steps:
-    - uses: actions/checkout@master
-    - uses: musoke/julia-format@git-safe
-      with:
-        args: -v .
+      - uses: julia-actions/julia-format@v2
