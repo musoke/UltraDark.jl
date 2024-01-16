@@ -4,6 +4,7 @@ on:
       branches:
         - 'main'
         - 'release-'
+        - 'ci-test-*'
       tags:
         - '*'
   pull_request:
@@ -40,7 +41,7 @@ jobs:
         with:
           version: ${{ matrix.version }}
           arch: ${{ matrix.arch }}
-      - uses: julia-actions/cache@v1
+      - uses: musoke/julia-actions-cache@jq-install
       - uses: julia-actions/julia-buildpkg@v1
       - uses: julia-actions/julia-runtest@v1
         env:
