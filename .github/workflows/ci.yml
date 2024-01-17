@@ -3,7 +3,7 @@ on:
   push:
       branches:
         - 'main'
-        - 'release-'
+        - 'ci/*'
       tags:
         - '*'
   pull_request:
@@ -61,6 +61,7 @@ jobs:
       - uses: julia-actions/setup-julia@v1
         with:
           version: '1'
+      - uses: julia-actions/cache@v1
       - run: |
           julia --project=docs -e '
             using Pkg
