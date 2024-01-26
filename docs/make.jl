@@ -12,6 +12,7 @@ makedocs(;
         "Manual" => Any[
             "Installation"=>"man/install.md",
             "Overview"=>"man/overview.md",
+            "Soliton Initialisation"=>"man/init.md",
             "Summary Statistics"=>"man/summary.md",
         ],
         "API" => "api.md",
