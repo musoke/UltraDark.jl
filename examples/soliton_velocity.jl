@@ -9,8 +9,6 @@ end
 comm = MPI.COMM_WORLD
 @info "Process ID $(MPI.Comm_rank(comm)+1) of $(MPI.Comm_size(comm)) with $(Threads.nthreads()) threads\n"
 
-include(joinpath(@__DIR__, "init_soliton.jl"))
-
 const resol = 64
 
 const num_snapshots = 20
@@ -37,7 +35,7 @@ function run_sim()
     npzwrite(joinpath(output_config.directory, "y.npy"), grids.y)
     npzwrite(joinpath(output_config.directory, "z.npy"), grids.z)
 
-    add_soliton(grids, mass, position0, velocity, phase, t0)
+    UltraDark.Initialise.add_fdm_soliton!(grids, mass, position0, velocity, phase, t0)
     @info "Initialized" MPI.Comm_rank(comm)
 
     simulate!(grids, options, output_config) == nothing
