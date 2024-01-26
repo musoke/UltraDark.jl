@@ -8,15 +8,13 @@ using ..UltraDark: AbstractGrids
 export add_fdm_soliton!
 
 """
-    add_fdm_soliton!(grids::AbstractGrids, mass, position, velocity, phase, t0)
-    add_fdm_soliton!(grids::AbstractGrids, psi, mass, position, velocity, phase, t0)
+    add_fdm_soliton!(grids::AbstractGrids, [psi], mass, position, velocity, phase, t0)
 
-Add a fuzzy dark matter soliton `grids`.  The
-density profile is rescaled to the desired mass and the phase is set to the desired
-velocity.
+Add a fuzzy dark matter soliton to `grids`.  The density profile is rescaled to the desired
+mass and the phase is set to the desired velocity.
 
 If the argument `psi` is passed, the soliton is added to the array-like `psi` rather than
-than `grids.ψx`.
+than `grids.ψx`. `grids` is still used to calculate coordinates.
 
 Note that due to coarse grid effects, the mass of the added soliton may not match the input
 mass exactly.
