@@ -18,7 +18,7 @@ makedocs(;
     ],
     repo = "https://github.com/musoke/UltraDark.jl/blob/{commit}{path}#L{line}",
     sitename = "UltraDark.jl",
-    authors = "Nathan Musoke <n.musoke@auckland.ac.nz>",
+    authors = "Nathan Musoke <nathan.musoke@gmail.com>",
 )
 
 deploydocs(; repo = "github.com/musoke/UltraDark.jl", devbranch = "main")
