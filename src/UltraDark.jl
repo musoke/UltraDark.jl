@@ -5,6 +5,7 @@ using AbstractFFTs: fftfreq, rfftfreq
 import Folds
 using LinearAlgebra
 using PencilFFTs, MPI
+using PrecompileTools
 
 using FFTW
 
@@ -271,6 +272,33 @@ function simulate!(
         throw("Phase gradient is too large to end")
     end
 
+end
+
+@setup_workload begin
+
+    resol = 64
+    output_dir = mktempdir()
+
+    @compile_workload begin
+        output_times = [0, 1e-9]
+
+        output_config = OutputConfig(
+            output_dir,
+            output_times;
+            box = true,
+            slice = true,
+            npy = true,
+            h5 = true,
+        )
+
+        options = Config.SimulationConfig()
+
+        grids = Grids(10.0, resol)
+        # Set ψx to something non-zero
+        grids.ψx .= (grids.x .^ 2 .+ grids.y .^ 2 .+ grids.z .^ 2) .^ 0.5 ./ 1e9
+
+        simulate!(grids, options, output_config)
+    end
 end
 
 end # module
