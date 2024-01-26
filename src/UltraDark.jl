@@ -29,6 +29,8 @@ import .Output: output_state, output_xyz, output_external_states_headers
 import .Output: output_summary_row, output_summary_header
 import .Config: SimulationConfig, constant_scale_factor, TimeStepOptions
 
+include("initialise.jl")
+
 """
     outer_step!(Δt, grids, constants; a=1.0)
     outer_step!(Δt, grids, constants, s; a=1.0)
@@ -277,6 +279,13 @@ end
 @setup_workload begin
 
     resol = 64
+
+    soliton_mass = 10.0
+    soliton_position = [0.0, 0.0, 0.0]
+    soliton_velocity = [0.0, 0.0, 0.0]
+    soliton_phase = 0.0
+    soliton_t0 = 0.0
+
     output_dir = mktempdir()
 
     @compile_workload begin
@@ -294,8 +303,15 @@ end
         options = Config.SimulationConfig()
 
         grids = Grids(10.0, resol)
-        # Set ψx to something non-zero
-        grids.ψx .= (grids.x .^ 2 .+ grids.y .^ 2 .+ grids.z .^ 2) .^ 0.5 ./ 1e9
+
+        Initialise.add_fdm_soliton!(
+            grids,
+            soliton_mass,
+            soliton_position,
+            soliton_velocity,
+            soliton_phase,
+            soliton_t0,
+        )
 
         simulate!(grids, options, output_config)
     end

@@ -7,8 +7,6 @@ using PencilFFTs
 
 resol = 64
 
-include("../../examples/init_soliton.jl")
-
 output_dir = mktempdir()
 
 for grid_type in [Grids, PencilGrids]
@@ -28,13 +26,13 @@ for grid_type in [Grids, PencilGrids]
 
     grids = grid_type(10.0, resol)
 
-    mass = 10
-    position = [0, 0, 0]
-    velocity = [0, 0, 0]
-    phase = 0
-    t0 = 0
+    mass = 10.0
+    position = [0.0, 0.0, 0.0]
+    velocity = [0.0, 0.0, 0.0]
+    phase = 0.0
+    t0 = 0.0
 
-    add_soliton(grids, mass, position, velocity, phase, t0)
+    UltraDark.Initialise.add_fdm_soliton!(grids, mass, position, velocity, phase, t0)
 
     @test simulate!(grids, options, output_config) == nothing
 end
