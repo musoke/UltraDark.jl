@@ -85,10 +85,9 @@ In a cluster environment, `PencilArrays.jl` and `PencilFFTs.jl` enable straightf
 The scaling of this two approaches to parallelism is demonstrated in \autoref{fig:cpus}.
 
 
-The features described above have allowed collaborators and I to produce results presented in 4 publications, each exploring the small scale structure of ultralight dark matter.
-We have used `UltraDark.jl` to explore tidal disruption in dark matter halos comprised of self-interacting ALPs [@Glennon:2022huu], perform the first simulations of multi-species ALPs with intra- and inter-species interactions [@Glennon:2023jsp] and discover a novel mechanism for vortex stabilisation in scalar dark matter [@Glennon:2023oqa].
-Work in preparation examines the effect of self-interactions on dynamical friction [@2023xxx].
-More sample output can be found in @anim:vortex and @anim:multi.
+The features described above have allowed collaborators and I to produce results presented in 4 publications, each exploring an aspect of the small scale structure of ultralight dark matter.
+We have used `UltraDark.jl` to explore tidal disruption in dark matter halos comprised of self-interacting ALPs [@Glennon:2022huu], the effects of self-interactions on dynamical friction [@Glennon:2023gfm], perform the first simulations of multi-species ALPs with intra- and inter-species interactions [@Glennon:2023jsp] and discover a novel mechanism for vortex stabilisation in scalar dark matter [@Glennon:2023oqa].
+More sample output can be found in @anim:vortex, @anim:multi, and @anim:friction.
 
 
 # Acknowledgements
