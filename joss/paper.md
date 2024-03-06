@@ -87,7 +87,7 @@ The scaling of this two approaches to parallelism is demonstrated in \autoref{fi
 
 The features described above have allowed collaborators and I to produce results presented in 4 publications, each exploring the small scale structure of ultralight dark matter.
 We have used `UltraDark.jl` to explore tidal disruption in dark matter halos comprised of self-interacting ALPs [@Glennon:2022huu], perform the first simulations of multi-species ALPs with intra- and inter-species interactions [@Glennon:2023jsp] and discover a novel mechanism for vortex stabilisation in scalar dark matter [@Glennon:2023oqa].
-Work in preparation examines the effect of self-interactions on dynamical friction [@2023xxx].
+Work in preparation examines the effect of self-interactions on dynamical friction [@Glennon:2023gfm].
 More sample output can be found in @anim:vortex and @anim:multi.
 
 
