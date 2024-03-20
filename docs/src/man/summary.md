@@ -3,8 +3,10 @@
 It is often useful to collect summary statistics as a simulation runs and avoid storing complete simulation boxes.
 The [`UltraDark.Summary`](@ref) module makes this easy.
 
+## Example
+
 Say you want to extract the minimum density at each time step.
-Define a struct to contain this:
+Define a struct to contain this data:
 ```@example continued=true
 struct MinDensity
     ρx_min::Float64
@@ -20,7 +22,11 @@ end
 ```
 
 Passing this object into a simulation will add a column to `$output_path/summary.csv` containing the single value contained by `MinDensity`.
-```@example continued=true
-```
 
 More complex statistics are also possible.
+
+## Docstrings
+
+```@autodocs
+Modules = [UltraDark.Summary]
+```
