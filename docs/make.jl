@@ -1,4 +1,13 @@
-using Documenter, UltraDark
+using Documenter
+using DocumenterInterLinks
+using UltraDark
+
+links = InterLinks(
+# "PencilArrays" => "https://jipolanco.github.io/PencilArrays.jl/stable/",
+# "PencilFFTs" => "https://jipolanco.github.io/PencilFFTs.jl/stable/",
+)
+
+fallbacks = ExternalFallbacks()
 
 makedocs(;
     modules = [UltraDark],
@@ -17,9 +26,10 @@ makedocs(;
         ],
         "API" => "api.md",
     ],
-    repo = "https://github.com/musoke/UltraDark.jl/blob/{commit}{path}#L{line}",
+    repo = Remotes.GitHub("musoke", "UltraDark.jl"),
     sitename = "UltraDark.jl",
     authors = "Nathan Musoke <nathan.musoke@gmail.com>",
+    plugins = [links, fallbacks],
 )
 
 deploydocs(; repo = "github.com/musoke/UltraDark.jl", devbranch = "main")
