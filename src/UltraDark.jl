@@ -68,6 +68,16 @@ end
 
 function inner_step!(Δt, grids, constants, s; a = 1.0) end
 
+"""
+    update_gravitational_potential!(grids; a = 1.0)
+    update_gravitational_potential!(grids, constants; a = 1.0)
+
+Update density `grids.ρx` and the gravitational potential `grids.Φx` based on `grids.ψx`
+"""
+function update_gravitational_potential!(grids; a = 1.0)
+    update_gravitational_potential!(grids, nothing; a = 1.0)
+end
+
 function update_gravitational_potential!(grids, constants; a = 1.0)
     @inbounds @threads for i in eachindex(grids.ρx)
         grids.ρx[i] = abs2(grids.ψx[i])
@@ -222,6 +232,22 @@ function evolve_to!(
     end
 
     t
+end
+
+function simulate!(
+    grids,
+    output_config::OutputConfig;
+    constants = nothing,
+    external_states = (),
+)
+    # Use the default simulation configuration
+    simulate!(
+        grids,
+        Config.SimulationConfig(),
+        output_config;
+        constants = constants,
+        external_states = (),
+    )
 end
 
 function simulate!(
