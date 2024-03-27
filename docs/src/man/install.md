@@ -13,15 +13,6 @@ pkg> test UltraDark
 This may take a while to run.
 There are a lot of packages to compile and some of the tests are of real simulations.
 
-If the tests succeed, you're ready to run the [example notebooks](https://github.com/musoke/UltraDark.jl/tree/main/examples).
-Install and start [IJulia](https://github.com/JuliaLang/IJulia.jl):
-```
-pkg> add IJulia
+If the tests succeed, you're all set!
 
-julia> using IJulia
-
-julia> notebook()
-```
-then run the notebook of your choice.
-
-When you're done with the examples, continue to 
+Next, check out the [`overview`](@ref Overview) or to jump to running the [example notebooks](https://github.com/musoke/UltraDark.jl/tree/main/examples) in [IJulia](https://github.com/JuliaLang/IJulia.jl).
