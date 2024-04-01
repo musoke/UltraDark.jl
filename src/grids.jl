@@ -8,19 +8,38 @@ Abstract type for grids containing simulation data
 abstract type AbstractGrids end
 
 """
+    Grids(length, resol::Int)
+    Grids(length_tuple, resol_tuple::Tuple{Int, Int, Int})
+
 struct containing grids used in a simulation
 
 # Examples
 
+Create an empty grid with length `length` and resolution `resol`
+
 ```jldoctest
 julia> using UltraDark
 
-julia> len = 1;
+julia> length = 1;
 
 julia> resol = 16;
 
-julia> Grids(len, resol);
+julia> Grids(length, resol);
 
+julia> size(ans.ψx)
+(16, 16, 16)
+```
+
+Create an empty `length[1]`x`length[2]`x`length[3]` grid with resolution
+`resol[1]`x`resol[2]`x`resol[3]`.
+
+```jldoctest
+julia> using UltraDark
+
+julia> Grids((1.0, 1.0, 0.5), (64, 64, 32));
+
+julia> size(ans.ψx)
+(64, 64, 32)
 ```
 """
 struct Grids <: AbstractGrids
@@ -123,45 +142,12 @@ struct Grids <: AbstractGrids
     end
 end
 
-"""
-    Grids(length, resol::Int)
-
-Constructor for `Grids`
-
-Create an empty grid with length `length` and resolution `resol`
-
-# Examples
-
-```jldoctest
-julia> using UltraDark
-
-julia> Grids(1.0, 64);
-
-```
-"""
 function Grids(length, resol::Int)::Grids
 
     Grids((length, length, length), (resol, resol, resol))
 
 end
 
-"""
-    Grids(length_tuple, resol_tuple::Tuple{Int, Int, Int})
-
-Constructor for `Grids`
-
-Create an empty `length[1]`x`length[2]`x`length[3]` grid with resolution
-`resol[1]`x`resol[2]`x`resol[3]`.
-
-# Examples
-
-```jldoctest
-julia> using UltraDark
-
-julia> Grids((1.0, 1.0, 0.5), (64, 64, 32));
-
-```
-"""
 function Grids(length_tuple, resol_tuple::Tuple{Int,Int,Int})::Grids
 
     resol_tuple_realfft = (resol_tuple[1] ÷ 2 + 1, resol_tuple[2], resol_tuple[3])
