@@ -1,7 +1,15 @@
 """
+    PencilGrids(length, resol)
+    PencilGrids(length_tuple, resol_tuple::Tuple{Int, Int, Int})
+
 struct containing grids used in a simulation
 
+Each grid is a `PencilArray`, allowing multiprocess FFTs.
+This comes with significant overhead so is only useful when running in a multi-node environment.
+
 # Examples
+
+Create an empty grid with length `length` and resolution `resol`.  Uses `PencilFFTs` to create `PencilArrays`.
 
 ```jldoctest
 julia> using UltraDark
@@ -11,6 +19,16 @@ julia> len = 1;
 julia> resol = 16;
 
 julia> PencilGrids(len, resol);
+
+```
+
+Create an empty `length[1]`x`length[2]`x`length[3]` grid with resolution
+`resol[1]`x`resol[2]`x`resol[3]`.
+
+```jldoctest
+julia> using UltraDark
+
+julia> PencilGrids((1.0, 1.0, 0.5), (64, 64, 32));
 
 ```
 """
@@ -144,46 +162,12 @@ struct PencilGrids{K,RX,RK,CX,CK,FFT,RFFT,M} <: AbstractGrids
     end
 end
 
-"""
-    PencilGrids(length, resol)
-
-Constructor for `PencilGrids`
-
-Create an empty grid with length `length` and resolution `resol`.  Uses `PencilFFTs` to create `PencilArrays`.
-
-# Examples
-
-```jldoctest
-julia> using UltraDark
-
-julia> PencilGrids(1.0, 64);
-
-```
-"""
 function PencilGrids(length, resol::Int)::PencilGrids
 
     PencilGrids((length, length, length), (resol, resol, resol))
 
 end
 
-"""
-    PencilGrids(length_tuple, resol_tuple::Tuple{Int, Int, Int})
-
-Constructor for `PencilGrids`
-
-Create an empty `length[1]`x`length[2]`x`length[3]` grid with resolution
-`resol[1]`x`resol[2]`x`resol[3]`.
-Each grid is a `PencilArray`, allowing multiprocess FFTs.
-
-# Examples
-
-```jldoctest
-julia> using UltraDark
-
-julia> PencilGrids((1.0, 1.0, 0.5), (64, 64, 32));
-
-```
-"""
 function PencilGrids(length_tuple, resol_tuple::Tuple{Int,Int,Int})::PencilGrids
 
     resol_tuple_realfft = (resol_tuple[1] ÷ 2 + 1, resol_tuple[2], resol_tuple[3])
