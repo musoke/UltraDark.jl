@@ -27,6 +27,9 @@ This makes simulations essential to understanding the dynamics of cosmological s
 `UltraDark.jl` is an open, performant and user friendly option for solving these equations numerically.
 
 
+![Growth of density perturbations in a scalar field in an expanding background, as the universe's scale factor growths from $a=1.0$ to $a = 100.0$. The density is measured in units of the universe's critical density $\rho_{\mathrm{crit}}$. This scenario is similar to that in [@Musoke:2019ima], in which the scalar field is an inflaton fragmenting after the end of primordial inflation. \label{fig:growth}](growth_joss.pdf){ width=100% }
+
+
 # Statement of need
 
 Scalar fields are ubiquitous in physics, as solutions to partial differential equations describing the spatial variation of physical quantities.
