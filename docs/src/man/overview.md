@@ -6,9 +6,9 @@ Other examples go into more detail.
 
 UltraDark is built around [`UltraDark.AbstractGrids`](@ref) objects that contain coordinates and fields, and keep track of the relations between them.
 There are two types of grids included with UltraDark.
-[`UltraDark.Grids`](@ref) are built around regular Julia arrays.
+[`UltraDark.Grids`](@ref) are built around regular Julia [`Core.Array`](@extref)s.
 These are the grids used in most of the examples in this documentation.
-[`UltraDark.PencilGrids`](@ref) are built around [`PencilArrays`](https://jipolanco.github.io/PencilArrays.jl/stable/) and [`PencilFFTs`](https://jipolanco.github.io/PencilFFTs.jl/stable/).
+[`UltraDark.PencilGrids`](@ref) is built around [`PencilArrays.PencilArray`](@extref) and [`PencilFFTs`](@extref).
 `PencilGrids` are useful for taking advantage of MPI parallelism when running in a cluster environment.
 
 !!! warning

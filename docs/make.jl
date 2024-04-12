@@ -3,8 +3,12 @@ using DocumenterInterLinks
 using UltraDark
 
 links = InterLinks(
-# "PencilArrays" => "https://jipolanco.github.io/PencilArrays.jl/stable/",
-# "PencilFFTs" => "https://jipolanco.github.io/PencilFFTs.jl/stable/",
+    "Julia" => (
+        "https://docs.julialang.org/en/v1/",
+        joinpath(@__DIR__, "src", "inventories", "Julia.toml"),
+    ),
+    "PencilArrays" => "https://jipolanco.github.io/PencilArrays.jl/dev/",
+    "PencilFFTs" => "https://jipolanco.github.io/PencilFFTs.jl/dev/",
 )
 
 fallbacks = ExternalFallbacks()
