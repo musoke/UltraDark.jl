@@ -12,13 +12,13 @@ These are the grids used in most of the examples in this documentation.
 `PencilGrids` are useful for taking advantage of MPI parallelism when running in a cluster environment.
 
 !!! warning
-    Note that there is significant overhead involved in using `PencilGrids`.
-    It is best to stick to `Grids` unless you are running jobs on multiple nodes.
+    Note that there is significant overhead involved in using [`PencilGrids`](@ref).
+    It is best to stick to [`Grids`](@ref) unless you are running jobs accross multiple nodes.
 
-You can define your own subtype of `AbstractGrids` if you wish to take advantage of other forms of parallelism or change the dynamics of the fields.
+You can define your own subtype of [`UltraDark.AbstractGrids`](@ref) if you wish to take advantage of other forms of parallelism or change the dynamics of the fields.
 
 
-Lets start by creating a `Grids` object.
+Let's start by creating a [`Grids`](@ref) object.
 ```@example 1; continued=true
 using UltraDark
 
@@ -34,8 +34,8 @@ UltraDark.mass(grids)
 ```
 
 
-Initial conditions are set by modifying the field `ψx` of an `AbstractGrids` object.
-Let's add a soliton with nonzero velocity to the center of `grid`.
+Initial conditions are set by modifying the field `ψx` of `grids`.
+Let's use [`UltraDark.Initialise.add_fdm_soliton!`](@ref) to add a soliton with nonzero velocity to the center of `grid`.
 ```@example 1; continued=false
 const mass = 10
 const position0 = [0, 0, 0]
@@ -45,10 +45,9 @@ const t0 = 0
 
 UltraDark.Initialise.add_fdm_soliton!(grids, mass, position0, velocity, phase, t0)
 ```
-See [`UltraDark.Initialise.add_fdm_soliton!`](@ref) for more details of adding solitons and other examples for other ways of setting initial conditions.
 
 
-Now, as expected, the mass on the grids is nonzero
+Now, as expected, the mass on `grids` is nonzero
 ```@example 1; continued=false
 UltraDark.update_gravitational_potential!(grids) # ensure the density is up to date
 UltraDark.mass(grids)
@@ -57,7 +56,7 @@ UltraDark.mass(grids)
 !!! note
     This does not exactly equal `mass` because we have used a coarse grid.
 
-Lets also check the location of the soliton.
+Let's also check the location of the soliton.
 ```@example 1; continued=false
 initial_indices = argmax(grids.ρx) # hide
 @assert initial_indices == CartesianIndex(Int(resol//2),  Int(resol//2), Int(resol//2)) # hide
@@ -66,11 +65,10 @@ argmax(grids.ρx)
 The indices of the maximum are at half `resol` in each dimension; this is the center of the box.
 
 
-After creating an `AbstractGrids` on which a simulation will happen and adding some matter to it, one must specify how the simulation should be carried out.
+After creating a [`AbstractGrids`](@ref UltraDark.AbstractGrids) on which a simulation will happen and adding some matter to it, one must specify how the simulation should be carried out.
 The most important details are when and where to write output, and when the simulation should end.
 ```@example 1; continued=true
 const output_times = 0:0.5:2
-
 const output_dir = joinpath(mktempdir(), "output")
 output_config = OutputConfig(output_dir, output_times; box = true)
 ```
@@ -83,8 +81,8 @@ Running this line will likely take some time, especially if UltraDark.jl has not
 @time simulate!(grids, output_config)
 ```
 
-We initialised the soliton with a nonzero velocity `velocity`.
-Lets check if the soliton moved during the simulation.
+We initialised the soliton with a nonzero `velocity`.
+Let's check if the soliton moved during the simulation.
 ```@example 1; continued=false
 @assert argmax(grids.ρx) != initial_indices # hide
 argmax(grids.ρx)
