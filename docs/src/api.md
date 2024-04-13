@@ -8,5 +8,5 @@
 ## Docstrings
 
 ```@autodocs
-Modules = [UltraDark, UltraDark.Config, UltraDark.Output]
+Modules = [UltraDark]
 ```

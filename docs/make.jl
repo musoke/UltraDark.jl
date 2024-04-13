@@ -27,6 +27,8 @@ makedocs(;
             "Installation"=>"man/install.md",
             "Overview"=>"man/overview.md",
             "Soliton Initialisation"=>"man/init.md",
+            "Output Configuration"=>"man/output.md",
+            "Simulation Configuration"=>"man/config.md",
             "Summary Statistics"=>"man/summary.md",
         ],
         "API" => "api.md",
