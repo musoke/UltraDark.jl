@@ -30,6 +30,8 @@ end
 
 """
     max_time_step(grids, a, external_states)
+
+Consolidate the maximum time step implied by `grids` and each member of `external_states`.
 """
 function max_time_step(grids, a, external_states)
 

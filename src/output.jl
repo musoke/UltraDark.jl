@@ -1,6 +1,14 @@
+"""
+The `Output` module defines `struct`s and `function`s used for writing output.
+The most important of these are exported.
+
+# Exports
+$(EXPORTS)
+"""
 module Output
 
 using ..UltraDark
+using DocStringExtensions
 import HDF5
 import NPZ
 import PencilFFTs, MPI
@@ -12,14 +20,24 @@ export Summary
 export OutputConfig
 
 """
-    OutputConfig
+$(TYPEDEF)
 
 struct containing information about what to output.
 
-summary_statistics should be another struct whose constructor generates summary
-statistics from `t`, `a`, `Δt` and a `grids` object.
-If it is to be used with a `PencilGrids` object, each field must be concrete
-and have a binary representation that MPI can handle.
+There are two possible output formats:
+- .npy files that use numpy's format. They can be read with [`NPZ`](https://github.com/fhs/NPZ.jl).
+- HDF5 files that can be read with [`HDF5`](https://github.com/JuliaIO/HDF5.jl).
+
+Each member of `summary_statistics` should be another struct whose constructor generates
+summary statistics from `t`, `a`, `Δt` and a `grids` object.
+If it is to be used with a [`PencilGrids`](@ref) object, each field must be concrete and
+have a binary representation that MPI can handle.
+
+By default, `summary_statistics` will write only the wall time and simulation time.
+
+# Fields
+
+$(TYPEDFIELDS)
 """
 struct OutputConfig
     "where to write output"
@@ -45,6 +63,11 @@ struct OutputConfig
     summary_statistics::Tuple
 end
 
+"""
+$(TYPEDSIGNATURES)
+
+Construct an `OutputConfig` object
+"""
 function OutputConfig(
     directory,
     output_times;
@@ -140,17 +163,24 @@ function output_grids(grids, output_config, step)
 end
 
 """
-    output_external_state(external_state, output_config, step, index)
+    $(TYPEDSIGNATURES)
 
 Output states other than the ψ field.
 
-By default this does nothing, but can be overloaded.
+By default this does nothing.
+It is most useful if overloaded to dispatch on the type of `external_state`.
 
 # Arguments
 
-index::Integer index of state in external states
+`external_state`
+
+`output_config::OutputConfig`
+
+`step`
+
+`index` index of state in external states
 """
-function output_external_state(external_state, output_config, step, index) end
+function output_external_state(external_state, output_config::OutputConfig, step, index) end
 
 function output_grids(grids::PencilGrids, output_config, step)
 
@@ -256,6 +286,8 @@ end
 
 """
     output_external_states_headers(external_states, output_config)
+
+Output the CSV header for the summary of external states
 """
 function output_external_states_headers(external_states, output_config)
     for (index, s) in enumerate(external_states)
@@ -264,7 +296,9 @@ function output_external_states_headers(external_states, output_config)
 end
 
 """
-    output_external_state_header(state, output_config)
+$(TYPEDSIGNATURES)
+
+Output the CSV header for a single external state
 """
 function output_external_state_header(state, output_config, index) end
 

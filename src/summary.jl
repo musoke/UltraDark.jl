@@ -1,13 +1,14 @@
 """
     Summary
 
-Module containing utilities for computing and outputing summary statistics at each time step.
+The `Summary` module contains utilities for computing and outputting summary statistics at each time step.
 """
 module Summary
 
 using ..UltraDark
 using ..UltraDark: AbstractGrids
 import Dates
+using DocStringExtensions
 import Folds
 import MPI
 using Statistics
@@ -19,7 +20,7 @@ export TimeStep
 export MeanDensity, MaxDensity, RmsDensityContrast
 
 """
-    output_summary_header(output_config)
+$(TYPEDSIGNATURES)
 
 Write a header for a summary file
 
@@ -33,7 +34,7 @@ function output_summary_header(output_config)
 end
 
 """
-    output_summary_row(grids, output_config, t, a, Δt)
+$(TYPEDSIGNATURES)
 
 Write a new row to the summary file
 """
@@ -54,14 +55,13 @@ function output_summary_row(grids, output_config, t, a, Δt, constants, external
 end
 
 """
-    map_summary_statistics(summary_statistics, sim_time, a, Δt, grids, constants)
+$(TYPEDSIGNATURES)
 
 Calculate each summary statistic in summary_statistics
 
-If the grids is a PencilGrids, this uses `MPI.Reduce` to compute partial
+If the grids is a [`PencilGrids`](@ref), this uses [`MPI.Reduce`](@extref) to compute partial
 summaries in each task and combine them.
 """
-
 function map_summary_statistics(
     summary_statistics,
     sim_time,
@@ -141,7 +141,7 @@ function get_relevant_data(summary_data)::String
 end
 
 """
-    WallTime
+$(TYPEDEF)
 
 The current time in the real world.
 
@@ -159,6 +159,9 @@ julia> t2 = Summary.WallTime(0.0, 1.0, 1e-1, Grids(1.0, 16), nothing, ());
 julia> t1.date <= t2.date
 true
 ```
+
+# Fields
+$(TYPEDFIELDS)
 """
 struct WallTime
     "wall time"
@@ -184,6 +187,12 @@ function pool_summarystat(S1::WallTime, S2::WallTime)::WallTime
     S1
 end
 
+"""
+$(TYPEDEF)
+
+# Fields
+$(TYPEDFIELDS)
+"""
 struct SimulationTime
     "time"
     t::Float64
@@ -209,6 +218,12 @@ function pool_summarystat(S1::SimulationTime, S2::SimulationTime)::SimulationTim
     S1
 end
 
+"""
+$(TYPEDEF)
+
+# Fields
+$(TYPEDFIELDS)
+"""
 struct ScaleFactor
     "scale factor"
     a::Float64
@@ -234,6 +249,12 @@ function pool_summarystat(S1::ScaleFactor, S2::ScaleFactor)::ScaleFactor
     S1
 end
 
+"""
+$(TYPEDEF)
+
+# Fields
+$(TYPEDFIELDS)
+"""
 struct TimeStep
     "time step"
     Δt::Float64
@@ -260,7 +281,7 @@ function pool_summarystat(S1::TimeStep, S2::TimeStep)::TimeStep
 end
 
 """
-    MeanDensity
+$(TYPEDEF)
 
 Summary statistic containing the mean density and the number of cells over
 which it was calculated.
@@ -275,6 +296,9 @@ julia> g = Grids(1.0, 16);
 julia> Summary.MeanDensity(g)
 UltraDark.Summary.MeanDensity(0.0, 4096)
 ```
+
+# Fields
+$(TYPEDFIELDS)
 """
 struct MeanDensity
     "mean of density"
@@ -311,7 +335,10 @@ function pool_summarystat(S1::MeanDensity, S2::MeanDensity)::MeanDensity
 end
 
 """
-    MaxDensity
+$(TYPEDEF)
+
+# Fields
+$(TYPEDFIELDS)
 """
 struct MaxDensity
     "max of density"
@@ -338,10 +365,13 @@ function pool_summarystat(S1::MaxDensity, S2::MaxDensity)::MaxDensity
 end
 
 """
-    MaxDensityIndex
+$(TYPEDEF)
 
 This struct contains 4 useful pieces of information: the maxiumum value and
 three indices.  Each is output to a summary.
+
+# Fields
+$(TYPEDFIELDS)
 """
 struct MaxDensityIndex
     "max of density"
@@ -384,7 +414,10 @@ function get_relevant_data(summary_data::MaxDensityIndex)::String
 end
 
 """
-    RmsDensityContrast
+$(TYPEDEF)
+
+# Fields
+$(TYPEDFIELDS)
 """
 struct RmsDensityContrast
     "RMS of density contrast"
@@ -418,7 +451,7 @@ function pool_summarystat(
 end
 
 """
-    TotalMass
+$(TYPEDEF)
 
 Total mass on a grid
 
@@ -431,7 +464,11 @@ julia> g = Grids(1.0, 16);
 
 julia> Summary.TotalMass(0.0, 1.0, 1e-1, g, nothing, ())
 UltraDark.Summary.TotalMass(0.0)
+
 ```
+
+# Fields
+$(TYPEDFIELDS)
 """
 struct TotalMass
     mass::Float64
@@ -446,9 +483,12 @@ function pool_summarystat(S1::TotalMass, S2::TotalMass)::TotalMass
 end
 
 """
-    EnergyGravity
+$(TYPEDEF)
 
 Gravitational potential energy
+
+# Fields
+$(TYPEDFIELDS)
 """
 struct EnergyGravity
     E_grav::Float64
@@ -463,9 +503,12 @@ function pool_summarystat(S1::EnergyGravity, S2::EnergyGravity)::EnergyGravity
 end
 
 """
-    EnergyKineticQuantum
+$(TYPEDEF)
 
 Gravitational potential energy
+
+# Fields
+$(TYPEDFIELDS)
 """
 struct EnergyKineticQuantum
     E_kq::Float64
@@ -490,7 +533,7 @@ function pool_summarystat(
 end
 
 """
-    AngularMomentum
+$(TYPEDEF)
 
 Total angular momentum in each of 3 directions
 
@@ -508,8 +551,9 @@ julia> g.ψx .= 1;
 julia> Summary.AngularMomentum(0., 1., 1e-1, g, nothing)
 UltraDark.Summary.AngularMomentum(0.0, 0.0, 0.0)
 
+# Fields
+$(TYPEDFIELDS)
 """
-
 struct AngularMomentum
     Lx::Float64
     Ly::Float64

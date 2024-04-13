@@ -7,6 +7,7 @@ links = InterLinks(
         "https://docs.julialang.org/en/v1/",
         joinpath(@__DIR__, "src", "inventories", "Julia.toml"),
     ),
+    "MPI" => "https://juliaparallel.org/MPI.jl/dev/",
     "PencilArrays" => "https://jipolanco.github.io/PencilArrays.jl/dev/",
     "PencilFFTs" => "https://jipolanco.github.io/PencilFFTs.jl/dev/",
 )
