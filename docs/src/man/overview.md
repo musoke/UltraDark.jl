@@ -72,10 +72,10 @@ const output_times = 0:0.5:2
 const output_dir = joinpath(mktempdir(), "output")
 output_config = OutputConfig(output_dir, output_times; box = true)
 ```
-See [`UltraDark.Output.OutputConfig`](@ref) for more details of how to configure the output.
+See [`UltraDark.Output.OutputConfig`](@ref) for more details of how to configure the output and [`UltraDark.Config.SimulationConfig`](@ref) to configure other aspects of the simulation.
 
 
-Now we are ready to run a simulation.
+Now we are ready to run a simulation by calling [`simulate!`](@ref).
 Running this line will likely take some time, especially if UltraDark.jl has not been precompiled by your Julia installation.
 ```@example 1
 @time simulate!(grids, output_config)
@@ -87,6 +87,8 @@ Let's check if the soliton moved during the simulation.
 @assert argmax(grids.ρx) != initial_indices # hide
 argmax(grids.ρx)
 ```
+Yes, it did -- the maximum is now at a different location.
+
 
 We can also check this by loading output files from `output_dir` and plotting them.
 ```@example 1; continued=false
@@ -106,5 +108,8 @@ save("overview.png", fig); nothing # hide
 ```
 ![](overview.png)
 
-After understanding this overview you can browse the [example notebooks](https://github.com/musoke/UltraDark.jl/tree/main/examples) to see more complex simulations and analysis.
+
+After understanding this overview you may want to browse the [example notebooks](https://github.com/musoke/UltraDark.jl/tree/main/examples) to see more complex simulations and analysis.
+
+
 Please [open an issue](https://github.com/musoke/UltraDark.jl/issues/new) if you run into problems or have feature requests.
