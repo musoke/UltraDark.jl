@@ -3,15 +3,23 @@ using Strided
 """
     AbstractGrids
 
+$(TYPEDEF)
+
 Abstract type for grids containing simulation data
 """
 abstract type AbstractGrids end
 
 """
+$(TYPEDEF)
+
     Grids(length, resol::Int)
     Grids(length_tuple, resol_tuple::Tuple{Int, Int, Int})
 
 struct containing grids used in a simulation
+
+# Fields
+
+$(TYPEDFIELDS)
 
 # Examples
 
@@ -216,7 +224,7 @@ function Grids(length_tuple, resol_tuple::Tuple{Int,Int,Int})::Grids
 end
 
 """
-    k_vec(lengths, resols)
+$(TYPEDSIGNATURES)
 
 Calculate the Fourier frequencies of a box with side lengths `lengths` and resolutions `resols`
 
@@ -239,24 +247,28 @@ function k_vec(lengths, resols)
     sample_rate = 2π .* resols ./ lengths
 
     kx = fftfreq(resols[1], sample_rate[1])
-
     ky = fftfreq(resols[2], sample_rate[2])
     kz = fftfreq(resols[3], sample_rate[3])
 
     kvec = (kx, ky, kz)
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function rk_vec(lengths, resols)
     sample_rate = 2π .* resols ./ lengths
 
     kx = rfftfreq(resols[1], sample_rate[1])
-
     ky = fftfreq(resols[2], sample_rate[2])
     kz = fftfreq(resols[3], sample_rate[3])
 
     rkvec = (kx, ky, kz)
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function k_norm(lengths, resols)
     kvec = k_vec(lengths, resols)
 
@@ -267,6 +279,9 @@ function k_norm(lengths, resols)
     (kx .^ 2 .+ ky .^ 2 .+ kz .^ 2) .^ 0.5
 end
 
+"""
+$(TYPEDSIGNATURES)
+"""
 function rk_norm(lengths, resols)
     kvec = rk_vec(lengths, resols)
 
@@ -278,7 +293,7 @@ function rk_norm(lengths, resols)
 end
 
 """
-    dV(grids)
+$(TYPEDSIGNATURES)
 
 Calculate the volume of each grid cell
 
@@ -302,6 +317,8 @@ function dV(grids)
 end
 
 """
+    radius_spherical(x, y, z)
+    radius_spherical(grids)
     radius_spherical(grids, r0)
 
 Calculate the radial coordinate in a spherical coordinate system
@@ -342,6 +359,8 @@ function radius_spherical(grids, r0)
 end
 
 """
+    polar_angle(x, y, z)
+    polar_angle(grids)
     polar_angle(grids, r0)
 
 Calculate the polar angle in spherical coordinates
@@ -363,7 +382,9 @@ end
 
 
 """
-    polar_angle(grids, r0)
+    azimuthal_angle(x, y, z)
+    azimuthal_angle(grids)
+    azimuthal_angle(grids, r0)
 
 Calculate the azimuthal angle in spherical or cylindrical coordinates
 
@@ -382,6 +403,8 @@ function azimuthal_angle(grids, r0)
 end
 
 """
+    radius_cylindrical(x, y, z)
+    radius_cylindrical(grids)
     radius_cylindrical(grids, r0)
 
 Calculate the radial coordinate in cylindrical coordinates
@@ -451,7 +474,7 @@ function mass(grids)
 end
 
 """
-    E_gravity_density(psi, Phi)
+$(TYPEDSIGNATURES)
 
 Gravitational energy density of field `psi` in gravitational potential `Phi`
 """
@@ -496,7 +519,7 @@ function E_kq(grids, psi)
 end
 
 """
-    E_total(grids; constants=nothing)
+$(SIGNATURES)
 
 Total energy of the scalar field: the sum of the kinetic and quantum energies.
 """

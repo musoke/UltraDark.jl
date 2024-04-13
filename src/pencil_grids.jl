@@ -7,6 +7,10 @@ struct containing grids used in a simulation
 Each grid is a `PencilArray`, allowing multiprocess FFTs.
 This comes with significant overhead so is only useful when running in a multi-node environment.
 
+# Fields
+
+$(TYPEDFIELDS)
+
 # Examples
 
 Create an empty grid with length `length` and resolution `resol`.  Uses `PencilFFTs` to create `PencilArrays`.
