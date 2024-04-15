@@ -20,7 +20,7 @@ const velocity = [1, 0, 0]
 const phase = 0
 const t0 = 0
 
-const output_dir = "output/vel/centered_on_soliton"
+const output_dir = joinpath(mktempdir(), "output/vel/centered_on_soliton")
 
 function run_sim()
 
