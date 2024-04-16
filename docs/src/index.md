@@ -47,7 +47,7 @@ If UltraDark contributes to your research, please cite it.
   ```
 
 
-- N.~Glennon, N.~Musoke and C.~Prescod-Weinstein,
+- N. Glennon, N. Musoke and C. Prescod-Weinstein,
   *Simulations of multifield ultralight axionlike dark matter*,
   Phys. Rev. D 107, no.6, 063520 (2023)
   [doi:10.1103/PhysRevD.107.063520](https://doi.org/10.1103/PhysRevD.107.063520), 
