@@ -81,7 +81,7 @@ Such time steps result in orders of magnitude speedups when simulating collapse 
 
 Julia [@Julia-2017] has seen increasing use in scientific computing; see for example @Eschle:2023ikn and @JuliaBiologists for overviews of its use in high energy physics and biology.
 The use of Julia is one of the choices that separates `UltraDark.jl` from similar codes.
-`UltraDark.jl` uses Julia's has rich parallelism capabilities.
+`UltraDark.jl` uses Julia's rich parallelism capabilities.
 The `Threads.@threads` macro provides simple parallelisation of `for` loops.
 Folds.jl enables simple parallelisation of reduction operations [@folds].
 In a cluster environment, `PencilArrays.jl` and `PencilFFTs.jl` enable straightforward cross-node parallelism, a capability that is challenging to reproduce in Python [@PencilArrays; @PencilFFTs].
