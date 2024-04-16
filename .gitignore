@@ -5,6 +5,7 @@
 
 /docs/build/
 /docs/Manifest.toml
+/docs/src/examples
 
 /test/Manifest.toml
 

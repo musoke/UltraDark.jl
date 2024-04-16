@@ -1,5 +1,6 @@
 using Documenter
 using DocumenterInterLinks
+using Literate
 using UltraDark
 
 links = InterLinks(
@@ -13,6 +14,26 @@ links = InterLinks(
 )
 
 fallbacks = ExternalFallbacks()
+
+# Use Literate.jl to convert *.jl examples to markdown files included in docs
+const LITERATE_OUTPUT = joinpath(@__DIR__, "src", "examples")
+const LITERATE_INPUT = joinpath(@__DIR__, "..", "examples")
+
+for (root, _, files) in walkdir(LITERATE_INPUT), file in files
+    # ignore non julia files
+    splitext(file)[2] == ".jl" || continue
+
+    # full path to a literate script
+    ipath = joinpath(root, file)
+
+    # generated output path
+    opath = splitdir(replace(ipath, LITERATE_INPUT => LITERATE_OUTPUT))[1]
+
+    # generate the Literate output
+    Literate.script(ipath, opath)
+    Literate.markdown(ipath, opath)
+    Literate.notebook(ipath, opath)
+end
 
 makedocs(;
     modules = [UltraDark],
@@ -31,6 +52,7 @@ makedocs(;
             "Simulation Configuration"=>"man/config.md",
             "Summary Statistics"=>"man/summary.md",
         ],
+        "Examples" => Any["PencilGrids"=>"examples/soliton_velocity.md",],
         "API" => "api.md",
     ],
     repo = Remotes.GitHub("musoke", "UltraDark.jl"),
@@ -39,4 +61,4 @@ makedocs(;
     plugins = [links, fallbacks],
 )
 
-deploydocs(; repo = "github.com/musoke/UltraDark.jl", devbranch = "main")
+deploydocs(; repo = "https://github.com/musoke/UltraDark.jl", devbranch = "main")
