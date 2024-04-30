@@ -1,0 +1,19 @@
+archive_doi: '10.5281/zenodo.10978864'
+editor:
+  name: 'Juanjo Bazán'
+  url: 'https://juanjobazan.com'
+  github_user: 'xuanxu'
+  orcid: 0000-0001-7699-3983
+issue: '96'
+page: '6035'
+paper_url: 'https://joss.theoj.org/papers/10.21105/joss.06035.pdf'
+reviewers:
+  - 'szabo137'
+  - 'kiranshila'
+software_repository_url: 'https://github.com/musoke/UltraDark.jl'
+software_review_url: 'https://github.com/openjournals/joss-reviews/issues/6035'
+volume: '9'
+published_at: '2024-04-17'
+submitted_at: '2023-09-16'
+doi: '10.21105/joss.06035'
+draft: false
