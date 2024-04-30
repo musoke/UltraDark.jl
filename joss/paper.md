@@ -77,7 +77,7 @@ This is particularly useful in an expanding universe, where the time step is rou
 Such time steps result in orders of magnitude speedups when simulating collapse of an inflaton field in the early universe [@Musoke:2019ima].
 
 
-![Wall time for a single time step, as a function of number of CPUs. The points represent measured times and the lines represent theoretical $1/\text{\#CPU}$ scalings. The circles and solid line are for grids constructed from `Array`s and the triangles and dashed lines are for MPI-distributed `PencilArray`s.\label{fig:cpus}](../benchmarks/time_step/cpus.pdf){ width=100% }
+![Wall time for a single time step, as a function of number of CPUs. The points represent measured times and the lines represent theoretical $1/\text{\#CPU}$ scalings. The circles and solid line are for grids constructed from `Array`s and the triangles and dashed lines are for MPI-distributed `PencilArray`s.\label{fig:cpus}](cpus.pdf){ width=100% }
 
 Julia [@Julia-2017] has seen increasing use in scientific computing; see for example @Eschle:2023ikn and @JuliaBiologists for overviews of its use in high energy physics and biology.
 The use of Julia is one of the choices that separates `UltraDark.jl` from similar codes.
