@@ -10,10 +10,8 @@ tags:
 authors:
   - name: Nathan Musoke
     orcid:  0000-0001-9839-9256
-    affiliation: 1
 affiliations:
  - name: "Department of Physics and Astronomy, University of New Hampshire, USA"
-   index: 1
 date: 15 September 2023
 bibliography: paper.bib
 ---
