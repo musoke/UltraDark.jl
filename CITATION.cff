@@ -29,6 +29,10 @@ preferred-citation:
     orcid: "https://orcid.org/0000-0001-9839-9256"
   date-published: 2024-04-17
   doi: 10.21105/joss.06035
+  identifiers:
+    - type: other
+      value: "arXiv:2405.04593"
+      description: The ArXiv preprint of the paper
   issn: 2475-9066
   issue: 96
   journal: Journal of Open Source Software
