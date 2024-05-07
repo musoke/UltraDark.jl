@@ -2,6 +2,7 @@
 
 [![DOI](https://joss.theoj.org/papers/10.21105/joss.06035/status.svg)](https://doi.org/10.21105/joss.06035)
 [![DOI](https://zenodo.org/badge/265130304.svg)](https://zenodo.org/badge/latestdoi/265130304)
+[![arxiv](https://img.shields.io/badge/arXiv%3A-2405.04593-b31b1b?logo=arxiv&logoColor=red)](https://arxiv.org/abs/2405.04593)
 
 [![Stable Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://musoke.github.io/UltraDark.jl/stable)
 [![Dev Docs](https://img.shields.io/badge/docs-dev-blue.svg)](https://musoke.github.io/UltraDark.jl/dev)
