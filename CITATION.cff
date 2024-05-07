@@ -1,11 +1,8 @@
-# This CITATION.cff file was generated with cffinit.
-# Visit https://bit.ly/cffinit to generate yours today!
-
 cff-version: 1.2.0
 title: UltraDark.jl
 message: >-
-  If you use this software, please cite it using the
-  metadata from this file.
+  If you use this software, please cite our article in the Journal of Open
+  Source Software.
 type: software
 authors:
   - given-names: Nathan
@@ -17,7 +14,6 @@ identifiers:
     value: 10.5281/zenodo.5033655
     description: concept DOI
 repository-code: 'https://github.com/musoke/UltraDark.jl'
-abstract: Simulations of cosmological scalar fields
 keywords:
   - cosmology
   - dark matter
@@ -25,32 +21,22 @@ keywords:
   - ultralight dark matter
   - inflation
 license: MIT
-references:
-  - authors:
-      - family-names: "Polanco"
-        given-names: "Juan Ignacio"
-    title: "PencilFFTs.jl: FFTs of MPI-distributed Julia arrays"
-    type: software
-    doi: 10.5281/zenodo.3618781
-  - authors:
-    - family-names: "Bezanson"
-      given-names: "Jeff"
-    - family-names: "Edelman"
-      given-names: "Alan"
-    - family-names: "Karpinski"
-      given-names: "Stefan"
-    - family-names: "Shah"
-      given-names: "Viral B."
-    title: "Julia: A fresh approach to numerical computing"
-    doi: "10.1137/141000671"
-    type: article
-    journal: "SIAM Review"
-    month: 9
-    start: 65
-    end: 98
-    pages: 33
-    volume: 59
-    issue: 1
-    year: 2017
-    publisher:
-      name: "SIAM"
+
+preferred-citation:
+  authors:
+  - family-names: Musoke
+    given-names: Nathan
+    orcid: "https://orcid.org/0000-0001-9839-9256"
+  date-published: 2024-04-17
+  doi: 10.21105/joss.06035
+  issn: 2475-9066
+  issue: 96
+  journal: Journal of Open Source Software
+  publisher:
+    name: Open Journals
+  start: 6035
+  title: "UltraDark.jl: A Julia package for simulation of cosmological
+    scalar fields"
+  type: article
+  url: "https://joss.theoj.org/papers/10.21105/joss.06035"
+  volume: 9

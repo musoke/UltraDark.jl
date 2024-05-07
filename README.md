@@ -1,6 +1,8 @@
 # UltraDark
 
+[![DOI](https://joss.theoj.org/papers/10.21105/joss.06035/status.svg)](https://doi.org/10.21105/joss.06035)
 [![DOI](https://zenodo.org/badge/265130304.svg)](https://zenodo.org/badge/latestdoi/265130304)
+
 [![Stable Docs](https://img.shields.io/badge/docs-stable-blue.svg)](https://musoke.github.io/UltraDark.jl/stable)
 [![Dev Docs](https://img.shields.io/badge/docs-dev-blue.svg)](https://musoke.github.io/UltraDark.jl/dev)
 [![Build Status](https://github.com/musoke/UltraDark.jl/workflows/CI/badge.svg)](https://github.com/musoke/UltraDark.jl/actions)
