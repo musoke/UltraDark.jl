@@ -52,7 +52,8 @@ makedocs(;
             "Simulation Configuration"=>"man/config.md",
             "Summary Statistics"=>"man/summary.md",
         ],
-        "Examples" => Any["PencilGrids"=>"examples/soliton_velocity.md",],
+        "Examples" =>
+            Any["PencilGrids"=>"examples/soliton_velocity.md", "2D"=>"examples/2d.md"],
         "API" => "api.md",
     ],
     repo = Remotes.GitHub("musoke", "UltraDark.jl"),
