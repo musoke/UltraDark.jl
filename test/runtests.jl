@@ -56,9 +56,8 @@ using NBInclude
 @nbinclude("../examples/growth.ipynb")
 end
 
-module TwoDNotebook
-using NBInclude
-@nbinclude("../examples/2d.ipynb")
+@safetestset "2d example" begin
+    include("../examples/2d.jl")
 end
 
 @testset "Aqua.jl" begin
