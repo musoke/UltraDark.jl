@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="UTF-8"/><meta name="viewport" content="width=device-width, initial-scale=1.0"/><title>2D · UltraDark.jl</title><meta name="title" content="2D · UltraDark.jl"/><meta property="og:title" content="2D · UltraDark.jl"/><meta property="twitter:title" content="2D · UltraDark.jl"/><meta name="description" content="Documentation for UltraDark.jl."/><meta property="og:description" content="Documentation for UltraDark.jl."/><meta property="twitter:description" content="Documentation for UltraDark.jl."/><meta property="og:url" content="https://musoke.github.io/UltraDark.jl/examples/2d/"/><meta property="twitter:url" content="https://musoke.github.io/UltraDark.jl/examples/2d/"/><link rel="canonical" href="https://musoke.github.io/UltraDark.jl/examples/2d/"/><script data-outdated-warner src="../../assets/warner.js"></script><link href="https://cdnjs.cloudflare.com/ajax/libs/lato-font/3.0.0/css/lato-font.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/juliamono/0.050/juliamono.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/fontawesome.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/solid.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.2/css/brands.min.css" rel="stylesheet" type="text/css"/><link href="https://cdnjs.cloudflare.com/ajax/libs/KaTeX/0.16.8/katex.min.css" rel="stylesheet" type="text/css"/><script>documenterBaseURL="../.."</script><script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.6/require.min.js" data-main="../../assets/documenter.js"></script><script src="../../search_index.js"></script><script src="../../siteinfo.js"></script><script src="../../../versions.js"></script><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-dark.css" data-theme-name="documenter-dark" data-theme-primary-dark/><link class="docs-theme-link" rel="stylesheet" type="text/css" href="../../assets/themes/documenter-light.css" data-theme-name="documenter-light" data-theme-primary/><script src="../../assets/themeswap.js"></script></head><body><div id="documenter"><nav class="docs-sidebar"><div class="docs-package-name"><span class="docs-autofit"><a href="../../">UltraDark.jl</a></span></div><button class="docs-search-query input is-rounded is-small is-clickable my-2 mx-auto py-1 px-2" id="documenter-search-query">Search docs (Ctrl + /)</button><ul class="docs-menu"><li><a class="tocitem" href="../../">Home</a></li><li><span class="tocitem">Manual</span><ul><li><a class="tocitem" href="../../man/install/">Installation</a></li><li><a class="tocitem" href="../../man/overview/">Overview</a></li><li><a class="tocitem" href="../../man/init/">Soliton Initialisation</a></li><li><a class="tocitem" href="../../man/output/">Output Configuration</a></li><li><a class="tocitem" href="../../man/config/">Simulation Configuration</a></li><li><a class="tocitem" href="../../man/summary/">Summary Statistics</a></li></ul></li><li><span class="tocitem">Examples</span><ul><li><a class="tocitem" href="../soliton_velocity/">PencilGrids</a></li><li class="is-active"><a class="tocitem" href>2D</a><ul class="internal"><li><a class="tocitem" href="#Define-initial-conditions"><span>Define initial conditions</span></a></li><li><a class="tocitem" href="#Set-options"><span>Set options</span></a></li><li><a class="tocitem" href="#Run-simulation"><span>Run simulation</span></a></li><li><a class="tocitem" href="#Plot-output"><span>Plot output</span></a></li></ul></li></ul></li><li><a class="tocitem" href="../../api/">API</a></li></ul><div class="docs-version-selector field has-addons"><div class="control"><span class="docs-label button is-static is-size-7">Version</span></div><div class="docs-selector control is-expanded"><div class="select is-fullwidth is-size-7"><select id="documenter-version-selector"></select></div></div></div></nav><div class="docs-main"><header class="docs-navbar"><a class="docs-sidebar-button docs-navbar-link fa-solid fa-bars is-hidden-desktop" id="documenter-sidebar-button" href="#"></a><nav class="breadcrumb"><ul class="is-hidden-mobile"><li><a class="is-disabled">Examples</a></li><li class="is-active"><a href>2D</a></li></ul><ul class="is-hidden-tablet"><li class="is-active"><a href>2D</a></li></ul></nav><div class="docs-right"><a class="docs-navbar-link" href="https://github.com/musoke/UltraDark.jl" title="View the repository on GitHub"><span class="docs-icon fa-brands"></span><span class="docs-label is-hidden-touch">GitHub</span></a><a class="docs-navbar-link" href="https://github.com/musoke/UltraDark.jl/blob/main/examples/2d.jl" title="Edit source on GitHub"><span class="docs-icon fa-solid"></span></a><a class="docs-settings-button docs-navbar-link fa-solid fa-gear" id="documenter-settings-button" href="#" title="Settings"></a><a class="docs-article-toggle-button fa-solid fa-chevron-up" id="documenter-article-toggle-button" href="javascript:;" title="Collapse all docstrings"></a></div></header><article class="content" id="documenter-page"><h1 id="Example:-2D-Simulation"><a class="docs-heading-anchor" href="#Example:-2D-Simulation">Example: 2D Simulation</a><a id="Example:-2D-Simulation-1"></a><a class="docs-heading-anchor-permalink" href="#Example:-2D-Simulation" title="Permalink"></a></h1><pre><code class="language-julia hljs">using UltraDark
+using Test
+using NPZ
+using CairoMakie
+using CSV
+
+Threads.nthreads()</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">1</code></pre><h2 id="Define-initial-conditions"><a class="docs-heading-anchor" href="#Define-initial-conditions">Define initial conditions</a><a id="Define-initial-conditions-1"></a><a class="docs-heading-anchor-permalink" href="#Define-initial-conditions" title="Permalink"></a></h2><p>Define a 2D grid.</p><pre><code class="language-julia hljs">resol = 128
+len = 10.0
+
+grids = Grids((len, len, len / resol), (resol, resol, 1));</code></pre><p>Add some solitons to the grid.  Strictly speaking, these aren&#39;t solitons in 2D, but they&#39;ll do for demonstration purposes.</p><pre><code class="language-julia hljs">mass = 10
+position_1 = [-len / 5, -len / 5, 0]
+position_2 = [-len / 5, +len / 5, 0]
+velocity = [1, 0, 0]
+phase_1 = 0
+phase_2 = π
+t0 = 0
+
+UltraDark.Initialise.add_fdm_soliton!(grids, mass, position_1, velocity, phase_1, t0)
+UltraDark.Initialise.add_fdm_soliton!(grids, mass, position_2, velocity, phase_2, t0)</code></pre><h2 id="Set-options"><a class="docs-heading-anchor" href="#Set-options">Set options</a><a id="Set-options-1"></a><a class="docs-heading-anchor-permalink" href="#Set-options" title="Permalink"></a></h2><pre><code class="language-julia hljs">output_dir = joinpath(mktempdir(), &quot;output&quot;, &quot;2D&quot;)
+
+output_times = 0:0.1:5
+output_config = OutputConfig(output_dir, output_times);
+
+options = Config.SimulationConfig();</code></pre><h2 id="Run-simulation"><a class="docs-heading-anchor" href="#Run-simulation">Run simulation</a><a id="Run-simulation-1"></a><a class="docs-heading-anchor-permalink" href="#Run-simulation" title="Permalink"></a></h2><pre><code class="language-julia hljs">@time simulate!(grids, options, output_config)</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">[ Info: Reached time 0.09999999999999998
+[ Info: Reached time 0.20000000000000004
+[ Info: Reached time 0.30000000000000004
+[ Info: Reached time 0.4
+[ Info: Reached time 0.5
+[ Info: Reached time 0.5999999999999999
+[ Info: Reached time 0.6999999999999997
+[ Info: Reached time 0.8000000000000002
+[ Info: Reached time 0.9
+[ Info: Reached time 0.9999999999999999
+[ Info: Reached time 1.1
+[ Info: Reached time 1.2000000000000002
+[ Info: Reached time 1.3000000000000003
+[ Info: Reached time 1.4000000000000004
+[ Info: Reached time 1.5000000000000004
+[ Info: Reached time 1.6000000000000005
+[ Info: Reached time 1.7000000000000006
+[ Info: Reached time 1.8000000000000007
+[ Info: Reached time 1.8999999999999997
+[ Info: Reached time 1.9999999999999998
+[ Info: Reached time 2.1000000000000014
+[ Info: Reached time 2.2
+[ Info: Reached time 2.2999999999999994
+[ Info: Reached time 2.400000000000001
+[ Info: Reached time 2.5
+[ Info: Reached time 2.6000000000000014
+[ Info: Reached time 2.7
+[ Info: Reached time 2.7999999999999994
+[ Info: Reached time 2.900000000000001
+[ Info: Reached time 3.0
+[ Info: Reached time 3.1000000000000014
+[ Info: Reached time 3.2
+[ Info: Reached time 3.2999999999999994
+[ Info: Reached time 3.400000000000001
+[ Info: Reached time 3.5
+[ Info: Reached time 3.6000000000000014
+[ Info: Reached time 3.7
+[ Info: Reached time 3.7999999999999994
+[ Info: Reached time 3.900000000000001
+[ Info: Reached time 4.0
+[ Info: Reached time 4.099999999999999
+[ Info: Reached time 4.200000000000002
+[ Info: Reached time 4.300000000000001
+[ Info: Reached time 4.3999999999999995
+[ Info: Reached time 4.500000000000003
+[ Info: Reached time 4.6
+[ Info: Reached time 4.700000000000002
+[ Info: Reached time 4.800000000000001
+[ Info: Reached time 4.8999999999999995
+[ Info: Reached time 5.000000000000003
+  1.558066 seconds (133.75 k allocations: 300.622 MiB, 1.96% gc time)</code></pre><h2 id="Plot-output"><a class="docs-heading-anchor" href="#Plot-output">Plot output</a><a id="Plot-output-1"></a><a class="docs-heading-anchor-permalink" href="#Plot-output" title="Permalink"></a></h2><pre><code class="language-julia hljs">summary = CSV.File(joinpath(output_config.directory, &quot;summary.csv&quot;));
+
+rho_last = npzread(&quot;$(output_config.directory)/rho_$(length(output_times)).npy&quot;);
+δ_lims = extrema(rho_last .- 1)
+
+fig_anim = Figure()
+ax_anim = Axis(fig_anim[1, 1], aspect = DataAspect())
+
+hidedecorations!(ax_anim)
+
+cb_density = Colorbar(fig_anim[1, 2], limits = δ_lims, label = L&quot;$\rho/\rho_{\text{crit}}$&quot;)
+
+frame = Observable(1)
+
+rho = lift(i -&gt; npzread(joinpath(output_config.directory, &quot;rho_$(i).npy&quot;))[:, :, 1], frame)
+δ = @lift($rho .- 1)
+
+contourf!(ax_anim, grids.x[:, 1, 1], grids.y[1, :, 1], δ, levels = range(-1, δ_lims[2], 10))
+
+record(fig_anim, &quot;2d.mkv&quot;, 1:length(output_times); framerate = 5) do f
+    frame[] = f
+end</code></pre><pre class="documenter-example-output"><code class="nohighlight hljs ansi">&quot;2d.mkv&quot;</code></pre><hr/><p><em>This page was generated using <a href="https://github.com/fredrikekre/Literate.jl">Literate.jl</a>.</em></p></article><nav class="docs-footer"><a class="docs-footer-prevpage" href="../soliton_velocity/">« PencilGrids</a><a class="docs-footer-nextpage" href="../../api/">API »</a><div class="flexbox-break"></div><p class="footer-message">Powered by <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> and the <a href="https://julialang.org/">Julia Programming Language</a>.</p></nav></div><div class="modal" id="documenter-settings"><div class="modal-background"></div><div class="modal-card"><header class="modal-card-head"><p class="modal-card-title">Settings</p><button class="delete"></button></header><section class="modal-card-body"><p><label class="label">Theme</label><div class="select"><select id="documenter-themepicker"><option value="auto">Automatic (OS)</option><option value="documenter-light">documenter-light</option><option value="documenter-dark">documenter-dark</option></select></div></p><hr/><p>This document was generated with <a href="https://github.com/JuliaDocs/Documenter.jl">Documenter.jl</a> version 1.4.0 on <span class="colophon-date" title="Tuesday 25 June 2024 19:25">Tuesday 25 June 2024</span>. Using Julia version 1.10.4.</p></section><footer class="modal-card-foot"></footer></div></div></div></body></html>
