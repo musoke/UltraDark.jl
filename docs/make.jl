@@ -62,4 +62,4 @@ makedocs(;
     plugins = [links, fallbacks],
 )
 
-deploydocs(; repo = "https://github.com/musoke/UltraDark.jl", devbranch = "main")
+deploydocs(; repo = "github.com/musoke/UltraDark.jl.git", devbranch = "main")
