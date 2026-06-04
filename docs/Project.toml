@@ -11,6 +11,7 @@ PencilFFTs = "4a48f351-57a6-4416-9ec4-c37015456aae"
 UltraDark = "1c8d022d-dfc0-4b41-80ab-3fc7e88cdfea"
 
 [compat]
+CairoMakie = "0.15.11"
 Documenter = "1"
 DocumenterInterLinks = "0.3"
 Literate = "2.18"
