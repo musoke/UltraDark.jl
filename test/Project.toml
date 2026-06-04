@@ -17,7 +17,7 @@ Unitful = "1986cc42-f94f-5a68-af5c-568840ba703d"
 
 [compat]
 Aqua = "0.6"
-CairoMakie = "0.10.8"
+CairoMakie = "0.15.11"
 Documenter = "0.27"
 NBInclude = "2.2"
 SafeTestsets = "0.0.1"
